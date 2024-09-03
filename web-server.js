@@ -3,7 +3,7 @@ const dgram = require('dgram');
 const http = require('http');
 
 //const TCP_PORT = 22023;
-const HTTP_PORT = 8080;
+const HTTP_PORT = 80;
 const UDP_PORT = 22023 //41064;
 const FORWARDING_IP = '192.168.68.111';
 
@@ -32,30 +32,30 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
     
     udpServer.bind(UDP_PORT, '0.0.0.0');
     
-//     const tcpServer = net.createServer((socket) => {
-//         console.log('TCP client connected:', socket.remoteAddress);
+    const tcpServer = net.createServer((socket) => {
+        console.log('TCP client connected:', socket.remoteAddress);
         
-//         socket.on('data', (data) => {
-//             console.log(`TCP Server received: ${data} from ${socket.remoteAddress}:${socket.remotePort}`);
+        socket.on('data', (data) => {
+            console.log(`TCP Server received: ${data} from ${socket.remoteAddress}:${socket.remotePort}`);
             
-//             udpServer.send(data, 0, data.length, UDP_PORT, FORWARDING_IP, (err) => {
-//                 console.log(`UDP WEB message sent to`)
-//                 if (err) console.error('UDP WEB send error:', err);
-//             });
-//         });
+            udpServer.send(data, 0, data.length, UDP_PORT, FORWARDING_IP, (err) => {
+                console.log(`UDP WEB message sent to`)
+                if (err) console.error('UDP WEB send error:', err);
+            });
+        });
         
-//     socket.on('end', () => {
-//         console.log('TCP client disconnected');
-//     });
+    socket.on('end', () => {
+        console.log('TCP client disconnected');
+    });
 
-//     socket.on('error', (err) => {
-//         console.error(`TCP Server error:\n${err.stack}`);
-//     });
-// });
+    socket.on('error', (err) => {
+        console.error(`TCP Server error:\n${err.stack}`);
+    });
+});
 
-// tcpServer.listen(TCP_PORT, () => {
-//     console.log(`TCP Server listening on port ${TCP_PORT}`);
-// });
+tcpServer.listen(TCP_PORT, () => {
+    console.log(`TCP Server listening on port ${TCP_PORT}`);
+});
 
 //TO KEEP RENDER HAPPY
 const httpServer = http.createServer((req, res) => {
