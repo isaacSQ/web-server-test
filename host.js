@@ -5,7 +5,7 @@ const SERVER_PORT = 22023;
 
 const host = dgram.createSocket('udp4');
 
-const message = Buffer.from('FH');
+const message = Buffer.from('IHOST');
 
 host.send(message, 0, message.length, SERVER_PORT, SERVER_HOST, (err) => {
     if (err) {
