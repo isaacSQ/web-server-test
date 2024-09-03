@@ -28,7 +28,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
         udpServer.close();
     });
     
-    udpServer.bind(UDP_PORT);
+    udpServer.bind(UDP_PORT, '0.0.0.0');
     
 //     const tcpServer = net.createServer((socket) => {
 //         console.log('TCP client connected:', socket.remoteAddress);
