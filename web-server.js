@@ -2,9 +2,9 @@ const net = require('net');
 const dgram = require('dgram');
 const http = require('http');
 
-const TCP_PORT = 22023;
+const TCP_PORT = 2023;
 const HTTP_PORT = 80;
-const UDP_PORT = 22023 //41064;
+const UDP_PORT = 22023; 
 const FORWARDING_IP = '192.168.68.111';
 
 const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
