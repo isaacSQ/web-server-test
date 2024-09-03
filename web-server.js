@@ -1,7 +1,9 @@
 const net = require('net');
 const dgram = require('dgram');
+const http = require('http');
 
 //const TCP_PORT = 22023;
+const HTTP_PORT = 8080;
 const UDP_PORT = 22023 //41064;
 const FORWARDING_IP = '192.168.68.111';
 
@@ -54,3 +56,13 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
 // tcpServer.listen(TCP_PORT, () => {
 //     console.log(`TCP Server listening on port ${TCP_PORT}`);
 // });
+
+//TO KEEP RENDER HAPPY
+const httpServer = http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('This is a dummy HTTP endpoint.\n');
+});
+
+httpServer.listen(HTTP_PORT, () => {
+    console.log(`HTTP Server listening on port ${HTTP_PORT}`);
+});
