@@ -1,11 +1,12 @@
 const net = require('net');
 const dgram = require('dgram');
-const http = require('http');
 
 const TCP_PORT = 2023;
-const HTTP_PORT = 80;
 const UDP_PORT = 22023; 
 const FORWARDING_IP = '192.168.68.111';
+
+let HOST_ADDR = null
+let HOST_PORT = null
 
 const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
 
@@ -15,6 +16,10 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
     });
     
     udpServer.on('message', (msg, rinfo) => {
+        if(msg === 'FH'){
+            HOST_ADDR = rinfo.address
+            HOST_PORT = rinfo.port
+        }
         console.log(`UDP WEB Server received: ${msg} from ${rinfo.address}:${rinfo.port}`);
 
         const response = Buffer.from('HOST')
@@ -55,14 +60,4 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
 
 tcpServer.listen(TCP_PORT, () => {
     console.log(`TCP Server listening on port ${TCP_PORT}`);
-});
-
-//TO KEEP RENDER HAPPY
-const httpServer = http.createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('This is a dummy HTTP endpoint.\n');
-});
-
-httpServer.listen(HTTP_PORT, () => {
-    console.log(`HTTP Server listening on port ${HTTP_PORT}`);
 });
