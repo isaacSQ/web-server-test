@@ -35,7 +35,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
             return
         }
 
-        const response = `{MSG:${msg},CA:${rinfo.address},CP:${rinfo.port}}`
+        const response = `{"MSG":"${msg}","CA":"${rinfo.address}","CP":${rinfo.port}}`
         console.log(JSON.parse(response), "obj")
         
         udpServer.send(response, 0, response.length, HOST_PORT, HOST_ADDR, (err) => {
