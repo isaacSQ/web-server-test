@@ -19,7 +19,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
 
         console.log(`UDP WEB Server received: -${msg}- from ${rinfo.address}:${rinfo.port}`, msg);
         
-        if(msg === 'IHOST'){
+        if(`${msg}` === 'IHOST'){
             console.log('IHOST')
             HOST_ADDR = rinfo.address,
             HOST_PORT = rinfo.port
