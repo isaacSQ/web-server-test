@@ -19,17 +19,17 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
 
         console.log(`UDP WEB Server received: -${msg}- from ${rinfo.address}:${rinfo.port}`);
 
-        
+
         
         if(`${msg}` === 'IHOST'){
             HOST_ADDR = rinfo.address,
             HOST_PORT = rinfo.port
 
-            const response = Buffer.from('HOST_SET');
-            udpServer.send(response, 0, response.length, HOST_PORT, HOST_ADDR, (err) => {
-                console.log(`UDP WEB message ${response} sent to ${HOST_ADDR}`);
-                if (err) console.error('UDP WEB send error:', err);
-            });
+            // const response = Buffer.from('HOST SET');
+            // udpServer.send(response, 0, response.length, HOST_PORT, HOST_ADDR, (err) => {
+            //     console.log(`UDP WEB message ${response} sent to ${HOST_ADDR}`);
+            //     if (err) console.error('UDP WEB send error:', err);
+            // });
         }
 
         if(rinfo.address === HOST_ADDR && rinfo.port === HOST_PORT) {

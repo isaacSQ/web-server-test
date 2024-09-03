@@ -20,6 +20,7 @@ host.send(message, 0, message.length, SERVER_PORT, SERVER_HOST, (err) => {
 });
 
 host.on('message', (response, rinfo) => {
+
     const data = JSON.parse(response)
     console.log(`Received response from server: ${response.toString()} from ${rinfo.address}:${rinfo.port}`);
     //host.close();
