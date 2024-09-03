@@ -2,7 +2,7 @@ const net = require('net');
 const dgram = require('dgram');
 const http = require('http');
 
-//const TCP_PORT = 22023;
+const TCP_PORT = 22023;
 const HTTP_PORT = 80;
 const UDP_PORT = 22023 //41064;
 const FORWARDING_IP = '192.168.68.111';
