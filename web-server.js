@@ -28,7 +28,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
 
 
             const response = Buffer.from('HOST SET');
-            udpServer.send(response, 0, response.length, HOST_ADDR, HOST_PORT, (err) => {
+            udpServer.send(response, 0, response.length, HOST_PORT, HOST_ADDR, (err) => {
                 console.log(`UDP WEB message ${response} sent to ${HOST_ADDR}`);
                 if (err) console.error('UDP WEB send error:', err);
             });
@@ -42,7 +42,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
         const response = {MSG: msg, CLIENT_ADDR: rinfo.address, CLIENT_PORT: rinfo.port}
 
         
-        udpServer.send(response, 0, response.length, HOST_ADDR, HOST_PORT, (err) => {
+        udpServer.send(response, 0, response.length, HOST_PORT, HOST_ADDR, (err) => {
             console.log(`UDP WEB message ${response} sent to ${HOST_ADDR}`);
             if (err) console.error('UDP WEB send error:', err);
         });
