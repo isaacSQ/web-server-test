@@ -5,7 +5,8 @@ const TCP_PORT = 2023;
 const UDP_PORT = 22023; 
 const FORWARDING_IP = '192.168.68.111';
 
-let host
+let HOST_ADDR = null
+let HOST_PORT = null
 
 const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
 
@@ -18,19 +19,18 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
 
         
         if(msg === 'IHOST'){
-            host = {
-                HOST_ADDR: rinfo.address,
-                HOST_PORT: rinfo.port
-            }
+            HOST_ADDR = rinfo.address,
+            HOST_PORT = rinfo.port
+
 
             const response = 'HOST SET';
-            udpServer.send(response, 0, response.length, host.HOST_ADDR, host.HOST_PORT, (err) => {
-                console.log(`UDP WEB message ${response} sent to ${host.HOST_ADDR}`);
+            udpServer.send(response, 0, response.length, HOST_ADDR, HOST_PORT, (err) => {
+                console.log(`UDP WEB message ${response} sent to ${HOST_ADDR}`);
                 if (err) console.error('UDP WEB send error:', err);
             });
         }
 
-        if(!host){
+        if(HOST_ADDR === null){
             console.log("NO HOST YET")
             return
         }
@@ -39,8 +39,8 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
 
         console.log(`UDP WEB Server received: ${msg} from ${rinfo.address}:${rinfo.port}`);
         
-        udpServer.send(response, 0, response.length, host.HOST_ADDR, host.HOST_PORT, (err) => {
-            console.log(`UDP WEB message ${response} sent to ${host.HOST_ADDR}`);
+        udpServer.send(response, 0, response.length, HOST_ADDR, HOST_PORT, (err) => {
+            console.log(`UDP WEB message ${response} sent to ${HOST_ADDR}`);
             if (err) console.error('UDP WEB send error:', err);
         });
     });
