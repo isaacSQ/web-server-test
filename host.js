@@ -5,7 +5,7 @@ const SERVER_PORT = 22023;
 
 const host = dgram.createSocket('udp4');
 
-const message = 'IHOST';
+const message = Buffer.from('IHOST');
 
 host.send(message, 0, message.length, SERVER_PORT, SERVER_HOST, (err) => {
     if (err) {
@@ -18,5 +18,5 @@ host.send(message, 0, message.length, SERVER_PORT, SERVER_HOST, (err) => {
 
 host.on('message', (response, rinfo) => {
     console.log(`Received response from server: ${response.toString()} from ${rinfo.address}:${rinfo.port}`);
-    host.close();
+    //host.close();
 });
