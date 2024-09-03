@@ -5,7 +5,7 @@ const TCP_PORT = 2023;
 const UDP_PORT = 22023; 
 const FORWARDING_IP = '192.168.68.111';
 
-let host = null
+let host
 
 const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
 
@@ -30,7 +30,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
             });
         }
 
-        if(host !== null){
+        if(!host){
             console.log("NO HOST YET")
             return
         }
