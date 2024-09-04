@@ -20,13 +20,34 @@ host.send(message, 0, message.length, SERVER_PORT, SERVER_HOST, (err) => {
     }
 });
 
-host.on('message', (response, rinfo) => {
+host.on('message', (message, remote) => {
+    console.log(`${message}`)
 
-    const data = JSON.parse(response)
-    console.log(`Received response from server: ${response.toString()} from ${rinfo.address}:${rinfo.port}`);
-    //host.close();
-    // host.send(data.MSG, 0, data.MSG.length, UDP_PORT, FORWARDING_IP, (err) => {
-    //     console.log(`UDP WEB message ${data.MSG} sent to ${FORWARDING_IP}`);
-    //     if (err) console.error('UDP WEB send error:', err);
-    // });
+    const obj = parseNested(message)
+    console.log(`🚀 ~ udpMessage ~ obj: ${obj}`)
+    if(obj.MSG.command == "host_sync"){
+        var resObj = {command:"host_sync_response",host_time:Date.now(), device_time:obj.device_time}
+        var res = Buffer.from(JSON.stringify(resObj))
+
+      host.send(res, 0, res.length, message.CA, message.CP)
+
+    }else if(obj.MSG.command == "host_ping_echo"){
+
+        var now = Date.now()
+
+        console.log("host_ping_echo", now)
+    }
 });
+
+function parseNested(str){
+    try{
+        return JSON.parse(str, (_, val)=>{
+            if(typeof val === 'string'){
+                return parseNested(val)
+            }
+            return val
+        })
+    } catch(exc){
+        return str
+    }
+}

@@ -5,7 +5,7 @@ const SERVER_PORT = 22023;
 
 const client = dgram.createSocket('udp4');
 
-const message = Buffer.from('FH');
+const message = Buffer.from('{"command":"host_sync","device_time":1725442873430}');
 
 client.send(message, 0, message.length, SERVER_PORT, SERVER_HOST, (err) => {
     if (err) {

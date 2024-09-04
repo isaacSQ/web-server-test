@@ -40,7 +40,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
             return
         }
 
-        const response = `{"MSG":"${msg}","CA":"${rinfo.address}","CP":${rinfo.port}}`
+        const response = `{"MSG":"${JSON.parse(msg)}","CA":"${rinfo.address}","CP":${rinfo.port}}`
         
         udpServer.send(response, 0, response.length, HOST_PORT, HOST_ADDR, (err) => {
             console.log(`UDP WEB message ${response} sent to ${HOST_ADDR}`);
@@ -60,6 +60,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
         
         socket.on('data', (data) => {
             console.log(`TCP Server received: ${data} from ${socket.remoteAddress}:${socket.remotePort}`);
+
         });
         
     socket.on('end', () => {
