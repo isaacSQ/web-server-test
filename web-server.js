@@ -7,6 +7,8 @@ const UDP_PORT = 22023;
 let HOST_ADDR = null
 let HOST_PORT = null
 
+//UDP SERVER
+
 const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
 
     udpServer.on('listening', () => {
@@ -55,12 +57,17 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
     });
     
     udpServer.bind(UDP_PORT, '0.0.0.0');
+
+    //TCP SERVER
     
-    const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
+const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
         console.log('TCP client connected:', socket.remoteAddress);
     
         socket.on('data', (data) => {
             console.log(`TCP Server received: ${data} from ${socket.remoteAddress}:${socket.remotePort}`);
+
+            console.log(HOST_PORT, socket.remotePort)
+
         });
     
         socket.on('error', (err) => {
@@ -100,36 +107,3 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
         }
     }
 
-// let tcpServer
-// mainServerCreateAndConfig()
-
-// function mainServerCreateAndConfig() {
-//     tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
-//       console.log("NEW DEVICE >> ", socket.remoteAddress)
-  
-//       serverCallback(socket)
-//     })
-  
-//     tcpServer.listen(2023)
-  
-//     tcpServer.on("error", (e) => {
-//       console.log("MAIN SERVER ERROR.. ", e.code)
-//     })
-//   }
-  
-//   function serverCallback(socket) {
-//     try {
-//       socket.write("vb.connect")
-//       console.log("-------------------- CONNECTION ISSUES CHECK vb.connect")
-  
-//     } catch (e) {
-//       console.log(
-//         "**** DISCONNECTION ******",
-//         e
-//       )
-  
-//       socket.end()
-//       socket.destroy()
-//       return
-//     }
-//   }
