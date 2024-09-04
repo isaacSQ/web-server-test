@@ -3,7 +3,8 @@ const net = require('net');
 const SERVER_ADDR = '3.10.221.34';
 const SERVER_PORT = 2023;
 
-const message = `{"command":"host_sync","device_time":${Date.now()}}`;
+//const message = `{"command":"host_sync","device_time":${Date.now()}}`;
+const message = "IHOST"
 
 
 const client = new net.Socket();

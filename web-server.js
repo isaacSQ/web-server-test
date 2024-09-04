@@ -69,6 +69,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
             console.log(`TCP Server received: ${data} from ${socket.remoteAddress}:${socket.remotePort}`);
 
             if(data == 'IHOST'){
+                console.log("HERE")
                 HOST_TCP_PORT = socket.remotePort
                 return
             }
