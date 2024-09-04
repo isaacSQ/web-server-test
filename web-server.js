@@ -45,7 +45,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
         }
 
 
-        const response = `{"MSG":${msg == "FH" ? `"${msg}"` : msg},"CA":"${rinfo.address}","CP":${rinfo.port}}`
+        const response = `{"MSG":${msg == "FH" ? `"${msg}"` : msg},"CP":${rinfo.port},"CA":"${rinfo.address}"}`
         
         udpServer.send(response, 0, response.length, HOST_UDP_PORT, HOST_ADDR, (err) => {
             console.log(`UDP message ${response} sent to ${HOST_ADDR}:${HOST_UDP_PORT}`);
@@ -83,8 +83,10 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 forwardHostTcpMsg(data)
                 return
             }
-            console.log(`IMPORTANT ${data.toString()[0]}`)
-            const resMsg = data
+
+            const res = `{"MSG":"${data}","CP":${socket.remotePort},"CA":"${socket.remoteAddress}"}`
+            forwardTcpToHost(res)
+
         });
     
         socket.on('error', (err) => {
@@ -135,6 +137,22 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
         client.connect(obj.CP, obj.CA, function(){
             client.write(message, (err) => {
                 console.log(`HOST MESSAGE ${msg} sent to ${obj.CA}:${obj.CP}`)
+                if(err){
+                    console.error('TCP send error:', err)
+                } 
+            })
+            client.destroy()
+        })
+    }
+
+
+    function forwardTcpToHost(res){
+        
+        const client = new net.Socket()
+
+        client.connect(HOST_TCP_PORT, HOST_ADDR, function(){
+            client.write(res, (err) => {
+                console.log(`Message ${res} sent to Host ${HOST_ADDR}:${HOST_TCP_PORT}`)
                 if(err){
                     console.error('TCP send error:', err)
                 } 
