@@ -26,8 +26,8 @@ host.on('message', (message, remote) => {
     const obj = JSON.parse(message)
     
     if(obj.MSG.command == "host_sync"){
-        var resObj = {command:"host_sync_response",host_time:Date.now(), device_time:obj.device_time}
-        var res = `{"MSG":${resObj},"CA":"${obj.CA}","CP":${obj.CP}}`
+        var resMsg = Buffer.from(`{"command":"host_sync_response","host_time":${Date.now()}, "device_time":${obj.MSG.device_time}}`)
+        var res = `{"MSG":${resMsg},"CA":"${obj.CA}","CP":${obj.CP}}`
 
         host.send(res, 0, res.length, SERVER_PORT, SERVER_ADDR)
 

@@ -35,7 +35,9 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
             const obj = JSON.parse(msg)
             console.log("🚀 ~ udpServer.on ~  obj:",  obj)
 
-            udpServer.send(obj.MSG, 0, obj.MSG.length, obj.CP, obj.CA, (err)=>{
+            const message = Buffer.from(JSON.stringify(obj.MSG))
+
+            udpServer.send(message, 0, message.length, obj.CP, obj.CA, (err)=>{
                 console.log(`HOST MESSAGE ${obj.MSG} sent to ${obj.CA}:${obj.CP}`)
                 if(err) console.error('UDP WEB send error:', err)
             })
