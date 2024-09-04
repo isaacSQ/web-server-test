@@ -56,28 +56,61 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
     
     udpServer.bind(UDP_PORT, '0.0.0.0');
     
-const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket){
-    console.log('TCP client connected:', socket.remoteAddress);
+// const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket){
+//     console.log('TCP client connected:', socket.remoteAddress);
     
-    socket.on('data', (data) => {
-        console.log(`TCP Server received: ${data} from ${socket.remoteAddress}:${socket.remotePort}`);
+//     socket.on('data', (data) => {
+//         console.log(`TCP Server received: ${data} from ${socket.remoteAddress}:${socket.remotePort}`);
 
-    });
+//     });
     
-    serverCallback(socket)
-});
+//     serverCallback(socket)
+// });
 
-tcpServer.listen(TCP_PORT, () => {
-    console.log(`TCP Server listening on port ${TCP_PORT}`);
-});
+// tcpServer.listen(TCP_PORT, () => {
+//     console.log(`TCP Server listening on port ${TCP_PORT}`);
+// });
 
-tcpServer.timeout = 0
+// tcpServer.timeout = 0
 
-tcpServer.on("error", (e)=>{
-    console.log(`TCP Server error: ${e}`)
-})
+// tcpServer.on("error", (e)=>{
+//     console.log(`TCP Server error: ${e}`)
+// })
 
 
+  
+//   function serverCallback(socket) {
+//     try {
+//       socket.write("vb.connect")
+//       console.log("-------------------- CONNECTION ISSUES CHECK vb.connect")
+  
+//     } catch (e) {
+//       console.log(
+//         "**** DISCONNECTION ******",
+//         e
+//       )
+  
+//       socket.end()
+//       socket.destroy()
+//       return
+//     }
+// }
+let tcpServer
+mainServerCreateAndConfig()
+
+function mainServerCreateAndConfig() {
+    tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
+      console.log("NEW DEVICE >> ", socket.remoteAddress)
+  
+      serverCallback(socket)
+    })
+  
+    tcpServer.listen(2023)
+  
+    tcpServer.on("error", (e) => {
+      console.log("MAIN SERVER ERROR.. ", e.code)
+    })
+  }
   
   function serverCallback(socket) {
     try {
@@ -94,4 +127,4 @@ tcpServer.on("error", (e)=>{
       socket.destroy()
       return
     }
-}
+  }
