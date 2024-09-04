@@ -27,8 +27,8 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
             return
         }
 
-        if(HOST_ADDR === null){
-            console.log("NO HOST YET")
+        if(HOST_ADDR === null || HOST_UDP_PORT === null){
+            console.log("NO HOST UDP YET")
             return
         }
 
