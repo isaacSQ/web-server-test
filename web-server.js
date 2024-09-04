@@ -95,7 +95,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
             console.log(`Client disconnected: ${socket.remoteAddress}`);
         });
     
-        //serverCallback(socket);
+        serverCallback(socket);
     });
 
     tcpServer.timeout = 0;
@@ -109,21 +109,21 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
         console.log(`TCP Server error: ${e.message}`);
     });
     
-    // function serverCallback(socket) {
-    //     try {
-    //         socket.write("vb.connect", (err) => {
-    //             if (err) {
-    //                 throw err;
-    //             }
-    //             console.log("-------------------- CONNECTION ISSUES CHECK vb.connect");
-    //         });
-    //     } catch (e) {
-    //         console.log("**** DISCONNECTION ******", e.message);
-    //         socket.end();
-    //         socket.destroy();
-    //         return;
-    //     }
-    // }
+    function serverCallback(socket) {
+        try {
+            socket.write("vb.connect", (err) => {
+                if (err) {
+                    throw err;
+                }
+                console.log("-------------------- CONNECTION ISSUES CHECK vb.connect");
+            });
+        } catch (e) {
+            console.log("**** DISCONNECTION ******", e.message);
+            socket.end();
+            socket.destroy();
+            return;
+        }
+    }
 
     function forwardHostTcpMsg(data){
         const obj = JSON.parse(data);
