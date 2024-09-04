@@ -2,12 +2,8 @@ const dgram = require('dgram');
 
 const SERVER_ADDR = '3.10.221.34'
 const SERVER_PORT = 22023;
-const UDP_PORT = 22023;
-const FORWARDING_IP = '192.168.68.111';
-
 
 const host = dgram.createSocket('udp4');
-
 
 const message = Buffer.from('IHOST');
 
@@ -27,7 +23,7 @@ host.on('message', (message, remote) => {
 
     if(obj.MSG == "FH"){
         const resMsg = Buffer.from('HOST')
-        const res = `{"MSG":${resMsg},"CA":"${obj.CA}","CP":${obj.CP}}`
+        const res = `{"MSG":"${resMsg}","CA":"${obj.CA}","CP":${obj.CP}}`
         host.send(res, 0, res.length, SERVER_PORT, SERVER_ADDR)
       }
 

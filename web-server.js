@@ -3,7 +3,6 @@ const dgram = require('dgram');
 
 const TCP_PORT = 2023;
 const UDP_PORT = 22023; 
-const FORWARDING_IP = '192.168.68.111';
 
 let HOST_ADDR = null
 let HOST_PORT = null
@@ -17,23 +16,16 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
     
     udpServer.on('message', (msg, rinfo) => {
 
-        console.log(`UDP WEB Server received: -${msg}- from ${rinfo.address}:${rinfo.port}`);
+        console.log(`UDP WEB Server received: ${msg} from ${rinfo.address}:${rinfo.port}`);
         
         if(`${msg}` === 'IHOST'){
             HOST_ADDR = rinfo.address,
             HOST_PORT = rinfo.port
             return
-            // const response = Buffer.from('HOST SET');
-            // udpServer.send(response, 0, response.length, HOST_PORT, HOST_ADDR, (err) => {
-            //     console.log(`UDP WEB message ${response} sent to ${HOST_ADDR}`);
-            //     if (err) console.error('UDP WEB send error:', err);
-            // });
         }
 
         if(rinfo.address === HOST_ADDR && rinfo.port === HOST_PORT) {
-            console.log(`HOST MESSAGE`)
             const obj = JSON.parse(msg)
-            console.log("🚀 ~ udpServer.on ~  obj:",  obj)
 
             const message = Buffer.from(JSON.stringify(obj.MSG))
 
@@ -49,16 +41,10 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
             return
         }
 
-        let resMsg = msg
-
-        if(resMsg == "FH"){
-            resMsg = "FH"
-        }
-
         const response = `{"MSG":${msg == "FH" ? `"${msg}"` : msg},"CA":"${rinfo.address}","CP":${rinfo.port}}`
         
         udpServer.send(response, 0, response.length, HOST_PORT, HOST_ADDR, (err) => {
-            console.log(`UDP WEB message ${response} sent to ${HOST_ADDR}`);
+            console.log(`UDP message ${response} sent to ${HOST_ADDR}:${HOST_PORT}`);
             if (err) console.error('UDP WEB send error:', err);
         });
     });
