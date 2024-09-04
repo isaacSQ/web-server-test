@@ -38,7 +38,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
             const message = Buffer.from(JSON.stringify(obj.MSG))
 
             udpServer.send(message, 0, message.length, obj.CP, obj.CA, (err)=>{
-                console.log(`HOST MESSAGE ${obj.MSG} sent to ${obj.CA}:${obj.CP}`)
+                console.log(`HOST MESSAGE ${message} sent to ${obj.CA}:${obj.CP}`)
                 if(err) console.error('UDP WEB send error:', err)
             })
             return
@@ -49,7 +49,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
             return
         }
 
-        console.log(`🚀 ~ udpServer.on ~ msg: ${JSON.stringify(msg.toString())}`, msg)
+        console.log(`🚀 ~ udpServer.on ~ msg: ${JSON.stringify(msg.toString())}`, JSON.parse(msg))
 
         const response = `{"MSG":${msg},"CA":"${rinfo.address}","CP":${rinfo.port}}`
         
