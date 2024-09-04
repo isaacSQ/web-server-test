@@ -23,7 +23,7 @@ host.send(message, 0, message.length, SERVER_PORT, SERVER_HOST, (err) => {
 host.on('message', (message, remote) => {
     console.log(`${message}`)
 
-    const obj = parseNested(message)
+    const obj = JSON.parse(message.toString())
     console.log(`🚀 ~ udpMessage ~ obj: ${obj}`)
     if(obj.MSG.command == "host_sync"){
         var resObj = {command:"host_sync_response",host_time:Date.now(), device_time:obj.device_time}
@@ -38,16 +38,3 @@ host.on('message', (message, remote) => {
         console.log("host_ping_echo", now)
     }
 });
-
-function parseNested(str){
-    try{
-        return JSON.parse(str, (_, val)=>{
-            if(typeof val === 'string'){
-                return parseNested(val)
-            }
-            return val
-        })
-    } catch(exc){
-        return str
-    }
-}
