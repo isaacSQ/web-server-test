@@ -83,7 +83,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 forwardHostTcpMsg(data)
                 return
             }
-            console.log(`IMPORTANT ${data[0]}`)
+            console.log(`IMPORTANT ${data.toString()[0]}`)
             const resMsg = data
         });
     
