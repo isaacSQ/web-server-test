@@ -151,9 +151,9 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
 
     function forwardTcpToClient(data){
         console.log("🚀 ~ forwardTcpToClient ~ data:", data.toString())
-        if (`${data}`.includes("vb.json(")) {
+        if (`${data}`.includes("sm.json(")) {
             try {
-              const commands = `${data}`.split("vb.json(").filter((command) =>  command.trim())
+              const commands = `${data}`.split("sm.json(").filter((command) =>  command.trim())
                 
             console.log("🚀 ~ forwardTcpToClient ~ commands:", commands)
               const objects = commands.map((command) => {
