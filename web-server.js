@@ -88,7 +88,6 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
             if(clients[`${socket.remoteAddress}:${socket.remotePort}`] === undefined){
                 clients[`${socket.remoteAddress}:${socket.remotePort}`] = socket
             }
-            console.log("🚀 ~ socket.on ~ clients:", clients)
             
             if(socket.remoteAddress === HOST_ADDR && socket.remotePort === HOST_TCP_PORT){
                 forwardTcpToClient(data)
