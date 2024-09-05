@@ -88,6 +88,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
             if(clients[`${socket.remoteAddress}:${socket.remotePort}`] === undefined){
                 clients[`${socket.remoteAddress}:${socket.remotePort}`] = socket
             }
+            console.log("🚀 ~ socket.on ~ clients:", clients)
             
             if(socket.remoteAddress === HOST_ADDR && socket.remotePort === HOST_TCP_PORT){
                 forwardTcpToClient(data)
@@ -117,8 +118,6 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 delete clients[`${socket.remoteAddress}:${socket.remotePort}`]
               }
         });
-    
-        serverCallback(socket);
     });
 
     tcpServer.timeout = 0;
@@ -131,22 +130,6 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
     tcpServer.on("error", (e) => {
         console.log(`TCP Server error: ${e.message}`);
     });
-    
-    function serverCallback(socket) {
-        try {
-            socket.write("vb.connect", (err) => {
-                if (err) {
-                    throw err;
-                }
-                console.log("-------------------- CONNECTION ISSUES CHECK vb.connect");
-            });
-        } catch (e) {
-            console.log("**** DISCONNECTION ******", e.message);
-            socket.end();
-            socket.destroy();
-            return;
-        }
-    }
 
     function forwardTcpToClient(data){
         if (`${data}`.includes("sm.json(")) {
