@@ -23,7 +23,6 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
     
     udpServer.on('message', (msg, rinfo) => {
 
-        console.log(`UDP WEB Server received: ${msg} from ${rinfo.address}:${rinfo.port}`);
         
         if(msg == 'IHOST'){
             HOST_ADDR = rinfo.address,
@@ -32,7 +31,6 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
         }
 
         if(HOST_ADDR === null || HOST_UDP_PORT === null){
-            console.log("NO HOST UDP YET")
             return
         }
 
@@ -40,13 +38,12 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
             const obj = JSON.parse(msg)
 
             let message = obj.MSG
-            console.log("🚀 ~ udpServer.on ~ obj.MSG:", typeof obj.MSG, obj.MSG)
 
             if(typeof obj.MSG === 'object'){
                 message = JSON.stringify(obj.MSG)
             }
 
-            console.log("🚀 ~ udpServer.on ~ message:", message)
+            console.log('sending to:', obj.CA, obj.CP)
 
             udpServer.send(message, 0, message.length, obj.CP, obj.CA, (err)=>{
                 //console.log(`HOST MESSAGE ${message} sent to ${obj.CA}:${obj.CP}`)
