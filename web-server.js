@@ -165,9 +165,9 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 }
       
                 const convertedJson = JSON.parse(jsonString)
-                console.log("🚀 ~ objects ~ convertedJson:", convertedJson)
       
                 convertedJson.MSG = Buffer.from(convertedJson.MSG, "base64").toString("utf-8")
+                console.log("🚀 ~ objects ~ convertedJson.MSG:", convertedJson.MSG)
       
                 clients[`${convertedJson.CA}:${convertedJson.CP}`].write(convertedJson.MSG)
       
