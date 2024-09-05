@@ -22,6 +22,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
     });
     
     udpServer.on('message', (msg, rinfo) => {
+    console.log("🚀 ~ udpServer.on ~ msg:", msg)
 
         console.log(`UDP WEB Server received: ${msg} from ${rinfo.address}:${rinfo.port}`);
         
@@ -70,7 +71,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
         console.log('TCP client connected:', socket.remoteAddress, socket.remotePort);
     
         socket.on('data', (data) => {
-            console.log(`TCP Server received: ${data} from ${socket.remoteAddress}:${socket.remotePort}`);
+            //console.log(`TCP Server received: ${data} from ${socket.remoteAddress}:${socket.remotePort}`);
 
             if(data == 'IHOST'){
                 HOST_ADDR = socket.remoteAddress
@@ -80,13 +81,13 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
             }
 
             if(HOST_TCP_SOCKET === null){
-                console.log("NO HOST TCP YET")
+                //console.log("NO HOST TCP YET")
                 socket.destroy()
                 return
             }
 
             if(clients[`${socket.remoteAddress}:${socket.remotePort}`] === undefined){
-                console.log("ADDING CLIENT", `${socket.remoteAddress}:${socket.remotePort}`)
+                //console.log("ADDING CLIENT", `${socket.remoteAddress}:${socket.remotePort}`)
                 clients[`${socket.remoteAddress}:${socket.remotePort}`] = socket
             }
             
@@ -98,7 +99,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
 
             const res = `{"MSG":"${data}","CP":${socket.remotePort},"CA":"${socket.remoteAddress}"}`
             try{
-                console.log("Write to host tcp", res)
+                //console.log("Write to host tcp", res)
                 HOST_TCP_SOCKET.write(res)
             } catch(e) {
                 console.log("HOST DEAD, CLEARING")
@@ -112,7 +113,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
         });
     
         socket.on('end', () => {
-            console.log(`Client disconnected: ${socket.remoteAddress}`);
+            //console.log(`Client disconnected: ${socket.remoteAddress}`);
             if (socket.remoteAddress == HOST_ADDR && socket.remotePort == HOST_TCP_PORT) {
                 kickAndClearServers()
               } else {
