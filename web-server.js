@@ -8,6 +8,10 @@ let HOST_ADDR = null
 let HOST_UDP_PORT = null
 let HOST_TCP_PORT = null
 
+let HOST_TCP_SOCKET = null
+
+const clients = {}
+
 //UDP SERVER
 
 const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
@@ -60,10 +64,10 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
     
     udpServer.bind(UDP_PORT, '0.0.0.0');
 
-    //TCP SERVER
+    //---------------------------------------TCP SERVER----------------------------------------------------------------
     
 const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
-        console.log('TCP client connected:', socket.remoteAddress);
+        console.log('TCP client connected:', socket.remoteAddress, socket.remotePort);
     
         socket.on('data', (data) => {
             console.log(`TCP Server received: ${data} from ${socket.remoteAddress}:${socket.remotePort}`);
@@ -71,16 +75,19 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
             if(data == 'IHOST'){
                 HOST_ADDR = socket.remoteAddress
                 HOST_TCP_PORT = socket.remotePort
+                HOST_TCP_SOCKET = socket
                 return
             }
 
-            if(HOST_ADDR === null || HOST_TCP_PORT === null){
+            if(HOST_TCP_SOCKET === null){
                 console.log("NO HOST TCP YET")
                 return
             }
             
-            if(socket.remoteAddress === HOST_ADDR && socket.remotePort === HOST_TCP_PORT){
-                forwardHostTcpMsg(data)
+            console.log("🚀 ~ socket.on ~ socket == HOST_TCP_SOCKET:", socket == HOST_TCP_SOCKET, socket, HOST_TCP_SOCKET)
+            if(socket == HOST_TCP_SOCKET){
+                forwardTcpToClient(data)
+                console.log("forward host tcp message to client")
                 return
             }
 
@@ -127,7 +134,10 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
         }
     }
 
-    function forwardHostTcpMsg(data){
+    function forwardTcpToClient(data){
+
+        clients[`${obj.CA}:${obj.CP}`]
+
         const obj = JSON.parse(data);
 
         const message = Buffer.from(JSON.stringify(obj.MSG))
@@ -136,7 +146,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
 
         client.connect(obj.CP, obj.CA, function(){
             client.write(message, (err) => {
-                console.log(`HOST MESSAGE ${msg} sent to ${obj.CA}:${obj.CP}`)
+                console.log(`🚀HOST MESSAGE ${msg} sent to ${obj.CA}:${obj.CP}`)
                 if(err){
                     console.error('TCP send error:', err)
                 } 
@@ -152,8 +162,9 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
 
         client.connect(HOST_TCP_PORT, HOST_ADDR, function(){
             client.write(res, (err) => {
-                console.log(`Message ${res} sent to Host ${HOST_ADDR}:${HOST_TCP_PORT}`)
+                console.log(`🚀Message ${res} sent to Host ${HOST_ADDR}:${HOST_TCP_PORT}`)
                 if(err){
+                    console.log("🚀 ~ client.write ~ err:", err)
                     console.error('TCP send error:', err)
                 } 
             })
