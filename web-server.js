@@ -171,6 +171,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
       
                 clients[`${convertedJson.CA}:${convertedJson.CP}`].write(convertedJson.MSG)
       
+                console.log("🚀 ~ objects ~ clients[`${convertedJson.CA}:${convertedJson.CP}`]:", clients[`${convertedJson.CA}:${convertedJson.CP}`])
                 return convertedJson
               })
       
