@@ -81,27 +81,41 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
 
             if(HOST_TCP_SOCKET === null){
                 console.log("NO HOST TCP YET")
+                socket.destroy()
                 return
             }
+
+            if(clients[`${socket.remoteAddress}:${socket.remotePort}`] === undefined){
+                clients[`${socket.remoteAddress}:${socket.remotePort}`] = socket
+            }
             
-            console.log("🚀 ~ socket.on ~ socket == HOST_TCP_SOCKET:", socket == HOST_TCP_SOCKET, socket, HOST_TCP_SOCKET)
-            if(socket == HOST_TCP_SOCKET){
+            if(socket.remoteAddress === HOST_ADDR && socket.remotePort === HOST_TCP_PORT){
                 forwardTcpToClient(data)
                 console.log("forward host tcp message to client")
                 return
             }
 
             const res = `{"MSG":"${data}","CP":${socket.remotePort},"CA":"${socket.remoteAddress}"}`
-            forwardTcpToHost(res)
+            try{
+                HOST_TCP_SOCKET.write(res)
+            } catch(e) {
+                console.log("HOST DEAD, CLEARING")
+                kickAndClearServers()
+            }
 
         });
     
         socket.on('error', (err) => {
-            console.error(`Socket error: ${err.message}`);
+            console.error(`Socket error: ${err.stack}`);
         });
     
         socket.on('end', () => {
             console.log(`Client disconnected: ${socket.remoteAddress}`);
+            if (socket.remoteAddress == HOST_IP && socket.remotePort == HOST_PORT) {
+                kickAndClearServers()
+              } else {
+                delete clients[`${socket.remoteAddress}:${socket.remotePort}`]
+              }
         });
     
         serverCallback(socket);
@@ -135,40 +149,45 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
     }
 
     function forwardTcpToClient(data){
-
-        clients[`${obj.CA}:${obj.CP}`]
-
-        const obj = JSON.parse(data);
-
-        const message = Buffer.from(JSON.stringify(obj.MSG))
-        
-        const client = new net.Socket()
-
-        client.connect(obj.CP, obj.CA, function(){
-            client.write(message, (err) => {
-                console.log(`🚀HOST MESSAGE ${msg} sent to ${obj.CA}:${obj.CP}`)
-                if(err){
-                    console.error('TCP send error:', err)
-                } 
-            })
-            client.destroy()
-        })
+        if (`${data}`.includes("sm.json(")) {
+            try {
+              const commands = `${data}`.split("sm.json(").filter((command) =>  command.trim())
+                
+            console.log("🚀 ~ forwardTcpToClient ~ commands:", commands)
+              const objects = commands.map((command) => {
+                const jsonString = command.slice(0, -1)
+                console.log("🚀 ~ objects ~ jsonString:", jsonString)
+      
+                if (jsonString == undefined) {
+                  return
+                }
+      
+                const convertedJson = JSON.parse(jsonString)
+                console.log("🚀 ~ objects ~ convertedJson:", convertedJson)
+      
+                convertedJson.MSG = Buffer.from(convertedJson.MSG, "base64").toString("utf-8")
+      
+                clients[`${convertedJson.CA}:${convertedJson.CP}`].write(convertedJson.MSG)
+      
+                return convertedJson
+              })
+      
+              console.log("🚀 ~ forwardTcpToClient ~ objects:", objects)
+            } catch (err) {
+              console.error(err)
+            }
+          }
     }
 
-
-    function forwardTcpToHost(res){
+    function kickAndClearServers() {
+        console.log("HOST DISCONNECTED, CLEARING")
+        HOST_IP = null
+        HOST_PORT = null
+        HOST_SOCKET = null
+        for (const client in clients) {
+          clients[client].destroy()
+        }
+        clients = {}
+      }
         
-        const client = new net.Socket()
-
-        client.connect(HOST_TCP_PORT, HOST_ADDR, function(){
-            client.write(res, (err) => {
-                console.log(`🚀Message ${res} sent to Host ${HOST_ADDR}:${HOST_TCP_PORT}`)
-                if(err){
-                    console.log("🚀 ~ client.write ~ err:", err)
-                    console.error('TCP send error:', err)
-                } 
-            })
-            client.destroy()
-        })
-    }
 
