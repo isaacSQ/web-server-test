@@ -42,7 +42,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
             const message = Buffer.from(JSON.stringify(obj.MSG))
 
             udpServer.send(message, 0, message.length, obj.CP, obj.CA, (err)=>{
-                console.log(`HOST MESSAGE ${message} sent to ${obj.CA}:${obj.CP}`)
+                //console.log(`HOST MESSAGE ${message} sent to ${obj.CA}:${obj.CP}`)
                 if(err) console.error('UDP WEB send error:', err)
             })
             return
@@ -92,7 +92,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
             
             if(socket.remoteAddress === HOST_ADDR && socket.remotePort === HOST_TCP_PORT){
                 forwardTcpToClient(data)
-                console.log("forward host tcp message to client")
+                //console.log("forward host tcp message to client")
                 return
             }
 
@@ -156,7 +156,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
             try {
               const commands = `${data}`.split("sm.json(").filter((command) =>  command.trim())
                 
-            console.log("🚀 ~ forwardTcpToClient ~ commands:", commands)
+            //console.log("🚀 ~ forwardTcpToClient ~ commands:", commands)
               const objects = commands.map((command) => {
                 const jsonString = command.slice(0, -1)
       
@@ -167,7 +167,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 const convertedJson = JSON.parse(jsonString)
       
                 convertedJson.MSG = Buffer.from(convertedJson.MSG, "base64").toString("utf-8")
-                console.log("🚀 ~ objects ~ convertedJson.MSG:", convertedJson.MSG)
+                //console.log("🚀 ~ objects ~ convertedJson.MSG:", convertedJson.MSG)
       
                 clients[`${convertedJson.CA}:${convertedJson.CP}`].write(convertedJson.MSG)
       
