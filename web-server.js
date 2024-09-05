@@ -111,7 +111,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
     
         socket.on('end', () => {
             console.log(`Client disconnected: ${socket.remoteAddress}`);
-            if (socket.remoteAddress == HOST_IP && socket.remotePort == HOST_PORT) {
+            if (socket.remoteAddress == HOST_ADDR && socket.remotePort == HOST_TCP_PORT) {
                 kickAndClearServers()
               } else {
                 delete clients[`${socket.remoteAddress}:${socket.remotePort}`]
@@ -181,9 +181,9 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
 
     function kickAndClearServers() {
         console.log("HOST DISCONNECTED, CLEARING")
-        HOST_IP = null
-        HOST_PORT = null
-        HOST_SOCKET = null
+        HOST_ADDR = null
+        HOST_TCP_PORT = null
+        HOST_TCP_SOCKET = null
         for (const client in clients) {
           clients[client].destroy()
         }
