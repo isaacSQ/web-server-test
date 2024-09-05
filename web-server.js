@@ -10,7 +10,7 @@ let HOST_TCP_PORT = null
 
 let HOST_TCP_SOCKET = null
 
-const clients = {}
+let clients = {}
 
 //UDP SERVER
 
