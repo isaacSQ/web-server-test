@@ -98,6 +98,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
 
             const res = `{"MSG":"${data}","CP":${socket.remotePort},"CA":"${socket.remoteAddress}"}`
             try{
+                console.log("Write to host tcp", res)
                 HOST_TCP_SOCKET.write(res)
             } catch(e) {
                 console.log("HOST DEAD, CLEARING")
@@ -158,7 +159,6 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
             console.log("🚀 ~ forwardTcpToClient ~ commands:", commands)
               const objects = commands.map((command) => {
                 const jsonString = command.slice(0, -1)
-                console.log("🚀 ~ objects ~ jsonString:", jsonString)
       
                 if (jsonString == undefined) {
                   return
@@ -171,7 +171,6 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
       
                 clients[`${convertedJson.CA}:${convertedJson.CP}`].write(convertedJson.MSG)
       
-                console.log("🚀 ~ objects ~ clients[`${convertedJson.CA}:${convertedJson.CP}`]:", clients[`${convertedJson.CA}:${convertedJson.CP}`])
                 return convertedJson
               })
       
