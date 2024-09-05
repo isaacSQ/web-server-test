@@ -86,6 +86,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
             }
 
             if(clients[`${socket.remoteAddress}:${socket.remotePort}`] === undefined){
+                console.log("ADDING CLIENT", `${socket.remoteAddress}:${socket.remotePort}`)
                 clients[`${socket.remoteAddress}:${socket.remotePort}`] = socket
             }
             
