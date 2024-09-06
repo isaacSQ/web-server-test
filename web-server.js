@@ -53,7 +53,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
 
             const obj = JSON.parse(msg)
 
-            console.log(`sending ${msg} to:`, obj.CA, obj.CP)
+            //console.log(`sending ${msg} to:`, obj.CA, obj.CP)
 
             let message = obj.MSG
             //console.log("🚀 ~ udpServer.on ~ obj.MSG:", obj.MSG)
@@ -143,6 +143,10 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
             }
 
         });
+
+        socket.on("timeout", ()=>{
+            console.log("TIMEOUT")
+        })
     
         socket.on('error', (err) => {
             console.error(`Socket error: ${err.stack}`);
