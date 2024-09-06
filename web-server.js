@@ -46,6 +46,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
 
         if(HOST_ADDR === null || HOST_UDP_PORT === null){
             console.log("NO HOST UDP YET")
+            kickAndClearUdpServers()
             return
         }
 
@@ -90,9 +91,17 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
     udpServer.on('error', (err) => {
         console.error(`UDP WEB Server error:\n${err.stack}`);
         udpServer.close();
+        kickAndClearUdpServers()
     });
     
     udpServer.bind(UDP_PORT, '0.0.0.0');
+
+    function kickAndClearUdpServers() {
+        console.log("HOST DISCONNECTED, CLEARING UDP")
+        HOST_ADDR = null
+        HOST_UDP_PORT = null
+        UdpClients.clear()
+      }
 
     //---------------------------------------TCP SERVER----------------------------------------------------------------
     
