@@ -46,24 +46,24 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
             HOST_ADDR = rinfo.address
             HOST_UDP_PORT = rinfo.port
 
-            proxy = httpProxy.createProxyServer({
-                target: 'http://' + HOST_ADDR + ':2024', 
-                changeOrigin: true,
-                });
+    //         proxy = httpProxy.createProxyServer({
+    //             target: 'http://' + HOST_ADDR + ':2024', 
+    //             changeOrigin: true,
+    //             });
 
-                webServer = http.createServer((req, res) => {
-    proxy.web(req, res, (err) => {
-        if (err) {
-            console.error('Error with proxy: ', err);
-        res.writeHead(500, { 'Content-Type': 'text/plain' });
-        res.end('Proxy error: ' + err.message);
-        }
-    });
+    //             webServer = http.createServer((req, res) => {
+    // proxy.web(req, res, (err) => {
+    //     if (err) {
+    //         console.error('Error with proxy: ', err);
+    //     res.writeHead(500, { 'Content-Type': 'text/plain' });
+    //     res.end('Proxy error: ' + err.message);
+    //     }
+    //});
 
-    webServer.listen(2024, () => {
-        console.log('Proxy server is running on http://aws-server-ip:8080');
-        });
-    });
+    // webServer.listen(2024, () => {
+    //     console.log('Proxy server is running on http://aws-server-ip:8080');
+    //     });
+    // });
             return
         }
 
