@@ -122,7 +122,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 return
             }
 
-            if(tcpClients[`${socket.remoteAddress}:${socket.remotePort}`] === undefined){
+            if(tcpClients[`${socket.remoteAddress}:${socket.remotePort}`] === undefined && !(socket.remoteAddress === HOST_ADDR && socket.remotePort === HOST_TCP_PORT)){
                 //console.log("ADDING CLIENT", `${socket.remoteAddress}:${socket.remotePort}`)
                 tcpClients[`${socket.remoteAddress}:${socket.remotePort}`] = socket
             }
