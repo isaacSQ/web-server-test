@@ -10,7 +10,10 @@ let HOST_TCP_PORT = null
 
 let HOST_TCP_SOCKET = null
 
-let clients = {}
+
+let tcpClients = {}
+let udpClients = new Map()
+
 
 //UDP SERVER
 
@@ -22,6 +25,9 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
     });
     
     udpServer.on('message', (msg, rinfo) => {
+    console.log("🚀 ~ udpServer.on ~ rinfo:", rinfo)
+
+        const clientId = `${rinfo.address}:${rinfo.port}`
 
        //console.log(`UDP WEB Server received: ${msg} from ${rinfo.address}:${rinfo.port}`);
         
@@ -37,6 +43,10 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
         }
 
         if(rinfo.address === HOST_ADDR && rinfo.port === HOST_UDP_PORT) {
+            if(msg == 'PING'){
+
+            }
+
             const obj = JSON.parse(msg)
 
             console.log(`sending ${msg} to:`, obj.CA, obj.CP)
@@ -56,9 +66,6 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
             })
             return
         }
-
-        console.log()
-
 
         const response = `{"MSG":${msg == "FH" ? `"${msg}"` : msg},"CP":${rinfo.port},"CA":"${rinfo.address}"}`
         
@@ -96,9 +103,9 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 return
             }
 
-            if(clients[`${socket.remoteAddress}:${socket.remotePort}`] === undefined){
+            if(tcpClients[`${socket.remoteAddress}:${socket.remotePort}`] === undefined){
                 //console.log("ADDING CLIENT", `${socket.remoteAddress}:${socket.remotePort}`)
-                clients[`${socket.remoteAddress}:${socket.remotePort}`] = socket
+                tcpClients[`${socket.remoteAddress}:${socket.remotePort}`] = socket
             }
             
             if(socket.remoteAddress === HOST_ADDR && socket.remotePort === HOST_TCP_PORT){
@@ -127,7 +134,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
             if (socket.remoteAddress == HOST_ADDR && socket.remotePort == HOST_TCP_PORT) {
                 kickAndClearServers()
               } else {
-                delete clients[`${socket.remoteAddress}:${socket.remotePort}`]
+                delete tcpClients[`${socket.remoteAddress}:${socket.remotePort}`]
               }
         });
     
@@ -180,7 +187,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 convertedJson.MSG = Buffer.from(convertedJson.MSG, "base64").toString("utf-8")
                 console.log("🚀 ~ objects ~ convertedJson.MSG:", convertedJson.MSG)
       
-                clients[`${convertedJson.CA}:${convertedJson.CP}`].write(convertedJson.MSG)
+                tcpClients[`${convertedJson.CA}:${convertedJson.CP}`].write(convertedJson.MSG)
       
                 return convertedJson
               })
@@ -197,10 +204,10 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
         HOST_ADDR = null
         HOST_TCP_PORT = null
         HOST_TCP_SOCKET = null
-        for (const client in clients) {
-          clients[client].destroy()
+        for (const client in tcpClients) {
+          tcpClients[client].destroy()
         }
-        clients = {}
+        tcpClients = {}
       }
         
 
