@@ -51,7 +51,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
 
         if(rinfo.address === HOST_ADDR && rinfo.port === HOST_UDP_PORT) {
             if(msg == 'PING'){
-                udpClients.forEach((client)=>{
+                UdpClients.forEach((client)=>{
                     console.log("HERE", client)
                 })
             }
