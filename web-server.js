@@ -28,7 +28,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
 
         const clientId = `${rinfo.address}:${rinfo.port}`
 
-       //console.log(`UDP WEB Server received: ${msg} from ${rinfo.address}:${rinfo.port}`);
+       console.log(`UDP WEB Server received: ${msg} from ${rinfo.address}:${rinfo.port}`);
         
         if(msg == 'IHOST'){
             HOST_ADDR = rinfo.address
@@ -45,7 +45,6 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
         if(rinfo.address === HOST_ADDR && rinfo.port === HOST_UDP_PORT) {
             if(msg == 'PING'){
                 UdpClients.forEach((client)=>{
-                    console.log("HERE", client)
                     const hostPingOut = Buffer.from(JSON.stringify({command:"host_ping_out"}))
                     udpServer.send(hostPingOut, 0, hostPingOut.length, client.port, client.address)
                 })
@@ -206,7 +205,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 convertedJson.MSG = Buffer.from(convertedJson.MSG, "base64").toString("utf-8")
                 console.log("🚀 ~ objects ~ convertedJson.MSG:", convertedJson.MSG)
       
-                tcpClients[`${convertedJson.CA}:${convertedJson.CP}`].write(convertedJson.MSG)
+                tcpClients[`${convertedJson.CA}:${convertedJson.CP}`]?.write(convertedJson.MSG)
       
                 return convertedJson
               })
