@@ -57,6 +57,8 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
             return
         }
 
+        console.log()
+
 
         const response = `{"MSG":${msg == "FH" ? `"${msg}"` : msg},"CP":${rinfo.port},"CA":"${rinfo.address}"}`
         
@@ -72,6 +74,13 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
     });
     
     udpServer.bind(UDP_PORT, '0.0.0.0');
+
+    function kickAndClearServers() {
+        console.log("HOST DISCONNECTED, CLEARING")
+        HOST_ADDR = null
+        HOST_UDP_PORT = null
+        udpServer.close()
+      }
 
     //---------------------------------------TCP SERVER----------------------------------------------------------------
     
