@@ -12,7 +12,7 @@ let HOST_TCP_SOCKET = null
 
 
 let tcpClients = {}
-let udpClients = new Map()
+let UdpClients = new Map()
 
 
 //UDP SERVER
@@ -28,9 +28,13 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
 
         const clientId = `${rinfo.address}:${rinfo.port}`
 
-        udpClients.set(clientId, rinfo)
+        if (!UdpClients.has(clientId)) {
+            console.log(`New client connected: ${clientId}`);
+          }
 
-        console.log("🚀 ~ udpServer.on ~ udpClients:", udpClients)
+        UdpClients.set(clientId, rinfo)
+
+        console.log("🚀 ~ udpServer.on ~ udpClients:", UdpClients)
 
        //console.log(`UDP WEB Server received: ${msg} from ${rinfo.address}:${rinfo.port}`);
         
@@ -47,7 +51,9 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
 
         if(rinfo.address === HOST_ADDR && rinfo.port === HOST_UDP_PORT) {
             if(msg == 'PING'){
-
+                udpClients.forEach((client)=>{
+                    console.log("HERE", client)
+                })
             }
 
             const obj = JSON.parse(msg)
