@@ -53,7 +53,10 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
             if(msg == 'PING'){
                 UdpClients.forEach((client)=>{
                     console.log("HERE", client)
+                    const hostPingOut = Buffer.from(JSON.stringify({command:"host_ping_out"}))
+                    udpServer.send(hostPingOut, 0, hostPingOut.length, client.port, client.address)
                 })
+                return
             }
 
             const obj = JSON.parse(msg)
