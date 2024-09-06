@@ -149,7 +149,8 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
     
         socket.on('end', () => {
             //console.log(`Client disconnected: ${socket.remoteAddress}`);
-            if (socket.remoteAddress == HOST_ADDR && socket.remotePort == HOST_TCP_PORT) {
+            if (socket.remoteAddress === HOST_ADDR && socket.remotePort === HOST_TCP_PORT) {
+                console.log("🚀 ~ socket.on ~ socket.remoteAddress:", socket.remoteAddress, socket.remotePort)
                 console.log("\n\nHERE")
                 kickAndClearServers()
               } else {
