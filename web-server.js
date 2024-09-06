@@ -40,7 +40,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
         if(rinfo.address === HOST_ADDR && rinfo.port === HOST_UDP_PORT) {
             const obj = JSON.parse(msg)
 
-            console.log("sending to:", obj.CA, obj.CP)
+            console.log(`sending ${msg} to:`, obj.CA, obj.CP)
 
             let message = obj.MSG
             //console.log("🚀 ~ udpServer.on ~ obj.MSG:", obj.MSG)
