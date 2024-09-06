@@ -106,12 +106,13 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
         console.log('TCP client connected:', socket.remoteAddress, socket.remotePort);
     
         socket.on('data', (data) => {
-            //console.log(`TCP Server received: ${data} from ${socket.remoteAddress}:${socket.remotePort}`);
+            console.log(`TCP Server received: ${data} from ${socket.remoteAddress}:${socket.remotePort}`);
 
             if(data == 'IHOST'){
                 HOST_ADDR = socket.remoteAddress
                 HOST_TCP_PORT = socket.remotePort
                 HOST_TCP_SOCKET = socket
+                console.log("TCP HOST", HOST_TCP_PORT, HOST_ADDR)
                 return
             }
 
