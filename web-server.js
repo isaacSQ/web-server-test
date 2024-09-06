@@ -156,6 +156,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 //kickAndClearServers()
               //} else {
                 delete tcpClients[`${socket.remoteAddress}:${socket.remotePort}`]
+                console.log("HERE HERE ------------>", tcpClients)
               //}
         });
     
