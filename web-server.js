@@ -88,7 +88,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
     udpServer.on('error', (err) => {
         console.error(`UDP WEB Server error:\n${err.stack}`);
         udpServer.close();
-        kickAndClearUdpServers()
+        //kickAndClearUdpServers()
     });
     
     udpServer.bind(UDP_PORT, '0.0.0.0');
@@ -150,6 +150,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
         socket.on('end', () => {
             //console.log(`Client disconnected: ${socket.remoteAddress}`);
             if (socket.remoteAddress == HOST_ADDR && socket.remotePort == HOST_TCP_PORT) {
+                console.log("\n\nHERE")
                 kickAndClearServers()
               } else {
                 delete tcpClients[`${socket.remoteAddress}:${socket.remotePort}`]
