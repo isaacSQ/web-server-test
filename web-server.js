@@ -25,9 +25,12 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
     });
     
     udpServer.on('message', (msg, rinfo) => {
-    console.log("🚀 ~ udpServer.on ~ rinfo:", rinfo)
 
         const clientId = `${rinfo.address}:${rinfo.port}`
+
+        udpClients.set(clientId, rinfo)
+
+        console.log("🚀 ~ udpServer.on ~ udpClients:", udpClients)
 
        //console.log(`UDP WEB Server received: ${msg} from ${rinfo.address}:${rinfo.port}`);
         
