@@ -103,7 +103,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
     //---------------------------------------TCP SERVER----------------------------------------------------------------
     
 const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
-        //console.log('TCP client connected:', socket.remoteAddress, socket.remotePort);
+        console.log('TCP client connected:', socket.remoteAddress, socket.remotePort);
     
         socket.on('data', (data) => {
             //console.log(`TCP Server received: ${data} from ${socket.remoteAddress}:${socket.remotePort}`);
