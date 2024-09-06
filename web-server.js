@@ -157,7 +157,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
               //} else {
                 delete tcpClients[`${socket.remoteAddress}:${socket.remotePort}`]
                 for (const client in tcpClients) {
-                    console.log(client.remoteAddress, client.remotePort)
+                    console.log("\n\n\n\n", client, "\n\n\n\n\n\n")
                     tcpClients[client].destroy()
                   }
               //}
