@@ -79,7 +79,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
         //console.log('TCP client connected:', socket.remoteAddress, socket.remotePort);
     
         socket.on('data', (data) => {
-            console.log(`TCP Server received: ${data} from ${socket.remoteAddress}:${socket.remotePort}`);
+            //console.log(`TCP Server received: ${data} from ${socket.remoteAddress}:${socket.remotePort}`);
 
             if(data == 'IHOST'){
                 HOST_ADDR = socket.remoteAddress
@@ -176,7 +176,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 const convertedJson = JSON.parse(jsonString)
       
                 convertedJson.MSG = Buffer.from(convertedJson.MSG, "base64").toString("utf-8")
-                //console.log("🚀 ~ objects ~ convertedJson.MSG:", convertedJson.MSG)
+                console.log("🚀 ~ objects ~ convertedJson.MSG:", convertedJson.MSG)
       
                 clients[`${convertedJson.CA}:${convertedJson.CP}`].write(convertedJson.MSG)
       
