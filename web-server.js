@@ -1,3 +1,14 @@
+const http = require('http');
+const httpProxy = require('http-proxy');
+     
+let proxy 
+
+let webServer
+     
+
+
+
+
 const net = require('net');
 const dgram = require('dgram');
 
@@ -33,6 +44,24 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
         if(msg == 'IHOST'){
             HOST_ADDR = rinfo.address
             HOST_UDP_PORT = rinfo.port
+
+            proxy = httpProxy.createProxyServer({
+                target: 'http://' + HOST_ADDR + ':2024', 
+                changeOrigin: true,
+                });
+
+                webServer = http.createServer((req, res) => {
+    proxy.web(req, res, (err) => {
+        if (err) {
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Proxy error: ' + err.message);
+        }
+    });
+
+    webServer.listen(2024, () => {
+        console.log('Proxy server is running on http://aws-server-ip:8080');
+        });
+    });
             return
         }
 
