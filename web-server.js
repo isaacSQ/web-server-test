@@ -50,7 +50,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
                 target: 'http://' + HOST_ADDR + ':2024', 
                 changeOrigin: true,
                 });
-
+                console.log("---->", proxy)
                 webServer = http.createServer((req, res) => {
     proxy.web(req, res, (err) => {
         console.log("HERE HERE HERE")
