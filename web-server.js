@@ -53,6 +53,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
 
                 webServer = http.createServer((req, res) => {
     proxy.web(req, res, (err) => {
+        console.log("HERE HERE HERE")
         if (err) {
             console.error('Error with proxy: ', err);
         res.writeHead(500, { 'Content-Type': 'text/plain' });
@@ -60,7 +61,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
         }
     });
 
-    webServer.listen(2024, () => {
+    webServer.listen(2024, '0.0.0.0',() => {
         console.log('Proxy server is running on http://aws-server-ip:8080');
         });
     });
