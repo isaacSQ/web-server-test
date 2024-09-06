@@ -28,14 +28,6 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
 
         const clientId = `${rinfo.address}:${rinfo.port}`
 
-        if (!UdpClients.has(clientId)) {
-            console.log(`New client connected: ${clientId}`);
-          }
-
-        UdpClients.set(clientId, rinfo)
-
-        console.log("🚀 ~ udpServer.on ~ udpClients:", UdpClients)
-
        //console.log(`UDP WEB Server received: ${msg} from ${rinfo.address}:${rinfo.port}`);
         
         if(msg == 'IHOST'){
@@ -79,6 +71,12 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
             })
             return
         }
+
+        if (!UdpClients.has(clientId)) {
+            console.log(`New client connected: ${clientId}`);
+          }
+
+        UdpClients.set(clientId, rinfo)
 
         const response = `{"MSG":${msg == "FH" ? `"${msg}"` : msg},"CP":${rinfo.port},"CA":"${rinfo.address}"}`
         
