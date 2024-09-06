@@ -28,7 +28,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
 
         const clientId = `${rinfo.address}:${rinfo.port}`
 
-       console.log(`UDP WEB Server received: ${msg} from ${rinfo.address}:${rinfo.port}`);
+       //console.log(`UDP WEB Server received: ${msg} from ${rinfo.address}:${rinfo.port}`);
         
         if(msg == 'IHOST'){
             HOST_ADDR = rinfo.address
@@ -106,7 +106,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
         console.log('TCP client connected:', socket.remoteAddress, socket.remotePort);
     
         socket.on('data', (data) => {
-            console.log(`TCP Server received: ${data} from ${socket.remoteAddress}:${socket.remotePort}`);
+            //console.log(`TCP Server received: ${data} from ${socket.remoteAddress}:${socket.remotePort}`);
 
             if(data == 'IHOST'){
                 HOST_ADDR = socket.remoteAddress
