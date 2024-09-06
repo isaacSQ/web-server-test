@@ -122,7 +122,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 return
             }
 
-            if(tcpClients[`${socket.remoteAddress}:${socket.remotePort}`] === undefined && !(socket.remoteAddress === HOST_ADDR && socket.remotePort === HOST_TCP_PORT)){
+            if(tcpClients[`${socket.remoteAddress}:${socket.remotePort}`] === undefined){
                 //console.log("ADDING CLIENT", `${socket.remoteAddress}:${socket.remotePort}`)
                 tcpClients[`${socket.remoteAddress}:${socket.remotePort}`] = socket
             }
@@ -156,7 +156,10 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 //kickAndClearServers()
               //} else {
                 delete tcpClients[`${socket.remoteAddress}:${socket.remotePort}`]
-                console.log("HERE HERE ------------>", tcpClients)
+                for (const client in tcpClients) {
+                    console.log(client.remoteAddress, client.remotePort)
+                    tcpClients[client].destroy()
+                  }
               //}
         });
     
