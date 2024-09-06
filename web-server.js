@@ -54,6 +54,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
                 webServer = http.createServer((req, res) => {
     proxy.web(req, res, (err) => {
         if (err) {
+            console.error('Error with proxy: ', err);
         res.writeHead(500, { 'Content-Type': 'text/plain' });
         res.end('Proxy error: ' + err.message);
         }
