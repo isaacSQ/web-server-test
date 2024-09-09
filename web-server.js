@@ -3,6 +3,7 @@ const ProxyChain = require('proxy-chain');
 
 const net = require('net');
 const dgram = require('dgram');
+const express = require('express'); 
 
 const TCP_PORT = 2023;
 const UDP_PORT = 22023; 
@@ -20,33 +21,61 @@ let tcpClientId = {}
 
 //UDP SERVER
 
-const webServer = net.createServer({ allowHalfOpen: false }, function(socket) {
-    console.log('web client connected:', socket.remoteAddress, socket.remotePort);
+const app = express()
 
-    socket.on('data', (data) => {
-        console.log(`WEB Server received: ${data} from ${socket.remoteAddress}:${socket.remotePort}`);
+const server = app.listen(2024)
 
+const io = socketIO(server)
+
+io.on('connection', (socket)=>{
+    console.log('client connected:', socket);
+
+    socket.on('disconnect', () => {
+        console.log('User disconnected');
     });
 
-    socket.on('error', (err) => {
-        console.error(`Socket error: ${err.stack}`);
-    });
+    socket.on('message', (message) => {
+        console.log(`WEB Server received: ${message} from ${socket.id}`);
 
-    socket.on('end', () => {
-        console.log("END")
+        // send to all clients
+        io.emit('message', message)
+    });
+})
+
+app.get('/', function(req, res){
+    console.log(`WEB Server`, req, res)
+})
+
+
+let expressServer = webServer.listen(2024)
+
+// const webServer = net.createServer({ allowHalfOpen: false }, function(socket) {
+//     console.log('web client connected:', socket.remoteAddress, socket.remotePort);
+
+//     socket.on('data', (data) => {
+//         console.log(`WEB Server received: ${data} from ${socket.remoteAddress}:${socket.remotePort}`);
+
+//     });
+
+//     socket.on('error', (err) => {
+//         console.error(`Socket error: ${err.stack}`);
+//     });
+
+//     socket.on('end', () => {
+//         console.log("END")
         
-    });
+//     });
 
-});
+// });
 
-webServer.listen(2024, '0.0.0.0', () => {
-    console.log(`WEB Server listening on port 2024`);
-});
+// webServer.listen(2024, '0.0.0.0', () => {
+//     console.log(`WEB Server listening on port 2024`);
+// });
 
 
-webServer.on("error", (e) => {
-    console.log(`WEB Server error: ${e.message}`);
-});
+// webServer.on("error", (e) => {
+//     console.log(`WEB Server error: ${e.message}`);
+// });
 
 
 
