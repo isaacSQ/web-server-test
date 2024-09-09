@@ -160,8 +160,10 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 return
             }
 
-            if(data){
-                console.log("HERE", data.toString().slice(0,20))
+            if(data.slice(0,19) == "qs.connectResponse("){
+                console.log(data.toString().match(/\(([^,]+)/))
+                const unid = data.toString().match(/\(([^,]+)/)[1]
+                console.log("here", unid, Clients.unid)
             }
 
             if(tcpClients[`${socket.remoteAddress}:${socket.remotePort}`] === undefined){
