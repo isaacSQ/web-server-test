@@ -172,7 +172,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 const res = `{"MSG":"${data}","CP":${socket.remotePort},"CA":"${socket.remoteAddress}"}`
                 try{
                     console.log("Write to host tcp", res)
-                    HOST_TCP_SOCKET?.write(res)
+                    HOST_TCP_SOCKET.write(res)
                 } catch(e) {
                     console.log("HOST DEAD, CLEARING")
                     kickAndClearServers()
@@ -181,9 +181,9 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
 
         });
 
-        socket.on("timeout", ()=>{
-            console.log("TIMEOUT")
-        })
+        // socket.on("timeout", ()=>{
+        //     console.log("TIMEOUT")
+        // })
     
         socket.on('error', (err) => {
             console.error(`Socket error: ${err.stack}`);
