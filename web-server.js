@@ -26,8 +26,22 @@ let tcpClientId = {}
 const app = express()
 
 
-app.get('*', function(req, res){
-    console.log(`WEB Server`, req, res)
+app.get('*', async(req, res)=>{
+    try{
+        console.log(`WEB Server`, req, res)
+        const targetURL = `http://82.71.58.81`
+    
+        const response = await fetch(targetURL)
+        console.log("🚀 ~ app.get ~ response:", response)
+        const data = await response.json()
+        console.log("🚀 ~ app.get ~ data:", data)
+
+        res.status(response.status).json(data)
+
+    } catch(e){
+        console.log(`Failed to fetch web server`, e)
+    }
+
 })
 
 app.listen(2024, ()=>{
