@@ -37,10 +37,12 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
     
     udpServer.on('message', (msg, rinfo) => {
         if(msg.slice(0,2) == 'FH'){
-            console.log(msg.toString())
+            console.log(msg.toString().slice(2))
+
+
         }
 
-        const clientId = `${rinfo.address}:${rinfo.port}`
+        //const clientId = `${rinfo.address}:${rinfo.port}`
 
        //console.log(`UDP WEB Server received: ${msg} from ${rinfo.address}:${rinfo.port}`);
         
