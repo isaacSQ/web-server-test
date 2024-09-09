@@ -198,6 +198,11 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 console.log("\n🚀\n ~ socket.on ~ socket.remoteAddress:", socket.remoteAddress, socket.remotePort, "host:", HOST_ADDR, HOST_TCP_PORT)
                 //console.log("\n\nHERE")
                 //kickAndClearServers()
+            unid = tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`]
+            if(unid){
+                Clients.delete(unid)
+                delete tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`]
+            }
         });
     
         serverCallback(socket);
