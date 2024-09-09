@@ -27,7 +27,7 @@ const app = express()
 
 app.get('*', async(req, res)=>{
     try{
-        console.log(`WEB Server`,req.originalUrl, res)
+        console.log(`WEB Server`,req.originalUrl, res.route)
         //const targetURL = `http://82.71.58.81`
         const targetURL = `http://192.168.4.179`
 
