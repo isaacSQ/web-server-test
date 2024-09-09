@@ -23,64 +23,64 @@ let tcpClientId = {}
 
 //UDP SERVER
 
-// const app = express()
+const app = express()
 
 
-// app.get('*', async(req, res)=>{
-//     try{
-//         console.log(`WEB Server`,req.url)
-//         //const targetURL = `http://82.71.58.81:2024${req.originalUrl}`
-//         const targetURL = `http://192.168.4.179:2024${req.url}`
+app.get('*', async(req, res)=>{
+    try{
+        console.log(`WEB Server`,req.url)
+        //const targetURL = `http://82.71.58.81:2024${req.originalUrl}`
+        const targetURL = `http://192.168.4.179:2024${req.url}`
     
-//         const response = await fetch(targetURL)
-//         console.log("🚀 ~ app.get ~ response:", response)
-//         const data = await response.json()
-//         console.log("🚀 ~ app.get ~ data:", data)
+        const response = await fetch(targetURL)
+        console.log("🚀 ~ app.get ~ response:", response)
+        const data = await response.json()
+        console.log("🚀 ~ app.get ~ data:", data)
 
-//         res.status(response.status).json(data)
+        res.status(response.status).json(data)
 
-//     } catch(e){
-//         console.log(`Failed to fetch web server`, e)
-//     }
+    } catch(e){
+        console.log(`Failed to fetch web server`, e)
+    }
 
-// })
+})
 
-// app.listen(2024, ()=>{
-//     console.log('WEB Server listening on port 2024');
-// })
+app.listen(2024, ()=>{
+    console.log('WEB Server listening on port 2024');
+})
 
-const webServer = net.createServer({ allowHalfOpen: false }, function(socket) {
-    console.log('web client connected:', socket.remoteAddress, socket.remotePort);
+// const webServer = net.createServer({ allowHalfOpen: false }, function(socket) {
+//     console.log('web client connected:', socket.remoteAddress, socket.remotePort);
 
-    socket.on('data', (data) => {
-        console.log(`WEB Server received: ${data}`);
-        try{
-            HOST_TCP_SOCKET.write(data)
-        } catch(e) {
-            console.log("WEB HOST DEAD, CLEARING")
-            kickAndClearServers()
-        }
-    });
+//     socket.on('data', (data) => {
+//         console.log(`WEB Server received: ${data}`);
+//         try{
+//             HOST_TCP_SOCKET.write(data)
+//         } catch(e) {
+//             console.log("WEB HOST DEAD, CLEARING")
+//             kickAndClearServers()
+//         }
+//     });
 
-    socket.on('error', (err) => {
-        console.error(`Socket error: ${err.stack}`);
-    });
+//     socket.on('error', (err) => {
+//         console.error(`Socket error: ${err.stack}`);
+//     });
 
-    socket.on('end', () => {
-        console.log("END")
+//     socket.on('end', () => {
+//         console.log("END")
         
-    });
+//     });
 
-});
+// });
 
-webServer.listen(2024, '0.0.0.0', () => {
-    console.log(`WEB Server listening on port 2024`);
-});
+// webServer.listen(2024, '0.0.0.0', () => {
+//     console.log(`WEB Server listening on port 2024`);
+// });
 
 
-webServer.on("error", (e) => {
-    console.log(`WEB Server error: ${e.message}`);
-});
+// webServer.on("error", (e) => {
+//     console.log(`WEB Server error: ${e.message}`);
+// });
 
 
 const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
