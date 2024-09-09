@@ -170,7 +170,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
             }
             
             if(socket.remoteAddress === HOST_ADDR && socket.remotePort === HOST_TCP_PORT){
-                forwardTcpToClient(data)
+                forwardTcpToClient(data.toString())
                 //console.log("forward host tcp message to client")
                 return
             }
