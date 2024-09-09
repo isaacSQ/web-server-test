@@ -241,9 +241,17 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 }
                 console.log("JSON STRING", jsonString)
                 const convertedJson = JSON.parse(jsonString)
-      
+
+                if(convertedJson.MSG === 'DESTROY'){
+                    Clients.get(convertedJson.UNID)?.socket.end()
+                    Clients.get(convertedJson.UNID)?.socket.destroy()
+                    return
+                }
+                
                 convertedJson.MSG = Buffer.from(convertedJson.MSG, "base64").toString("utf-8")
                 console.log("🚀 ~ objects ~ convertedJson.MSG:", convertedJson.MSG)
+                
+
 
                 const unid = tcpClientId[`${convertedJson.CA}:${convertedJson.CP}`]
 
