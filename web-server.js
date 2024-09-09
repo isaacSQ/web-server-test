@@ -28,7 +28,9 @@ const app = express()
 app.get('*', async(req, res)=>{
     try{
         //console.log(`WEB Server`,req, res)
-        const targetURL = `http://82.71.58.81`
+        //const targetURL = `http://82.71.58.81`
+        const targetURL = `http://192.168.4.179`
+
 
         const fetch = (await import('node-fetch')).default;
     
