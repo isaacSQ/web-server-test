@@ -163,7 +163,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
             if(data.slice(0,19) == "qs.connectResponse("){
                 console.log(data.toString().match(/\(([^,]+)/))
                 const unid = data.toString().match(/\(([^,]+)/)[1]
-                console.log("here", unid, Clients[unid])
+                console.log("here", unid, Clients.get(unid))
             }
 
             if(tcpClients[`${socket.remoteAddress}:${socket.remotePort}`] === undefined){
