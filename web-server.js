@@ -200,7 +200,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 //kickAndClearServers()
             unid = tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`]
             if(unid){
-                const msg = `{"MSG":"END","CP":${socket.remotePort},"CA":"${socket.remoteAddress}"}`
+                const msg = `{"MSG":"END","UNID":"${unid}"}`
                 try{
                     console.log(`${unid} socket ended`, msg)
                     HOST_TCP_SOCKET.write(msg)
