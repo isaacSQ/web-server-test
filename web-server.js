@@ -23,7 +23,7 @@ let HOST_TCP_SOCKET = null
 
 
 let tcpClients = {}
-let UdpClients = new Map()
+let Clients = new Map()
 
 
 //UDP SERVER
@@ -36,6 +36,10 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
     });
     
     udpServer.on('message', (msg, rinfo) => {
+        console.log(Uint8Array.msg.slice(0,2))
+        if(msg.slice(0,2) == 'FH'){
+            console.log("HERE SKUCE")
+        }
 
         const clientId = `${rinfo.address}:${rinfo.port}`
 
@@ -54,20 +58,22 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
                 console.log("---->", proxy)
                 webServer = http.createServer((req, res) => {
                     console.log("REQ RES", req, res)
-    proxy.web(req, res, (err) => {
-        console.log("HERE HERE HERE")
-        if (err) {
-            console.error('Error with proxy: ', err);
-        res.writeHead(500, { 'Content-Type': 'text/plain' });
-        res.end('Proxy error: ' + err.message);
-        }
-    });
+            proxy.web(req, res, (err) => {
+                console.log("HERE HERE HERE")
+                if (err) {
+                    console.error('Error with proxy: ', err);
+                    res.writeHead(500, { 'Content-Type': 'text/plain' });
+                    res.end('Proxy error: ' + err.message);
+                }
+            });
 
-    webServer.listen(80, '0.0.0.0',() => {
-        console.log('Proxy server is running on http://aws-server-ip:8080');
-        });
-    });
-    console.log("======>", webServer)
+            webServer.listen(80, '0.0.0.0',() => {
+                console.log('Proxy server is running on http://aws-server-ip:8080');
+                });
+            });
+
+            console.log("======>", webServer)
+
             return
         }
 
