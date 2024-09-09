@@ -41,7 +41,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
             HOST_UDP_PORT = rinfo.port
 
             proxy = httpProxy.createProxyServer({
-                target: 'http://192.168.4.179:2024',
+                target: 'http://192.168.4.179',
                 //target: 'http://' + HOST_ADDR + ':2024', 
                 changeOrigin: true,
                 });
@@ -49,6 +49,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
                 webServer = http.createServer((req, res) => {
                     console.log("REQ RES", req, res)
             proxy.web(req, res, (err) => {
+                console.log("HERE HERE HERE")
                 if (err) {
                     console.error('Error with proxy: ', err);
                     res.writeHead(500, { 'Content-Type': 'text/plain' });
