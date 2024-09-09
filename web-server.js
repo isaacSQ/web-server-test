@@ -260,7 +260,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 const convertedJson = JSON.parse(jsonString)
       
                 convertedJson.MSG = Buffer.from(convertedJson.MSG, "base64").toString("utf-8")
-                //console.log("🚀 ~ objects ~ convertedJson.MSG:", convertedJson.MSG)
+                console.log("🚀 ~ objects ~ convertedJson.MSG:", convertedJson.MSG)
 
                 const unid = tcpClientId[`${convertedJson.CA}:${convertedJson.CP}`]
 
