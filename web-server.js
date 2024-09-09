@@ -31,7 +31,7 @@ app.get('*', async(req, res)=>{
         console.log(`WEB Server`,req.url)
         //const targetURL = `http://82.71.58.81:2024${req.originalUrl}`
         const targetURL = `http://192.168.4.179:2024${req.url}`
-    
+        console.log(fetch)
         const response = await fetch(targetURL)
         console.log("🚀 ~ app.get ~ response:", response)
         const data = await response.json()
