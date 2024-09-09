@@ -24,8 +24,8 @@ let tcpClientId = {}
 
 const webServer = new ProxyChain.Server({
     port: 2024,
-    host: 'http://192.168.4.179/',
-    verbose: true
+    host: `http://82.71.58.81/`,
+    // verbose: true
 });
 
 webServer.listen(()=>{
