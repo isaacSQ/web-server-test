@@ -36,7 +36,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
     });
     
     udpServer.on('message', (msg, rinfo) => {
-        console.log(Uint8Array.msg.slice(0,2))
+        console.log(msg.slice(0,2))
         if(msg.slice(0,2) == 'FH'){
             console.log("HERE SKUCE")
         }
