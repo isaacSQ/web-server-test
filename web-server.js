@@ -161,7 +161,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
             }
 
             if(data){
-                console.log("HERE", data.toString())
+                console.log("HERE", data.toString().slice(0,20))
             }
 
             if(tcpClients[`${socket.remoteAddress}:${socket.remotePort}`] === undefined){
