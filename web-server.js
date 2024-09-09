@@ -36,13 +36,6 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
     });
     
     udpServer.on('message', (msg, rinfo) => {
-        if(msg.slice(0,2) == 'FH'){
-            console.log(msg.toString().slice(2))
-
-
-        }
-
-        //const clientId = `${rinfo.address}:${rinfo.port}`
 
        //console.log(`UDP WEB Server received: ${msg} from ${rinfo.address}:${rinfo.port}`);
         
@@ -52,8 +45,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
             HOST_UDP_PORT = rinfo.port
 
             proxy = httpProxy.createProxyServer({
-                //target: 'http://' + HOST_ADDR + ':2024', 
-                target: 'http://192.168.4.179:2024', 
+                target: 'http://' + HOST_ADDR + ':2024', 
                 changeOrigin: true,
                 });
                 console.log("---->", proxy)
@@ -84,11 +76,22 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
             return
         }
 
+        if(msg.slice(0,2) == 'FH'){
+            const unid = msg.toString().slice(3)
+            Clients.set(unid, {ipAddress: rinfo.address, udpPort: rinfo.port})
+            const response = `{"MSG":"FH","CP":${rinfo.port},"CA":"${rinfo.address}"}`
+            udpServer.send(response, 0, response.length, HOST_UDP_PORT, HOST_ADDR, (err) => {
+                //console.log(`UDP message ${response} sent to ${HOST_ADDR}:${HOST_UDP_PORT}`);
+                if (err) console.error('UDP WEB send error:', err);
+            });
+            return
+        }
+
         if(rinfo.address === HOST_ADDR && rinfo.port === HOST_UDP_PORT) {
             if(msg == 'PING'){
                 Clients.forEach((client)=>{
                     const hostPingOut = Buffer.from(JSON.stringify({command:"host_ping_out"}))
-                    udpServer.send(hostPingOut, 0, hostPingOut.length, client.port, client.address)
+                    udpServer.send(hostPingOut, 0, hostPingOut.length, client.udpPort, client.ipAddress)
                 })
                 return
             }
@@ -113,13 +116,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
             return
         }
 
-        if (!Clients.has(clientId)) {
-            console.log(`New client connected: ${clientId}`);
-          }
-
-        Clients.set(clientId, rinfo)
-
-        const response = `{"MSG":${msg == "FH" ? `"${msg}"` : msg},"CP":${rinfo.port},"CA":"${rinfo.address}"}`
+        const response = `{"MSG":${msg},"CP":${rinfo.port},"CA":"${rinfo.address}"}`
         
         udpServer.send(response, 0, response.length, HOST_UDP_PORT, HOST_ADDR, (err) => {
             //console.log(`UDP message ${response} sent to ${HOST_ADDR}:${HOST_UDP_PORT}`);
@@ -151,7 +148,6 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
             //console.log(`TCP Server received: ${data} from ${socket.remoteAddress}:${socket.remotePort}`);
 
             if(data == 'IHOST'){
-                HOST_ADDR = socket.remoteAddress
                 HOST_TCP_PORT = socket.remotePort
                 HOST_TCP_SOCKET = socket
                 console.log("TCP HOST", HOST_TCP_PORT, HOST_ADDR)
@@ -159,9 +155,13 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
             }
 
             if(HOST_TCP_SOCKET === null){
-                //console.log("NO HOST TCP YET")
+                console.log("NO HOST TCP YET")
                 socket.destroy()
                 return
+            }
+
+            if(data){
+                console.log("HERE", data)
             }
 
             if(tcpClients[`${socket.remoteAddress}:${socket.remotePort}`] === undefined){
