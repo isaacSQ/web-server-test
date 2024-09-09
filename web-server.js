@@ -32,13 +32,9 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
 
     udpServer.on('listening', () => {
         const address = udpServer.address();
-        //console.log(`UDP WEB Server listening on ${address.address}:${address.port}`);
     });
     
-    udpServer.on('message', (msg, rinfo) => {
-
-       //console.log(`UDP WEB Server received: ${msg} from ${rinfo.address}:${rinfo.port}`);
-        
+    udpServer.on('message', (msg, rinfo) => {        
         if(msg == 'IHOST'){
             console.log("HOST RECEIVED", rinfo)
             HOST_ADDR = rinfo.address
@@ -48,11 +44,10 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
                 target: 'http://' + HOST_ADDR + ':2024', 
                 changeOrigin: true,
                 });
-                //console.log("---->", proxy)
+                console.log("---->", proxy)
                 webServer = http.createServer((req, res) => {
                     console.log("REQ RES", req, res)
             proxy.web(req, res, (err) => {
-                console.log("HERE HERE HERE")
                 if (err) {
                     console.error('Error with proxy: ', err);
                     res.writeHead(500, { 'Content-Type': 'text/plain' });
@@ -65,7 +60,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
                 });
             });
 
-            //console.log("======>", webServer)
+            console.log("======>", webServer)
 
             return
         }
@@ -81,7 +76,6 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
             Clients.set(unid, {ipAddress: rinfo.address, udpPort: rinfo.port})
             const response = `{"MSG":"FH","CP":${rinfo.port},"CA":"${rinfo.address}"}`
             udpServer.send(response, 0, response.length, HOST_UDP_PORT, HOST_ADDR, (err) => {
-                //console.log(`UDP message ${response} sent to ${HOST_ADDR}:${HOST_UDP_PORT}`);
                 if (err) console.error('UDP WEB send error:', err);
             });
             return
@@ -164,7 +158,6 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
 
                 const res = `{"MSG":"${data}","CP":${socket.remotePort},"CA":"${socket.remoteAddress}"}`
                 try{
-                    console.log("Write to host tcp", res)
                     HOST_TCP_SOCKET.write(res)
                 } catch(e) {
                     console.log("HOST DEAD, CLEARING")
@@ -182,7 +175,6 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
             if (socket.remoteAddress === HOST_ADDR && socket.remotePort === HOST_TCP_PORT) {
 
             }
-            console.log("\n🚀\n ~ socket.on ~ socket.remoteAddress:", socket.remoteAddress, socket.remotePort, "host:", HOST_ADDR, HOST_TCP_PORT)
             unid = tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`]
             if(unid){
                 const msg = `{"MSG":"END","UNID":"${unid}"}`
@@ -239,7 +231,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 if (jsonString == undefined) {
                   return
                 }
-                console.log("JSON STRING", jsonString)
+                //console.log("JSON STRING", jsonString)
                 const convertedJson = JSON.parse(jsonString)
 
                 if(convertedJson.MSG === 'DESTROY'){
@@ -249,7 +241,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 }
                 
                 convertedJson.MSG = Buffer.from(convertedJson.MSG, "base64").toString("utf-8")
-                console.log("🚀 ~ objects ~ convertedJson.MSG:", convertedJson.MSG)
+                //console.log("🚀 ~ objects ~ convertedJson.MSG:", convertedJson.MSG)
                 
 
 
