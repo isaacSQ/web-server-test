@@ -200,9 +200,18 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 //kickAndClearServers()
             unid = tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`]
             if(unid){
+                const msg = `{"MSG":"END","CP":${socket.remotePort},"CA":"${socket.remoteAddress}"}`
+                try{
+                    console.log(`${unid} socket ended`, msg)
+                    HOST_TCP_SOCKET.write(msg)
+                } catch(e) {
+                    console.log("HOST DEAD, CLEARING", e)
+                    kickAndClearServers()
+                }
                 Clients.delete(unid)
                 delete tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`]
             }
+            
         });
     
         serverCallback(socket);
