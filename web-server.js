@@ -72,7 +72,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
 
         if(HOST_ADDR === null || HOST_UDP_PORT === null){
             console.log("NO HOST UDP YET")
-            kickAndClearUdpServers()
+            kickAndClearServers()
             return
         }
 
@@ -127,21 +127,14 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
     udpServer.on('error', (err) => {
         console.error(`UDP WEB Server error:\n${err.stack}`);
         udpServer.close();
-        //kickAndClearUdpServers()
+        kickAndClearServers()
     });
     
     udpServer.bind(UDP_PORT, '0.0.0.0');
 
-    function kickAndClearUdpServers() {
-        console.log("HOST DISCONNECTED, CLEARING UDP")
-        HOST_ADDR = null
-        HOST_UDP_PORT = null
-        Clients.clear()
-      }
-
     //---------------------------------------TCP SERVER----------------------------------------------------------------
     
-const tcpServer = net.createServer({ allowHalfOpen: true }, function(socket) {
+const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
         console.log('TCP client connected:', socket.remoteAddress, socket.remotePort);
     
         socket.on('data', (data) => {
@@ -156,7 +149,7 @@ const tcpServer = net.createServer({ allowHalfOpen: true }, function(socket) {
 
             if(HOST_TCP_SOCKET === null){
                 console.log("NO HOST TCP YET")
-                socket.destroy()
+                kickAndClearServers()
                 return
             }
 
@@ -180,10 +173,6 @@ const tcpServer = net.createServer({ allowHalfOpen: true }, function(socket) {
             }
 
         });
-
-        // socket.on("timeout", ()=>{
-        //     console.log("TIMEOUT")
-        // })
     
         socket.on('error', (err) => {
             console.error(`Socket error: ${err.stack}`);
@@ -212,8 +201,6 @@ const tcpServer = net.createServer({ allowHalfOpen: true }, function(socket) {
     
         serverCallback(socket);
     });
-
-    //tcpServer.timeout = 0;
     
     tcpServer.listen(TCP_PORT, '0.0.0.0', () => {
         console.log(`TCP Server listening on port ${TCP_PORT}`);
@@ -276,6 +263,7 @@ const tcpServer = net.createServer({ allowHalfOpen: true }, function(socket) {
         console.log("HOST DISCONNECTED, CLEARING")
         HOST_ADDR = null
         HOST_TCP_PORT = null
+        HOST_UDP_PORT = null
         HOST_TCP_SOCKET = null
         Clients.forEach((client)=>{
             client.socket.destroy()
