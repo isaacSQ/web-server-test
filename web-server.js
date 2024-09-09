@@ -141,7 +141,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
 
     //---------------------------------------TCP SERVER----------------------------------------------------------------
     
-const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
+const tcpServer = net.createServer({ allowHalfOpen: true }, function(socket) {
         console.log('TCP client connected:', socket.remoteAddress, socket.remotePort);
     
         socket.on('data', (data) => {
@@ -204,7 +204,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                     console.log("HOST DEAD, CLEARING", e)
                     kickAndClearServers()
                 }
-                Clients.get(unid).socket.destroy()
+                Clients.get(unid).socket.close()
                 Clients.delete(unid)
                 delete tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`]
             }
