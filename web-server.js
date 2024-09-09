@@ -250,8 +250,6 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
 
                 const unid = tcpClientId[`${convertedJson.CA}:${convertedJson.CP}`]
 
-                console.log(Clients.get(unid), "HERE HERE")
-
                 Clients.get(unid)?.socket.write(convertedJson.MSG)
       
                 return convertedJson
