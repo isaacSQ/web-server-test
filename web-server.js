@@ -19,7 +19,7 @@ let HOST_ADDR = null
 let HOST_UDP_PORT = null
 let HOST_TCP_PORT = null
 
-let HOST_TCP_SOCKET = null
+let HOST_TCP_SOCKET
 
 let Clients = new Map()
 
@@ -160,26 +160,23 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 return
             }
 
-            if(data.slice(0,19) == "qs.connectResponse("){
-                console.log(data.toString().match(/\(([^,]+)/))
-                const unid = data.toString().match(/\(([^,]+)/)[1]
-                console.log("here", unid, Clients.get(unid))
-                Clients.set(unid, {...Clients.get(unid), tcpPort: socket.remotePort, socket: socket})
-                tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`] = unid
-            }
-            
             if(socket.remoteAddress === HOST_ADDR && socket.remotePort === HOST_TCP_PORT){
                 forwardTcpToClient(data)
-                return
-            }
+            } else {
+                if(data.slice(0,19) == "qs.connectResponse("){
+                    const unid = data.toString().match(/\(([^,]+)/)[1]
+                    Clients.set(unid, {...Clients.get(unid), tcpPort: socket.remotePort, socket: socket})
+                    tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`] = unid
+                }
 
-            const res = `{"MSG":"${data}","CP":${socket.remotePort},"CA":"${socket.remoteAddress}"}`
-            try{
-                console.log("Write to host tcp", res)
-                HOST_TCP_SOCKET.write(res)
-            } catch(e) {
-                console.log("HOST DEAD, CLEARING")
-                kickAndClearServers()
+                const res = `{"MSG":"${data}","CP":${socket.remotePort},"CA":"${socket.remoteAddress}"}`
+                try{
+                    console.log("Write to host tcp", res)
+                    HOST_TCP_SOCKET?.write(res)
+                } catch(e) {
+                    console.log("HOST DEAD, CLEARING")
+                    kickAndClearServers()
+                }
             }
 
         });
@@ -193,11 +190,10 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
         });
     
         socket.on('end', () => {
-            //console.log(`Client disconnected: ${socket.remoteAddress}`);
-            //if (socket.remoteAddress === HOST_ADDR && socket.remotePort === HOST_TCP_PORT) {
-                console.log("\n🚀\n ~ socket.on ~ socket.remoteAddress:", socket.remoteAddress, socket.remotePort, "host:", HOST_ADDR, HOST_TCP_PORT)
-                //console.log("\n\nHERE")
-                //kickAndClearServers()
+            if (socket.remoteAddress === HOST_ADDR && socket.remotePort === HOST_TCP_PORT) {
+
+            }
+            console.log("\n🚀\n ~ socket.on ~ socket.remoteAddress:", socket.remoteAddress, socket.remotePort, "host:", HOST_ADDR, HOST_TCP_PORT)
             unid = tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`]
             if(unid){
                 const msg = `{"MSG":"END","UNID":"${unid}"}`
