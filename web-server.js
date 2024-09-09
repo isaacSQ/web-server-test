@@ -20,17 +20,45 @@ let tcpClientId = {}
 
 //UDP SERVER
 
+const webServer = net.createServer({ allowHalfOpen: false }, function(socket) {
+    console.log('web client connected:', socket.remoteAddress, socket.remotePort);
 
+    socket.on('data', (data) => {
+        console.log(`WEB Server received: ${data} from ${socket.remoteAddress}:${socket.remotePort}`);
 
-const webServer = new ProxyChain.Server({
-    port: 2024,
-    host: `http://82.71.58.81/`,
-    // verbose: true
+    });
+
+    socket.on('error', (err) => {
+        console.error(`Socket error: ${err.stack}`);
+    });
+
+    socket.on('end', () => {
+        console.log("END")
+        
+    });
+
 });
 
-webServer.listen(()=>{
-    console.log('Proxy server listening on port 2024')
-})
+webServer.listen(2024, '0.0.0.0', () => {
+    console.log(`WEB Server listening on port 2024`);
+});
+
+
+webServer.on("error", (e) => {
+    console.log(`WEB Server error: ${e.message}`);
+});
+
+
+
+// const webServer = new ProxyChain.Server({
+//     port: 2024,
+//     host: `http://82.71.58.81/`,
+//     // verbose: true
+// });
+
+// webServer.listen(()=>{
+//     console.log('Proxy server listening on port 2024')
+// })
 
 console.log(webServer)
 
