@@ -5,6 +5,7 @@ const net = require('net');
 const dgram = require('dgram');
 const express = require('express'); 
 const socketIO = require('socket.io');
+const fetch = require('node-fetch');
 
 const TCP_PORT = 2023;
 const UDP_PORT = 22023; 
@@ -30,9 +31,6 @@ app.get('*', async(req, res)=>{
         console.log(`WEB Server`,req.originalUrl, res.route)
         //const targetURL = `http://82.71.58.81`
         const targetURL = `http://192.168.4.179`
-
-
-        const fetch = (await import('node-fetch')).default;
     
         const response = await fetch(targetURL)
         console.log("🚀 ~ app.get ~ response:", response)
