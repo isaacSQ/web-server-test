@@ -36,9 +36,8 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
     });
     
     udpServer.on('message', (msg, rinfo) => {
-        console.log(msg.slice(0,2))
         if(msg.slice(0,2) == 'FH'){
-            console.log("HERE SKUCE")
+            console.log(msg.toString())
         }
 
         const clientId = `${rinfo.address}:${rinfo.port}`
@@ -85,7 +84,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
 
         if(rinfo.address === HOST_ADDR && rinfo.port === HOST_UDP_PORT) {
             if(msg == 'PING'){
-                UdpClients.forEach((client)=>{
+                Clients.forEach((client)=>{
                     const hostPingOut = Buffer.from(JSON.stringify({command:"host_ping_out"}))
                     udpServer.send(hostPingOut, 0, hostPingOut.length, client.port, client.address)
                 })
@@ -112,11 +111,11 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
             return
         }
 
-        if (!UdpClients.has(clientId)) {
+        if (!Clients.has(clientId)) {
             console.log(`New client connected: ${clientId}`);
           }
 
-        UdpClients.set(clientId, rinfo)
+        Clients.set(clientId, rinfo)
 
         const response = `{"MSG":${msg == "FH" ? `"${msg}"` : msg},"CP":${rinfo.port},"CA":"${rinfo.address}"}`
         
@@ -138,7 +137,7 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
         console.log("HOST DISCONNECTED, CLEARING UDP")
         HOST_ADDR = null
         HOST_UDP_PORT = null
-        UdpClients.clear()
+        Clients.clear()
       }
 
     //---------------------------------------TCP SERVER----------------------------------------------------------------
