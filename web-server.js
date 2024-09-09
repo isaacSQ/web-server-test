@@ -162,7 +162,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
 
             if(data.slice(0,19) == "qs.connectResponse("){
                 console.log(data.toString().match(/\(([^,]+)/))
-                const unid = data.toString().slice(19, 27)
+                const unid = data.toString().slice(19, 37)
                 console.log("here", unid, Clients.unid)
             }
 
