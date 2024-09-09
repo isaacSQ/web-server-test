@@ -252,7 +252,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 if (jsonString == undefined) {
                   return
                 }
-      
+                console.log("JSON STRING", jsonString)
                 const convertedJson = JSON.parse(jsonString)
       
                 convertedJson.MSG = Buffer.from(convertedJson.MSG, "base64").toString("utf-8")
