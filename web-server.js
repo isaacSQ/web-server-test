@@ -5,6 +5,7 @@ const net = require('net');
 const dgram = require('dgram');
 const express = require('express'); 
 const socketIO = require('socket.io');
+const fetch = require('node-fetch');
 
 const TCP_PORT = 2023;
 const UDP_PORT = 22023; 
@@ -24,27 +25,13 @@ let tcpClientId = {}
 
 const app = express()
 
-const server = app.listen(2024)
 
-const io = socketIO(server)
-
-io.on('connection', (socket)=>{
-    console.log('client connected:', socket);
-
-    socket.on('disconnect', () => {
-        console.log('User disconnected');
-    });
-
-    socket.on('message', (message) => {
-        console.log(`WEB Server received: ${message} from ${socket.id}`);
-
-        // send to all clients
-        io.emit('message', message)
-    });
+app.get('*', function(req, res){
+    console.log(`WEB Server`, req, res)
 })
 
-app.get('/', function(req, res){
-    console.log(`WEB Server`, req, res)
+app.listen(2024, ()=>{
+    console.log('WEB Server listening on port 2024');
 })
 
 
