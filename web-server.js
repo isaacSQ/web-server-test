@@ -1,13 +1,5 @@
 const http = require('http');
-const httpProxy = require('http-proxy');
-     
-let proxy 
-
-let webServer
-     
-
-
-
+const ProxyChain = require('proxy-chain');
 
 const net = require('net');
 const dgram = require('dgram');
@@ -28,6 +20,19 @@ let tcpClientId = {}
 
 //UDP SERVER
 
+
+
+const webServer = new ProxyChain.Server({
+    port: 2024,
+    host: 'http://192.168.4.179/',
+    verbose: true
+});
+
+webServer.listen(()=>{
+    console.log('Proxy server listening on port 2024')
+})
+
+
 const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
 
     udpServer.on('listening', () => {
@@ -40,29 +45,29 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
             HOST_ADDR = rinfo.address
             HOST_UDP_PORT = rinfo.port
 
-            proxy = httpProxy.createProxyServer({
-                target: 'http://192.168.4.179',
-                //target: 'http://' + HOST_ADDR + ':2024', 
-                changeOrigin: true,
-                });
-                console.log("---->", proxy)
-                webServer = http.createServer((req, res) => {
-                    console.log("REQ RES", req, res)
-            proxy.web(req, res, (err) => {
-                console.log("HERE HERE HERE")
-                if (err) {
-                    console.error('Error with proxy: ', err);
-                    res.writeHead(500, { 'Content-Type': 'text/plain' });
-                    res.end('Proxy error: ' + err.message);
-                }
-            });
+            // proxy = httpProxy.createProxyServer({
+            //     target: 'http://192.168.4.179',
+            //     //target: 'http://' + HOST_ADDR + ':2024', 
+            //     changeOrigin: true,
+            //     });
+            //     console.log("---->", proxy)
+            //     webServer = http.createServer((req, res) => {
+            //         console.log("REQ RES", req, res)
+            // proxy.web(req, res, (err) => {
+            //     console.log("HERE HERE HERE")
+            //     if (err) {
+            //         console.error('Error with proxy: ', err);
+            //         res.writeHead(500, { 'Content-Type': 'text/plain' });
+            //         res.end('Proxy error: ' + err.message);
+            //     }
+            // });
 
-            webServer.listen(2024, '0.0.0.0',() => {
-                console.log('Proxy server is running on http://aws-server-ip:8080');
-                });
-            });
+            // webServer.listen(2024, '0.0.0.0',() => {
+            //     console.log('Proxy server is running on http://aws-server-ip:8080');
+            //     });
+            // });
 
-            console.log("======>", webServer)
+            // console.log("======>", webServer)
 
             return
         }

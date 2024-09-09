@@ -8,7 +8,7 @@
     "dependencies": {
         "body-parser": "^1.15.2",
         "express": "^4.14.0",
-        "http-proxy": "^1.18.1",
+        "proxy-chain": "^2.5.3",
         "socket.io": "^4.7.5"
     }
 }
