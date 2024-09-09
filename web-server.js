@@ -21,9 +21,9 @@ let HOST_TCP_PORT = null
 
 let HOST_TCP_SOCKET = null
 
-
-let tcpClients = {}
 let Clients = new Map()
+
+let tcpClientId = {}
 
 
 //UDP SERVER
@@ -164,16 +164,12 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 console.log(data.toString().match(/\(([^,]+)/))
                 const unid = data.toString().match(/\(([^,]+)/)[1]
                 console.log("here", unid, Clients.get(unid))
-            }
-
-            if(tcpClients[`${socket.remoteAddress}:${socket.remotePort}`] === undefined){
-                //console.log("ADDING CLIENT", `${socket.remoteAddress}:${socket.remotePort}`)
-                tcpClients[`${socket.remoteAddress}:${socket.remotePort}`] = socket
+                Clients.set(unid, {...Clients.get(unid), tcpPort: socket.remotePort, socket: socket})
+                tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`] = unid
             }
             
             if(socket.remoteAddress === HOST_ADDR && socket.remotePort === HOST_TCP_PORT){
                 forwardTcpToClient(data)
-                //console.log("forward host tcp message to client")
                 return
             }
 
@@ -199,16 +195,9 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
         socket.on('end', () => {
             //console.log(`Client disconnected: ${socket.remoteAddress}`);
             //if (socket.remoteAddress === HOST_ADDR && socket.remotePort === HOST_TCP_PORT) {
-                console.log("\n🚀\n ~ socket.on ~ socket.remoteAddress:", socket.remoteAddress, socket.remotePort)
+                console.log("\n🚀\n ~ socket.on ~ socket.remoteAddress:", socket.remoteAddress, socket.remotePort, "host:", HOST_ADDR, HOST_TCP_PORT)
                 //console.log("\n\nHERE")
                 //kickAndClearServers()
-              //} else {
-                delete tcpClients[`${socket.remoteAddress}:${socket.remotePort}`]
-                for (const client in tcpClients) {
-                    console.log("\n\n\n\n", client, "\n\n\n\n\n\n")
-                    tcpClients[client].destroy()
-                  }
-              //}
         });
     
         serverCallback(socket);
@@ -231,7 +220,6 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 if (err) {
                     throw err;
                 }
-                console.log("-------------------- CONNECTION ISSUES CHECK vb.connect");
             });
         } catch (e) {
             console.log("**** DISCONNECTION ******", e.message);
@@ -259,8 +247,12 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
       
                 convertedJson.MSG = Buffer.from(convertedJson.MSG, "base64").toString("utf-8")
                 //console.log("🚀 ~ objects ~ convertedJson.MSG:", convertedJson.MSG)
-      
-                tcpClients[`${convertedJson.CA}:${convertedJson.CP}`]?.write(convertedJson.MSG)
+
+                const unid = tcpClientId[`${convertedJson.CA}:${convertedJson.CP}`]
+
+                console.log(Clients.get(unid), "HERE HERE")
+
+                Clients.get(unid)?.socket.write(convertedJson.MSG)
       
                 return convertedJson
               })
@@ -277,10 +269,10 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
         HOST_ADDR = null
         HOST_TCP_PORT = null
         HOST_TCP_SOCKET = null
-        for (const client in tcpClients) {
-          tcpClients[client].destroy()
-        }
-        tcpClients = {}
+        Clients.forEach(client, ()=>{
+            client.socket.destroy()
+        })
+        Clients.clear()
       }
         
 
