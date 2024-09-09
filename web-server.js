@@ -5,7 +5,7 @@ const net = require('net');
 const dgram = require('dgram');
 const express = require('express'); 
 const socketIO = require('socket.io');
-import fetch from 'node-fetch';
+//const fetch = require('node-fetch');
 
 const TCP_PORT = 2023;
 const UDP_PORT = 22023; 
