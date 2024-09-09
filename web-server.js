@@ -204,7 +204,6 @@ const tcpServer = net.createServer({ allowHalfOpen: true }, function(socket) {
                     console.log("HOST DEAD, CLEARING", e)
                     kickAndClearServers()
                 }
-                Clients.get(unid).socket.close()
                 Clients.delete(unid)
                 delete tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`]
             }
