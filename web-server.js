@@ -41,7 +41,8 @@ const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
             HOST_UDP_PORT = rinfo.port
 
             proxy = httpProxy.createProxyServer({
-                target: 'http://' + HOST_ADDR + ':2024', 
+                target: 'http://192.168.4.179:2024',
+                //target: 'http://' + HOST_ADDR + ':2024', 
                 changeOrigin: true,
                 });
                 console.log("---->", proxy)
