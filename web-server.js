@@ -48,7 +48,7 @@ app.get('/', function(req, res){
 })
 
 
-let expressServer = webServer.listen(2024)
+//let expressServer = webServer.listen(2024)
 
 // const webServer = net.createServer({ allowHalfOpen: false }, function(socket) {
 //     console.log('web client connected:', socket.remoteAddress, socket.remotePort);
