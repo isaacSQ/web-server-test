@@ -278,7 +278,7 @@ const tcpServer = net.createServer({ allowHalfOpen: true }, function(socket) {
         HOST_ADDR = null
         HOST_TCP_PORT = null
         HOST_TCP_SOCKET = null
-        Clients.forEach(client, ()=>{
+        Clients.forEach((client)=>{
             client.socket.destroy()
         })
         Clients.clear()
