@@ -28,9 +28,9 @@ const app = express()
 
 app.get('*', async(req, res)=>{
     try{
-        console.log(`WEB Server`,req.originalUrl, res)
-        const targetURL = `http://82.71.58.81:2024${req.originalUrl}`
-        //const targetURL = `http://192.168.4.179:2024${req.originalUrl}`
+        console.log(`WEB Server`,req.url, res.method)
+        //const targetURL = `http://82.71.58.81:2024${req.originalUrl}`
+        const targetURL = `http://192.168.4.179:2024${req.url}`
     
         const response = await fetch(targetURL)
         console.log("🚀 ~ app.get ~ response:", response)
