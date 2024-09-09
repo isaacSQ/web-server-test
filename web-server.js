@@ -213,7 +213,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
         serverCallback(socket);
     });
 
-    tcpServer.timeout = 0;
+    //tcpServer.timeout = 0;
     
     tcpServer.listen(TCP_PORT, '0.0.0.0', () => {
         console.log(`TCP Server listening on port ${TCP_PORT}`);
