@@ -131,7 +131,7 @@ app.get('/clips', (req,res) => {
     setTimeout(() => {
         if (buzzerClips === null) {
             console.log("Timeout: buzzerClips is still null.");
-            clearInterval(interval);
+            clearTimeout(timeout);
         }
     }, 5000);
 
@@ -662,7 +662,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                     convertedJson.DATA = Buffer.from(convertedJson.DATA, "base64").toString("utf-8")
                     switch(convertedJson.ENDPOINT){
                         case "clips":
-                            buzzerClips = convertedJson.DATA
+                            buzzerClips = JSON.parse(convertedJson.DATA)
                             break
                     }
                     return
