@@ -27,7 +27,351 @@ const app = express()
 
 
 app.get('/', (req, res)=>{
-   
+    if(req.query?.id){
+
+        let unid = req.query.id
+        
+        const pictureToServe = fs.readFileSync(
+                                appPath + "/images/picture_questions/current_picture_question.jpg"
+                            )
+        
+        
+        res.setHeader('Content-Type', 'image/jpeg')
+        
+        res.end(pictureToServe, "binary")
+        
+        res.on("finish", function () {
+            console.log('Image Served')
+            if(unid !== "ios2921I8C5593A46"){
+                process.send({ command: "server_picture_served", unid: unid })
+            }
+            res.destroy()
+        })
+        
+        
+        
+        
+        }else{
+        
+            res.setHeader('Content-Type', 'application/json')
+            res.json({error:'no_params'})
+        
+        
+        }
+})
+
+app.get('/get_round_pictures', (req,res) => {
+
+	if(req.query?.id){
+
+	let unid = req.query.id
+
+	console.log("- - - - - - - - - - - - -------- PICTURES ZIP ROUTE ---------------------------- ")
+
+		if(unid ==  "ios2921I8C5593A46"){
+
+			console.log(unid,"- - - - - - - - - - - - -------- 404 PICTURES ZIP ROUTE 404 ---------------------------- ")
+
+			res.sendStatus(500)
+
+		}else{
+
+			res.setHeader('Content-Type', 'application/zip')
+
+			fs.readdir(appPath + "/images/roundpics", (err, files) => {
+				res.end(
+					fs.readFileSync(appPath + "/images/roundpics/" + files[0]),
+					"binary"
+				)
+			})
+
+		}
+
+	}else{
+
+		res.setHeader('Content-Type', 'application/json')
+		res.json({error:'no_params'})
+
+	}
+
+})
+
+/* CLIP LIST ROUTE */
+
+app.get('/clips', (req,res) => {
+
+
+	if(locallyStoredBuzzerClips == null){
+		var dataFilePath = path.join(docsPath, "._sq_imported/setdbv5.json")
+		var data = JSON.parse(fs.readFileSync(dataFilePath, "utf-8"))
+
+
+		locallyStoredBuzzerClips = data["buzzer_clips"].map(function (clip) {
+			return { file: clip.display + ".mp3" }
+		})
+
+	}
+
+	console.log("locallyStoredBuzzerClips SHOULD HAVE SERVED....",locallyStoredBuzzerClips)
+
+	res.setHeader('Content-Type', 'application/json')
+
+	res.json(locallyStoredBuzzerClips)
+
+	})
+
+
+// Run the file
+
+
+
+
+/* CLIP USED ROUTE */
+
+app.get('/clips_used', (req,res) => {
+
+	res.setHeader('Content-Type', 'application/json')
+
+	if(req.query?.unid){
+
+	const unid = req.query.unid
+
+	var used = []
+
+	var selected = -1
+
+	//discover if device connecting has already selected a sound
+
+	if (allocatedClipsArray.length > 0) {
+		var item;
+		item = allocatedClipsArray.find(function (clip) {
+			return unid === clip.usedby
+		});
+
+		if (item !== undefined) selected = item.index;
+
+		used = allocatedClipsArray
+			.filter(function (clip) {
+				return clip.index !== selected
+			})
+			.map(function (clip) {
+				return clip.index
+			});
+	}
+
+	var resstr = '{"used_clips": "' + used.toString() + '","selected_clip": "' + selected + '"}'
+
+	console.log("-- SERVED CLIP USED /clips_used ---",resstr)
+
+	res.end(resstr)
+
+	}else{
+
+	res.json({error:'no_params'})
+	}
+
+})
+
+
+
+
+
+app.get('/advert-*', (req,res) => {
+	//ADVERTS
+
+	console.log(req.url)
+
+	var filename = req.url.substr(1)
+
+	var pth = docsPath + "/._sq_imported/_handset_slides/";
+
+	fs.readFile(pth + filename, function (err, file) {
+		//in case
+		if (err) file = fs.readFileSync(pth + "-sq-advert-1.jpg")
+
+		res.setHeader('Content-Type', 'image/jpeg')
+
+		res.end(file, "binary")
+
+		res.on('finish', function() {
+					console.log('Image Served')
+		      process.send({'command':'server_advert_served',ip:res.remoteAddress})
+		   })
+
+	})
+
+
+})
+
+/* SCOREBOARD ROUTE */
+
+app.get('/get_scoreboard', (req,res) => {
+
+	res.setHeader('Content-Type', 'application/json')
+	//to be removed when 5.5.6 is minimum for host V5
+	let isV5 = req.query?.v5 ?? false
+	//  ----  //
+	if(req.query?.unid){
+
+		const unid = req.query.unid
+
+			const scoreboardArrWithHighlight = scoreboardArr.map(item => {
+				// ---
+			const name = isV5 ? item.name : item.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+				// ---
+			const owned = unid === item.id;
+			  return {
+			    pos: item.pos,
+			    name,
+			    score: item.score,
+				tab_colour: item.tab_colour,
+			    owned,
+			  };
+			});
+
+
+		res.json(scoreboardArrWithHighlight)
+		res.destroy()
+
+		}else{
+
+		res.json({error:'no_params'})
+
+		}
+
+})
+
+/* LANGUAGE ROUTE */
+app.get('/get_i18n', (req,res) => {
+
+
+	if(req.query?.hash){
+		process.send({ command: "lang_check_update", hash: req.query.hash })
+	} else
+		process.send({ command: "lang_check_update", hash: "sillysausages" })
+
+
+	//waiting 2000 for appLanguageJson update
+	setTimeout(function () {
+		res.setHeader('Content-Type', 'application/json')
+	  res.end(appLanguageJson)
+		res.destroy()
+	}, 2000)
+
+})
+
+
+
+/* PROFILE PICTURES ROUTE */
+
+app.get('/winning_team_pic', (req,res) => {
+
+	res.setHeader('Content-Type', 'image/jpeg')
+
+	res.end(
+		fs.readFileSync(docsPath + "Player Images/current_winning_team.jpg"),
+		"binary"
+	)
+
+})
+
+app.get('/rotated_team_pic', (req,res) => {
+
+	if(req.query?.picId){
+		const picId = req.query.picId
+		res.setHeader('Content-Type', 'image/jpeg')
+		res.end(
+			fs.readFileSync(docsPath + `Player Images/${picId}.jpg`),
+			"binary"
+		)
+	} else{
+		res.json({error: 'no_params'})
+	}
+
+
+
+})
+
+/* BINGO CARD ROUTE */
+
+app.get('/get_bingo_card', (req,res) => {
+
+	//console.log("-------------- - - - - - - - - BINGO CARD REQ... ",req.url, req.query)
+
+	if(req.query?.unid){
+
+	const unid = req.query.unid
+
+	//console.log("BINGO CARD",unid,bingoCardsObj[unid])
+
+	var used = []
+
+	var selected = -1
+
+	res.setHeader('Content-Type', 'application/json')
+
+	res.json(bingoCardsObj[unid])
+	//res.destroy()
+
+	}else{
+		res.json({error:'no_params'})
+	}
+
+})
+
+app.get('/get_wheel_list', (req,res) => {
+
+	//console.log("-------------- - - - - - - - - BINGO CARD REQ... ",req.url, req.query)
+
+
+	const unid = req.query.unid
+
+	//console.log("BINGO CARD",unid,bingoCardsObj[unid])
+
+	res.setHeader('Content-Type', 'application/json')
+
+	res.json(wheelList)
+	//res.destroy()
+
+
+})
+
+
+/* WHEEL ROUTE */
+
+app.get('/get_wheel', (req,res) => {
+
+
+
+	res.sendFile(publicPath + `/wheel.html`)
+
+})
+app.get('/assets/FontManifest.json', (req,res) => {
+	res.json([])
+})
+
+/* TEST ROUTE */
+
+app.get('/test', (req,res) => {
+
+	res.setHeader('Content-Type', 'application/json')
+
+    res.json({
+		SpeedQuizzing: true,
+		media_server: true,
+		req: req.url,
+		daftness: 19,
+	})
+
+})
+
+
+app.get('/health-check', (req,res) => {
+
+    res.setHeader('Content-Type', 'application/json')
+
+    res.json({"status":"healthy"})
+
 })
 
 app.listen(2024, ()=>{
