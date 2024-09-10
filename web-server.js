@@ -63,9 +63,9 @@ app.listen(2024, ()=>{
 // });
 
 
-webServer.on("error", (e) => {
-    console.log(`WEB Server error: ${e.message}`);
-});
+// webServer.on("error", (e) => {
+//     console.log(`WEB Server error: ${e.message}`);
+// });
 
 
 const udpServer = dgram.createSocket({type: 'udp4', reuseAddr: true});
