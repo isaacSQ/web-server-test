@@ -613,16 +613,18 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
     let dataContent = ""
 
     function forwardTcpToClient(data){
-        console.log("🚀 ~ forwardTcpToClient ~ data:", data.toString())
-        if(!`${data}`.endsWith('})')){
-            console.log("GERE")
-        }
+        //console.log("🚀 ~ forwardTcpToClient ~ data:", data.toString())
+        // if(!`${data}`.endsWith('})')){
+        //     console.log("GERE")
+        // }
         if (`${data}`.includes("sm.json(")) {
             try {
               const commands = `${data}`.split("sm.json(").filter((command) =>  command.trim())
                 
             console.log("🚀 ~ forwardTcpToClient ~ commands:", commands)
               const objects = commands.map((command) => {
+              console.log("🚀 ~ objects ~ command:", command)
+
                 const jsonString = command.slice(0, -1)
       
                 if (jsonString == undefined) {
