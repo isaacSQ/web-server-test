@@ -23,7 +23,8 @@ let tcpClientId = {}
 //2024 media objects
 let buzzerClips = null
 
-
+const server = http.createServer(app)
+const io = socketIO(server)
 
 //UDP SERVER
 
@@ -105,6 +106,14 @@ const app = express()
 
 
 app.get('/clips', (req,res) => {
+
+    // try{
+
+    // } catch(e) {
+
+    // }
+
+
     const msg = `{"MSG":"2024","ENDPOINT":"clips"}`
 
     HOST_TCP_SOCKET?.write(msg)
@@ -601,13 +610,18 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
         }
     }
 
+    let dataContent = ""
+
     function forwardTcpToClient(data){
         console.log("🚀 ~ forwardTcpToClient ~ data:", data.toString())
+        if(!`${data}`.endsWith('})')){
+            console.log("GERE")
+        }
         if (`${data}`.includes("sm.json(")) {
             try {
               const commands = `${data}`.split("sm.json(").filter((command) =>  command.trim())
                 
-            //console.log("🚀 ~ forwardTcpToClient ~ commands:", commands)
+            console.log("🚀 ~ forwardTcpToClient ~ commands:", commands)
               const objects = commands.map((command) => {
                 const jsonString = command.slice(0, -1)
       
