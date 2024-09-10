@@ -127,44 +127,44 @@ app.get("/clips", (req, res) => {
 
 /* CLIP USED ROUTE */
 
-// app.get("/clips_used", (req, res) => {
+app.get("/clips_used", (req, res) => {
 
-//     res.setHeader('Content-Type', 'application/json')
-// 	if(req.query?.unid){
-// 	    const unid = req.query.unid
-// 	    var used = []
-// 	    var selected = -1
+    res.setHeader('Content-Type', 'application/json')
+	if(req.query?.unid){
+	    const unid = req.query.unid
+	    var used = []
+	    var selected = -1
 
-// 	//discover if device connecting has already selected a sound
+	//discover if device connecting has already selected a sound
 
-// 	if (processObject.allocatedClipsArray.length > 0) {
-// 		var item;
-// 		item = processObject.allocatedClipsArray.find(function (clip) {
-// 			return unid === clip.usedby
-// 		});
+	if (processObject.allocatedClipsArray.length > 0) {
+		var item;
+		item = processObject.allocatedClipsArray.find(function (clip) {
+			return unid === clip.usedby
+		});
 
-// 		if (item !== undefined) selected = item.index;
+		if (item !== undefined) selected = item.index;
 
-// 		used = processObject.allocatedClipsArray
-// 			.filter(function (clip) {
-// 				return clip.index !== selected
-// 			})
-// 			.map(function (clip) {
-// 				return clip.index
-// 			});
-// 	}
+		used = processObject.allocatedClipsArray
+			.filter(function (clip) {
+				return clip.index !== selected
+			})
+			.map(function (clip) {
+				return clip.index
+			});
+	}
 
-// 	var resstr = '{"used_clips": "' + used.toString() + '","selected_clip": "' + selected + '"}'
+	var resstr = '{"used_clips": "' + used.toString() + '","selected_clip": "' + selected + '"}'
 
-// 	console.log("-- SERVED CLIP USED /clips_used ---",resstr)
+	console.log("-- SERVED CLIP USED /clips_used ---",resstr)
 
-// 	res.end(resstr)
+	res.end(resstr)
 
-// 	}else{
+	}else{
 
-// 	res.json({error:'no_params'})
-// 	}
-// });
+	res.json({error:'no_params'})
+	}
+});
 
 // app.get('/advert-*', (req,res) => {
 // 	//ADVERTS
@@ -662,10 +662,7 @@ function forwardTcpToClient(buffer) {
           ).toString("utf-8");
           switch (convertedJson.ENDPOINT) {
             case "clips":
-              buzzerClips = JSON.parse(convertedJson.DATA);
-              break;
-            case "clips_used":
-              buzzerClipsUsed = JSON.parse(convertedJson.DATA);
+              processObject.locallyStoredBuzzerClips = JSON.parse(convertedJson.DATA);
               break;
             case "process":
               processObject = JSON.parse(convertedJson.DATA);
