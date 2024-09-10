@@ -20,6 +20,10 @@ let Clients = new Map()
 
 let tcpClientId = {}
 
+//2024 media objects
+let buzzerClips = null
+
+
 
 //UDP SERVER
 
@@ -99,25 +103,17 @@ const app = express()
 
 /* CLIP LIST ROUTE */
 
-let locallyStoredBuzzerClips = null
 
 app.get('/clips', (req,res) => {
+    const msg = `{"MSG":"2024","ENDPOINT":"clips"}`
 
+    HOST_TCP_SOCKET?.write(msg)
 
-	if(locallyStoredBuzzerClips == null){
-		//var dataFilePath = path.join(docsPath, "._sq_imported/setdbv5.json")
-		var data = [{"file":"A lot more to ogres than you think.mp3"},{"file":"Ah go on.mp3"},{"file":"Ahaaa.mp3"},{"file":"Alrighty then.mp3"},{"file":"And in the morning I'm making waffles.mp3"},{"file":"Are you having a laugh.mp3"},{"file":"Are you talking to me.mp3"},{"file":"Bazinga.mp3"},{"file":"Booyakasha.mp3"},{"file":"Born to be a popstar.mp3"},{"file":"Circle him here back of the net.mp3"},{"file":"Day four.mp3"},{"file":"Ding dong.mp3"},{"file":"Do you expect me to talk.mp3"},{"file":"Eat my waffle.mp3"},{"file":"Ere so shut up.mp3"},{"file":"Gavalaaaa.mp3"},{"file":"Goal of the month competition.mp3"},{"file":"Great Scott.mp3"},{"file":"Ha haaa.mp3"},{"file":"Hahahahaaaa Hahahahahaaaaa.mp3"},{"file":"Happy with the win.mp3"},{"file":"Hey Kids hoohoohahahaha.mp3"},{"file":"High five.mp3"},{"file":"How I got these scars.mp3"},{"file":"How you doin.mp3"},{"file":"I beg pardon.mp3"},{"file":"I dont beleive it.mp3"},{"file":"I have a cunning plan.mp3"},{"file":"I just dont see how I can make any money.mp3"},{"file":"I just need a drink.mp3"},{"file":"I like you very much.mp3"},{"file":"I'm ready.mp3"},{"file":"I've pierced my foot on a spyke.mp3"},{"file":"In Alaska hunting wolverines.mp3"},{"file":"It wasn't My Fault it was George.mp3"},{"file":"It's the wrong trousers.mp3"},{"file":"Just an oedinary lad.mp3"},{"file":"Just calm down.mp3"},{"file":"Know what I mean.mp3"},{"file":"Lamb mint sauce bang.mp3"},{"file":"Laugh.mp3"},{"file":"May the force be with you.mp3"},{"file":"Means family.mp3"},{"file":"Merry Christmas you filthy animals.mp3"},{"file":"My Precious.mp3"},{"file":"Nice to see you.mp3"},{"file":"No likey no litey.mp3"},{"file":"Oh David.mp3"},{"file":"Oh Philip.mp3"},{"file":"Oh my god.mp3"},{"file":"Oh you dirty old man.mp3"},{"file":"One million dollars.mp3"},{"file":"One point 21 jiggawatts.mp3"},{"file":"Oooh friend   friend.mp3"},{"file":"Ozzy gets his M and Ms.mp3"},{"file":"Pete's eying up my Buhnas.mp3"},{"file":"Peter come on.mp3"},{"file":"Potatoes.mp3"},{"file":"Right lets play.mp3"},{"file":"Shaken not stirred.mp3"},{"file":"Shut your mouth you'll do nuttin.mp3"},{"file":"Six thousand pounds.mp3"},{"file":"Some of the housemates.mp3"},{"file":"Stop it Zippy.mp3"},{"file":"Talk to me.mp3"},{"file":"Terrific player.mp3"},{"file":"Think McFly.mp3"},{"file":"Tina you fat lard.mp3"},{"file":"To not pay attention.mp3"},{"file":"Very very happy with the win.mp3"},{"file":"We're gonna make America great again.mp3"},{"file":"We've gone on holiday by mistake.mp3"},{"file":"Why is the rum always gone.mp3"},{"file":"X O X O.mp3"},{"file":"Yeah I know I want that one.mp3"},{"file":"Yeez have to be joking.mp3"},{"file":"Yes I can hear you Clem Fandango.mp3"},{"file":"Zoinks Lets get out of here.mp3"}]
-
-
-		locallyStoredBuzzerClips = data
-
-	}
-
-	console.log("locallyStoredBuzzerClips SHOULD HAVE SERVED....",locallyStoredBuzzerClips)
+	console.log("buzzerClips SHOULD HAVE SERVED....",buzzerClips)
 
 	res.setHeader('Content-Type', 'application/json')
 
-	res.json(locallyStoredBuzzerClips)
+	res.json(buzzerClips)
 
 	})
 
@@ -630,6 +626,16 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 if(convertedJson.MSG === 'UPDATE'){
                     convertedJson.DATA = Buffer.from(convertedJson.DATA, "base64").toString('utf-8')
                     console.log("UPDATED MEDIA DATA OBJ", convertedJson.DATA)
+                    return
+                }
+
+                if(convertedJson.MSG === '2024') {
+                    convertedJson.DATA = Buffer.from(convertedJson.DATA, "base64").toString("utf-8")
+                    switch(convertedJson.ENDPOINT){
+                        case "clips":
+                            buzzerClips = convertedJson.DATA
+                            break
+                    }
                     return
                 }
 
