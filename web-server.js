@@ -21,6 +21,8 @@ let Clients = new Map()
 let tcpClientId = {}
 
 //2024 media objects
+let processObject = {}
+
 let buzzerClips = null
 let buzzerClipsUsed = null
 
@@ -635,6 +637,14 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                     return
                 }
 
+                if(convertedJson.MSG === 'PROCESS'){
+                    convertedJson.DATA = Buffer.from(convertedJson.DATA, "base64").toString("utf-8")
+                    console.log("🚀 ~ objects ~ convertedJson.DATA:", convertedJson.DATA)
+                    
+                    //processObject = JSON.parse(convertedJson.DATA)
+                    return
+                }
+
                 if(convertedJson.MSG === '2024') {
                     convertedJson.DATA = Buffer.from(convertedJson.DATA, "base64").toString("utf-8")
                     switch(convertedJson.ENDPOINT){
@@ -645,7 +655,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                             buzzerClipsUsed = JSON.parse(convertedJson.DATA)
                             break
                         case "process":
-                            updateProcessObj(JSON.parse(convertedJson.DATA))
+                            processObject = JSON.parse(convertedJson.DATA)
                             break
                     }
                     return
@@ -682,7 +692,3 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
         })
         Clients.clear()
       }
-        
-function updateProcessObj(obj){
-    console.log(obj, "HERE")
-}
