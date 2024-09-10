@@ -23,58 +23,44 @@ let tcpClientId = {}
 
 //UDP SERVER
 
-// const app = express()
+const app = express()
 
 
-// app.get('*', async(req, res)=>{
-//     try{
-//         console.log(`WEB Server`,req.url)
-//         //const targetURL = `http://82.71.58.81:2024${req.url}`
-//         const targetURL = `http://192.168.4.179:2024${req.url}`
-//         console.log(fetch)
-//         const response = await fetch(targetURL)
-//         console.log("🚀 ~ app.get ~ response:", response)
-//         const data = await response.json()
-//         console.log("🚀 ~ app.get ~ data:", data)
+app.get('/', (req, res)=>{
+   
+})
 
-//         res.status(response.status).json(data)
+app.listen(2024, ()=>{
+    console.log('WEB Server listening on port 2024');
+})
 
-//     } catch(e){
-//         console.log(`Failed to fetch web server`, e)
-//     }
-// })
+// const webServer = net.createServer({ allowHalfOpen: false }, function(socket) {
+//     console.log('web client connected:', socket.remoteAddress, socket.remotePort);
 
-// app.listen(2024, ()=>{
-//     console.log('WEB Server listening on port 2024');
-// })
+//     socket.on('data', (data) => {
+//         console.log(`WEB Server received: ${data}`);
+//         try{
+//             HOST_TCP_SOCKET.write(data)
+//         } catch(e) {
+//             console.log("WEB HOST DEAD, CLEARING")
+//             kickAndClearServers()
+//         }
+//     });
 
-const webServer = net.createServer({ allowHalfOpen: false }, function(socket) {
-    console.log('web client connected:', socket.remoteAddress, socket.remotePort);
+//     socket.on('error', (err) => {
+//         console.error(`Socket error: ${err.stack}`);
+//     });
 
-    socket.on('data', (data) => {
-        console.log(`WEB Server received: ${data}`);
-        try{
-            HOST_TCP_SOCKET.write(data)
-        } catch(e) {
-            console.log("WEB HOST DEAD, CLEARING")
-            kickAndClearServers()
-        }
-    });
-
-    socket.on('error', (err) => {
-        console.error(`Socket error: ${err.stack}`);
-    });
-
-    socket.on('end', () => {
-        console.log("END")
+//     socket.on('end', () => {
+//         console.log("END")
         
-    });
+//     });
 
-});
+// });
 
-webServer.listen(2024, '0.0.0.0', () => {
-    console.log(`WEB Server listening on port 2024`);
-});
+// webServer.listen(2024, '0.0.0.0', () => {
+//     console.log(`WEB Server listening on port 2024`);
+// });
 
 
 webServer.on("error", (e) => {
@@ -296,10 +282,15 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                     return
                 }
                 
+                if(convertedJson.MSG === 'UPDATE'){
+                    convertedJson.DATA = Buffer.from(convertedJson.DATA, "base64").toString('utf-8')
+                    console.log("UPDATED MEDIA DATA OBJ", convertedJson.DATA)
+                    return
+                }
+
                 convertedJson.MSG = Buffer.from(convertedJson.MSG, "base64").toString("utf-8")
                 //console.log("🚀 ~ objects ~ convertedJson.MSG:", convertedJson.MSG)
                 
-
 
                 const unid = tcpClientId[`${convertedJson.CA}:${convertedJson.CP}`]
 
