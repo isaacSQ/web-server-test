@@ -636,7 +636,6 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                 }
               const commands = data.split("sm.json(").filter((command) =>  command.trim())
                 
-            console.log("🚀 ~ forwardTcpToClient ~ commands:", commands)
               const objects = commands.map((command) => {
 
                 const jsonString = command.slice(0, -1)
