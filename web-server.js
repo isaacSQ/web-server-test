@@ -21,10 +21,8 @@ let Clients = new Map()
 let tcpClientId = {}
 
 //2024 media objects
-const tcpLoading = {
-    clips: false,
-}
 let buzzerClips = null
+let buzzerClipsUsed = null
 
 //UDP SERVER
 
@@ -107,20 +105,12 @@ const app = express()
 
 app.get('/clips', (req,res) => {
 
-    // try{
-
-    // } catch(e) {
-
-    // }
-
-
     const msg = `{"MSG":"2024","ENDPOINT":"clips"}`
 
     HOST_TCP_SOCKET?.write(msg)
 
     
     const timeout = setTimeout(()=>{
-        console.log("buzzerClips SHOULD HAVE SERVED....",buzzerClips)
         if(buzzerClips !== null){
             clearTimeout(timeout)
             res.setHeader('Content-Type', 'application/json')
@@ -146,49 +136,36 @@ app.get('/clips', (req,res) => {
 
 /* CLIP USED ROUTE */
 
-// app.get('/clips_used', (req,res) => {
+app.get('/clips_used', (req,res) => {
 
-// 	res.setHeader('Content-Type', 'application/json')
+    res.setHeader('Content-Type', 'application/json')
 
-// 	if(req.query?.unid){
+    if(req.query?.unid){
+	    const unid = req.query.unid
 
-// 	const unid = req.query.unid
+        const msg = `{"MSG":"2024","ENDPOINT":"clips_used","UNID":"${unid}"}`
+        HOST_TCP_SOCKET?.write(msg)
 
-// 	var used = []
+        const timeout = setTimeout(()=>{
+            if(buzzerClips !== null){
+                clearTimeout(timeout)
+                res.end(buzzerClipsUsed)
 
-// 	var selected = -1
+            }
+        }, 50)
+    
+        setTimeout(() => {
+            if (buzzerClips === null) {
+                console.log("Timeout: buzzerClips is still null.");
+                clearTimeout(timeout);
+            }
+        }, 5000);
 
-// 	//discover if device connecting has already selected a sound
+    } else {
+        res.json({error:'no_params'})
+    }
 
-// 	if (allocatedClipsArray.length > 0) {
-// 		var item;
-// 		item = allocatedClipsArray.find(function (clip) {
-// 			return unid === clip.usedby
-// 		});
-
-// 		if (item !== undefined) selected = item.index;
-
-// 		used = allocatedClipsArray
-// 			.filter(function (clip) {
-// 				return clip.index !== selected
-// 			})
-// 			.map(function (clip) {
-// 				return clip.index
-// 			});
-// 	}
-
-// 	var resstr = '{"used_clips": "' + used.toString() + '","selected_clip": "' + selected + '"}'
-
-// 	console.log("-- SERVED CLIP USED /clips_used ---",resstr)
-
-// 	res.end(resstr)
-
-// 	}else{
-
-// 	res.json({error:'no_params'})
-// 	}
-
-// })
+})
 
 
 
@@ -664,6 +641,12 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
                         case "clips":
                             buzzerClips = JSON.parse(convertedJson.DATA)
                             break
+                        case "clips_used":
+                            buzzerClipsUsed = JSON.parse(convertedJson.DATA)
+                            break
+                        case "process":
+                            updateProcessObj(JSON.parse(convertedJson.DATA))
+                            break
                     }
                     return
                 }
@@ -700,4 +683,6 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
         Clients.clear()
       }
         
-
+function updateProcessObj(obj){
+    console.log(obj, "HERE")
+}
