@@ -86,7 +86,7 @@ app.get('/get_round_pictures', (req,res) => {
             
             setTimeout(() => {
                 if (processObject.locallyStoredBuzzerClips === null) {
-                    console.log("Timeout: buzzerClips is still null.");
+                    console.log("Timeout: picture zip is still null.");
                     clearTimeout(timeout);
                 }
             }, 10000);
