@@ -23,9 +23,6 @@ let tcpClientId = {}
 //2024 media objects
 let buzzerClips = null
 
-const server = http.createServer(app)
-const io = socketIO(server)
-
 //UDP SERVER
 
 const app = express()
