@@ -128,30 +128,42 @@ app.get("/clips", (req, res) => {
 /* CLIP USED ROUTE */
 
 app.get("/clips_used", (req, res) => {
-  res.setHeader("Content-Type", "application/json");
 
-  if (req.query?.unid) {
-    const unid = req.query.unid;
+    res.setHeader('Content-Type', 'application/json')
+	if(req.query?.unid){
+	    const unid = req.query.unid
+	    var used = []
+	    var selected = -1
 
-    const msg = `{"MSG":"2024","ENDPOINT":"clips_used","UNID":"${unid}"}`;
-    HOST_TCP_SOCKET?.write(msg);
+	//discover if device connecting has already selected a sound
 
-    const timeout = setTimeout(() => {
-      if (buzzerClips !== null) {
-        clearTimeout(timeout);
-        res.end(buzzerClipsUsed);
-      }
-    }, 50);
+	if (processObject.allocatedClipsArray.length > 0) {
+		var item;
+		item = processObject.allocatedClipsArray.find(function (clip) {
+			return unid === clip.usedby
+		});
 
-    setTimeout(() => {
-      if (buzzerClips === null) {
-        console.log("Timeout: buzzerClips is still null.");
-        clearTimeout(timeout);
-      }
-    }, 5000);
-  } else {
-    res.json({ error: "no_params" });
-  }
+		if (item !== undefined) selected = item.index;
+
+		used = processObject.allocatedClipsArray
+			.filter(function (clip) {
+				return clip.index !== selected
+			})
+			.map(function (clip) {
+				return clip.index
+			});
+	}
+
+	var resstr = '{"used_clips": "' + used.toString() + '","selected_clip": "' + selected + '"}'
+
+	console.log("-- SERVED CLIP USED /clips_used ---",resstr)
+
+	res.end(resstr)
+
+	}else{
+
+	res.json({error:'no_params'})
+	}
 });
 
 // app.get('/advert-*', (req,res) => {
