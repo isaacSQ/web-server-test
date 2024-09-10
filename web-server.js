@@ -20,6 +20,8 @@ let Clients = new Map();
 
 let tcpClientId = {};
 
+let picturesZip = null
+
 //2024 media objects
 let processObject = {
     scoreboardArr : [],
@@ -63,41 +65,42 @@ const app = express();
 //         }
 // })
 
-// app.get('/get_round_pictures', (req,res) => {
+app.get('/get_round_pictures', (req,res) => {
 
-// 	if(req.query?.id){
+	if(req.query?.id){
 
-// 	let unid = req.query.id
+		res.setHeader('Content-Type', 'application/zip')
 
-// 	console.log("- - - - - - - - - - - - -------- PICTURES ZIP ROUTE ---------------------------- ")
 
-// 		if(unid ==  "ios2921I8C5593A46"){
+        if(picturesZip === null){
+            const msg = `{"MSG":"2024","ENDPOINT":"get_round_pictures"}`;
+            HOST_TCP_SOCKET?.write(msg);
+            
+            const timeout = setTimeout(() => {
+                processObject.locallyStoredBuzzerClips
+                if (picturesZip !== null) {
+                    clearTimeout(timeout);
+                    res.end(picturesZip, 'binary')
+                }
+            }, 50);
+            
+            setTimeout(() => {
+                if (processObject.locallyStoredBuzzerClips === null) {
+                    console.log("Timeout: buzzerClips is still null.");
+                    clearTimeout(timeout);
+                }
+            }, 10000);
+        } else {
+            res.end(picturesZip, 'binary');
+        }
+	}else{
 
-// 			console.log(unid,"- - - - - - - - - - - - -------- 404 PICTURES ZIP ROUTE 404 ---------------------------- ")
+		res.setHeader('Content-Type', 'application/json')
+		res.json({error:'no_params'})
 
-// 			res.sendStatus(500)
+	}
 
-// 		}else{
-
-// 			res.setHeader('Content-Type', 'application/zip')
-
-// 			fs.readdir(appPath + "/images/roundpics", (err, files) => {
-// 				res.end(
-// 					fs.readFileSync(appPath + "/images/roundpics/" + files[0]),
-// 					"binary"
-// 				)
-// 			})
-
-// 		}
-
-// 	}else{
-
-// 		res.setHeader('Content-Type', 'application/json')
-// 		res.json({error:'no_params'})
-
-// 	}
-
-// })
+})
 
 /* CLIP LIST ROUTE */
 
@@ -354,38 +357,6 @@ app.listen(2024, () => {
   console.log("WEB Server listening on port 2024");
 });
 
-// const webServer = net.createServer({ allowHalfOpen: false }, function(socket) {
-//     console.log('web client connected:', socket.remoteAddress, socket.remotePort);
-
-//     socket.on('data', (data) => {
-//         console.log(`WEB Server received: ${data}`);
-//         try{
-//             HOST_TCP_SOCKET.write(data)
-//         } catch(e) {
-//             console.log("WEB HOST DEAD, CLEARING")
-//             kickAndClearServers()
-//         }
-//     });
-
-//     socket.on('error', (err) => {
-//         console.error(`Socket error: ${err.stack}`);
-//     });
-
-//     socket.on('end', () => {
-//         console.log("END")
-
-//     });
-
-// });
-
-// webServer.listen(2024, '0.0.0.0', () => {
-//     console.log(`WEB Server listening on port 2024`);
-// });
-
-// webServer.on("error", (e) => {
-//     console.log(`WEB Server error: ${e.message}`);
-// });
-
 const udpServer = dgram.createSocket({ type: "udp4", reuseAddr: true });
 
 udpServer.on("listening", () => {
@@ -397,31 +368,6 @@ udpServer.on("message", (msg, rinfo) => {
     console.log("HOST RECEIVED", rinfo);
     HOST_ADDR = rinfo.address;
     HOST_UDP_PORT = rinfo.port;
-
-    // proxy = httpProxy.createProxyServer({
-    //     target: 'http://192.168.4.179',
-    //     //target: 'http://' + HOST_ADDR + ':2024',
-    //     changeOrigin: true,
-    //     });
-    //     console.log("---->", proxy)
-    //     webServer = http.createServer((req, res) => {
-    //         console.log("REQ RES", req, res)
-    // proxy.web(req, res, (err) => {
-    //     console.log("HERE HERE HERE")
-    //     if (err) {
-    //         console.error('Error with proxy: ', err);
-    //         res.writeHead(500, { 'Content-Type': 'text/plain' });
-    //         res.end('Proxy error: ' + err.message);
-    //     }
-    // });
-
-    // webServer.listen(2024, '0.0.0.0',() => {
-    //     console.log('Proxy server is running on http://aws-server-ip:8080');
-    //     });
-    // });
-
-    // console.log("======>", webServer)
-
     return;
   }
 
@@ -668,6 +614,8 @@ function forwardTcpToClient(buffer) {
             case "process":
               processObject = JSON.parse(convertedJson.DATA);
               break;
+            case "get_round_pictures":
+              picturesZip = convertedJson.DATA
           }
           return;
         }
