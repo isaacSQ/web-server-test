@@ -21,6 +21,9 @@ let Clients = new Map()
 let tcpClientId = {}
 
 //2024 media objects
+const tcpLoading = {
+    clips: false,
+}
 let buzzerClips = null
 
 //UDP SERVER
@@ -115,11 +118,23 @@ app.get('/clips', (req,res) => {
 
     HOST_TCP_SOCKET?.write(msg)
 
-	console.log("buzzerClips SHOULD HAVE SERVED....",buzzerClips)
+    
+    const timeout = setTimeout(()=>{
+        console.log("buzzerClips SHOULD HAVE SERVED....",buzzerClips)
+        if(buzzerClips !== null){
+            clearTimeout(timeout)
+            res.setHeader('Content-Type', 'application/json')
+            res.json(buzzerClips)
+        }
+    }, 50)
 
-	res.setHeader('Content-Type', 'application/json')
+    setTimeout(() => {
+        if (buzzerClips === null) {
+            console.log("Timeout: buzzerClips is still null.");
+            clearInterval(interval);
+        }
+    }, 5000);
 
-	res.json(buzzerClips)
 
 	})
 
@@ -611,7 +626,6 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function(socket) {
 
     function forwardTcpToClient(buffer){
         let data = dataContent + buffer
-        console.log(data, "DATA")
         if (data.includes("sm.json(")) {
             try {
                 if(data.endsWith('})')){
