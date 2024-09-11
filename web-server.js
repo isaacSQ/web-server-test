@@ -82,6 +82,7 @@ app.get('/get_round_pictures', (req,res) => {
                 processObject.locallyStoredBuzzerClips
                 if (picturesZip !== null) {
                     clearTimeout(timeout);
+                    console.log("pictureZip", picturesZip)
                     res.end(picturesZip, 'binary')
                 }
             }, 50);
@@ -91,7 +92,7 @@ app.get('/get_round_pictures', (req,res) => {
                     console.log("Timeout: picture zip is still null.");
                     clearTimeout(timeout);
                 }
-            }, 10000);
+            }, 100000);
         } else {
             res.end(picturesZip, 'binary');
         }
