@@ -15,9 +15,6 @@ let Clients = new Map();
 
 let tcpClientId = {};
 
-let picturesZip = null
-let currentPictureQuestion = null
-
 //2024 media objects
 let processObject = {
     scoreboardArr : [],
@@ -79,25 +76,10 @@ app.get('/get_round_pictures', (req,res) => {
 /* CLIP LIST ROUTE */
 
 app.get("/clips", (req, res) => {
-  const msg = `{"MSG":"2024","ENDPOINT":"clips"}`;
 
-  HOST_TCP_SOCKET?.write(msg);
-
-  const timeout = setTimeout(() => {
-    processObject.locallyStoredBuzzerClips
-    if (processObject.locallyStoredBuzzerClips !== null) {
-      clearTimeout(timeout);
       res.setHeader("Content-Type", "application/json");
       res.json(processObject.locallyStoredBuzzerClips);
-    }
-  }, 50);
 
-  setTimeout(() => {
-    if (processObject.locallyStoredBuzzerClips === null) {
-      console.log("Timeout: buzzerClips is still null.");
-      clearTimeout(timeout);
-    }
-  }, 5000);
 });
 
 // Run the file
@@ -476,6 +458,7 @@ let dataContent = "";
 
 function forwardTcpToClient(buffer) {
   let data = dataContent + buffer;
+  console.log("🚀 ~ forwardTcpToClient ~  data:",  data)
   if (data.includes("sm.json(")) {
     try {
       if (data.endsWith("})")) {
@@ -502,15 +485,6 @@ function forwardTcpToClient(buffer) {
           return;
         }
 
-        if (convertedJson.MSG === "UPDATE") {
-          convertedJson.DATA = Buffer.from(
-            convertedJson.DATA,
-            "base64"
-          ).toString("utf-8");
-          console.log("UPDATED MEDIA DATA OBJ", convertedJson.DATA);
-          return;
-        }
-
         if (convertedJson.MSG === "PROCESS") {
           convertedJson.DATA = Buffer.from(
             convertedJson.DATA,
@@ -521,19 +495,10 @@ function forwardTcpToClient(buffer) {
         }
 
         if (convertedJson.MSG === "2024") {
-            if(convertedJson.ENDPOINT === "/" || convertedJson.ENDPOINT === "get_round_pictures"){
-            } else {
-                convertedJson.DATA = Buffer.from(convertedJson.DATA,"base64").toString("utf-8");
-            }
+            convertedJson.DATA = Buffer.from(convertedJson.DATA,"base64").toString("utf-8");
           switch (convertedJson.ENDPOINT) {
-            case "clips":
-              processObject.locallyStoredBuzzerClips = JSON.parse(convertedJson.DATA);
-              break;
             case "process":
               processObject = JSON.parse(convertedJson.DATA);
-              break;
-            case "get_round_pictures":
-              picturesZip = convertedJson.DATA
               break;
           }
           return;
@@ -647,6 +612,7 @@ function updateProcessObject(obj) {
         break
     case "update_round_pictures":
         processObject.roundPictures = obj.data
+        break
     default:
         console.log("UNKNOWN COMMAND", obj.command);
   }
