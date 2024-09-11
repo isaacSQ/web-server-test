@@ -458,7 +458,6 @@ let dataContent = "";
 
 function forwardTcpToClient(buffer) {
   let data = dataContent + buffer;
-  console.log("🚀 ~ forwardTcpToClient ~  data:",  data.slice(0,100))
   if (data.includes("sm.json(")) {
     try {
       if (data.endsWith("})")) {
@@ -478,6 +477,7 @@ function forwardTcpToClient(buffer) {
           return;
         }
         const convertedJson = JSON.parse(jsonString);
+        console.log("🚀 ~ objects ~ convertedJson:", convertedJson.slice(0,100))
 
         if (convertedJson.MSG === "DESTROY") {
           Clients.get(convertedJson.UNID)?.socket.end();
@@ -507,7 +507,7 @@ function forwardTcpToClient(buffer) {
         convertedJson.MSG = Buffer.from(convertedJson.MSG, "base64").toString(
           "utf-8"
         );
-        //console.log("🚀 ~ objects ~ convertedJson.MSG:", convertedJson.MSG)
+        console.log("🚀 ~ objects ~ convertedJson.MSG:", convertedJson.MSG.slice(0,100))
 
         const unid = tcpClientId[`${convertedJson.CA}:${convertedJson.CP}`];
 
