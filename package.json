@@ -6,10 +6,6 @@
         "start": "node web-server.js"
     },
     "dependencies": {
-        "body-parser": "^1.15.2",
-        "express": "^4.14.0",
-        "node-fetch": "^2.7.0",
-        "proxy-chain": "^2.5.3",
-        "socket.io": "^4.7.5"
+        "express": "^4.14.0"
     }
 }

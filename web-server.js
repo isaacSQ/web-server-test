@@ -1,11 +1,6 @@
-const http = require("http");
-const ProxyChain = require("proxy-chain");
-
 const net = require("net");
 const dgram = require("dgram");
 const express = require("express");
-const socketIO = require("socket.io");
-const fetch = require("node-fetch");
 
 const TCP_PORT = 2023;
 const UDP_PORT = 22023;
@@ -22,6 +17,7 @@ let tcpClientId = {};
 
 let picturesZip = null
 let currentPictureQuestion = null
+let winningTeamPic = null
 
 //2024 media objects
 let processObject = {
@@ -38,8 +34,6 @@ let processObject = {
 const app = express();
 
 app.get('/', (req, res)=>{
-    
-    console.log("🚀 ~ currentPictureQuestion:", currentPictureQuestion)
 
     if(req.query?.id){
 
@@ -48,7 +42,6 @@ app.get('/', (req, res)=>{
         const pictureToServe = Buffer.from(currentPictureQuestion);
         res.setHeader('Content-Type', 'image/jpeg')
         res.end(pictureToServe, "binary")
-
 
         res.on("finish", function () {
             console.log('Image Served')
@@ -201,15 +194,10 @@ app.get('/get_scoreboard', (req,res) => {
 	res.setHeader('Content-Type', 'application/json')
 	//to be removed when 5.5.6 is minimum for host V5
 	let isV5 = req.query?.v5 ?? false
-	//  ----  //
 	if(req.query?.unid){
-
 		const unid = req.query.unid
-
 			const scoreboardArrWithHighlight = processObject.scoreboardArr.map(item => {
-				// ---
 			const name = isV5 ? item.name : item.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-				// ---
 			const owned = unid === item.id;
 			  return {
 			    pos: item.pos,
@@ -222,13 +210,9 @@ app.get('/get_scoreboard', (req,res) => {
 
 		res.json(scoreboardArrWithHighlight)
 		res.destroy()
-
-		}else{
-
+	}else{
 		res.json({error:'no_params'})
-
 		}
-
 })
 
 // /* LANGUAGE ROUTE */
@@ -250,16 +234,14 @@ app.get('/get_scoreboard', (req,res) => {
 
 // /* PROFILE PICTURES ROUTE */
 
-// app.get('/winning_team_pic', (req,res) => {
+app.get('/winning_team_pic', (req,res) => {
 
-// 	res.setHeader('Content-Type', 'image/jpeg')
+    const pictureToServe = Buffer.from(winningTeamPic)
 
-// 	res.end(
-// 		fs.readFileSync(docsPath + "Player Images/current_winning_team.jpg"),
-// 		"binary"
-// 	)
+	res.setHeader('Content-Type', 'image/jpeg')
+    res.end(pictureToServe,"binary")
 
-// })
+})
 
 // app.get('/rotated_team_pic', (req,res) => {
 
@@ -280,53 +262,26 @@ app.get('/get_scoreboard', (req,res) => {
 
 app.get('/get_bingo_card', (req,res) => {
 
-	//console.log("-------------- - - - - - - - - BINGO CARD REQ... ",req.url, req.query)
-
+    res.setHeader('Content-Type', 'application/json')
 	if(req.query?.unid){
 
 	const unid = req.query.unid
 
-	//console.log("BINGO CARD",unid,bingoCardsObj[unid])
-
 	var used = []
-
 	var selected = -1
 
-	res.setHeader('Content-Type', 'application/json')
-
 	res.json(processObject.bingoCardsObj[unid])
-	//res.destroy()
 
 	}else{
 		res.json({error:'no_params'})
 	}
-
 })
 
 app.get('/get_wheel_list', (req,res) => {
 
-	//console.log("-------------- - - - - - - - - BINGO CARD REQ... ",req.url, req.query)
-
-	const unid = req.query.unid
-
-	//console.log("BINGO CARD",unid,bingoCardsObj[unid])
-
 	res.setHeader('Content-Type', 'application/json')
+	res.json(processObject.wheelList)
 
-	res.json(wheelList)
-	//res.destroy()
-
-})
-
-// /* WHEEL ROUTE */
-
-// app.get('/get_wheel', (req,res) => {
-
-// 	res.sendFile(publicPath + `/wheel.html`)
-
-// })
-app.get('/assets/FontManifest.json', (req,res) => {
-	res.json([])
 })
 
 // /* TEST ROUTE */
@@ -676,10 +631,10 @@ function updateProcessObject(obj) {
       console.log("IMAGE SERVER STOPPED");
       break;
     case "update_app_language_json":
-      appLanguageJson = obj.data;
+        processObject.appLanguageJson = obj.data;
       break;
     case "update_wheel_list":
-      wheelList = obj.data;
+        processObject.wheelList = obj.data;
       break;
     case "wheel_action":
         console.log("wheel_action command")
@@ -690,6 +645,9 @@ function updateProcessObject(obj) {
     case "update_current_picture_question":
         currentPictureQuestion = obj.data
 		break
+    case "update_winning_team_pic":
+        winningTeamPic = obj.data
+        break
     default:
         console.log("UNKNOWN COMMAND", obj.command);
   }
