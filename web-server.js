@@ -588,13 +588,15 @@ function forwardTcpToHost(buffer, socket) {
 
     if(data.indexOf("qs") !== 0){
         if(data.includes("dataEnd+++++++++++")){
+            console.log("MADE IT TO DATA END")
            hostDataContent = "" 
         } else{
             hostDataContent = data
+            console.log(hostDataContent.length)
             return
         }
     }
-
+    console.log(data.slice(0,20))
     if (data.slice(0, 19) == "qs.connectResponse(") {
         const unid = data.toString().match(/\(([^,]+)/)[1];
         Clients.set(unid, {
