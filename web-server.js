@@ -17,7 +17,6 @@ let tcpClientId = {};
 
 let picturesZip = null
 let currentPictureQuestion = null
-let winningTeamPic = null
 
 //2024 media objects
 let processObject = {
@@ -27,6 +26,9 @@ let processObject = {
     wheelList : {},
     locallyStoredBuzzerClips : null,
     allocatedClipsArray : [],
+    currentPicture : null,
+    winningTeamPic : null,
+    roundPictures : null,
   };
 
 //UDP SERVER
@@ -39,7 +41,7 @@ app.get('/', (req, res)=>{
 
         let unid = req.query.id
 
-        const pictureToServe = Buffer.from(currentPictureQuestion);
+        const pictureToServe = Buffer.from(processObject.currentPicture);
         res.setHeader('Content-Type', 'image/jpeg')
         res.end(pictureToServe, "binary")
 
@@ -59,38 +61,18 @@ app.get('/', (req, res)=>{
 
 app.get('/get_round_pictures', (req,res) => {
 
-	// if(req.query?.id){
+	if(req.query?.id){
 
-	// 	res.setHeader('Content-Type', 'application/zip')
+        const zipToServe = Buffer.from(processObject.roundPictures)
 
+		res.setHeader('Content-Type', 'application/zip')
+        res.end(zipToServe, 'binary');
+	}else{
 
-    //     if(picturesZip === null){
-    //         const msg = `{"MSG":"2024","ENDPOINT":"get_round_pictures"}`;
-    //         HOST_TCP_SOCKET?.write(msg);
-            
-    //         const timeout = setTimeout(() => {
-    //             if (picturesZip !== null) {
-    //                 clearTimeout(timeout);
-    //                 console.log("pictureZip", picturesZip.length)
-    //                 res.end(picturesZip, 'binary')
-    //             }
-    //         }, 50);
-            
-    //         setTimeout(() => {
-    //             if (picturesZip === null) {
-    //                 console.log("Timeout: picture zip is still null.");
-    //                 clearTimeout(timeout);
-    //             }
-    //         }, 200000);
-    //     } else {
-    //         res.end(picturesZip, 'binary');
-    //     }
-	// }else{
+		res.setHeader('Content-Type', 'application/json')
+		res.json({error:'no_params'})
 
-	// 	res.setHeader('Content-Type', 'application/json')
-	// 	res.json({error:'no_params'})
-
-	// }
+	}
 
 })
 
@@ -236,7 +218,7 @@ app.get('/get_scoreboard', (req,res) => {
 
 app.get('/winning_team_pic', (req,res) => {
 
-    const pictureToServe = Buffer.from(winningTeamPic)
+    const pictureToServe = Buffer.from(processObject.winningTeamPic)
 
 	res.setHeader('Content-Type', 'image/jpeg')
     res.end(pictureToServe,"binary")
@@ -540,7 +522,6 @@ function forwardTcpToClient(buffer) {
 
         if (convertedJson.MSG === "2024") {
             if(convertedJson.ENDPOINT === "/" || convertedJson.ENDPOINT === "get_round_pictures"){
-                convertedJson.DATA = Buffer.from(convertedJson.DATA,"base64").toString("binary");
             } else {
                 convertedJson.DATA = Buffer.from(convertedJson.DATA,"base64").toString("utf-8");
             }
@@ -554,9 +535,6 @@ function forwardTcpToClient(buffer) {
             case "get_round_pictures":
               picturesZip = convertedJson.DATA
               break;
-            case "/":
-                pictureToServe = convertedJson.DATA
-                break
           }
           return;
         }
@@ -662,11 +640,13 @@ function updateProcessObject(obj) {
       //loadStreamDeck();
       break;
     case "update_current_picture_question":
-        currentPictureQuestion = obj.data
+        processObject.currentPicture = obj.data
 		break
     case "update_winning_team_pic":
-        winningTeamPic = obj.data
+        processObject.winningTeamPic = obj.data
         break
+    case "update_round_pictures":
+        processObject.roundPictures = obj.data
     default:
         console.log("UNKNOWN COMMAND", obj.command);
   }
