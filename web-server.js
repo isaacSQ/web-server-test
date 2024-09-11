@@ -591,9 +591,6 @@ function forwardTcpToClient(buffer) {
         if (jsonString == undefined) {
           return;
         }
-        if(convertedJson.MSG === "2024"){
-            console.log("JSON STRING", jsonString)
-        }
         const convertedJson = JSON.parse(jsonString);
 
         if (convertedJson.MSG === "DESTROY") {
