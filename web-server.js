@@ -52,7 +52,7 @@ app.get('/', (req, res)=>{
         const timeout = setTimeout(() => {
             if (pictureToServe !== null) {
                 clearTimeout(timeout);
-                console.log("pictureToServe", pictureToServe.length)
+                console.log("pictureToServe", pictureToServe.length, pictureToServe.slice(0,100))
                 res.end(pictureToServe, "binary")
 
             }
@@ -60,7 +60,7 @@ app.get('/', (req, res)=>{
         
         setTimeout(() => {
             if (processObject.locallyStoredBuzzerClips === null) {
-                console.log("Timeout: picture zip is still null.");
+                console.log("Timeout: picturetoserve is still null.");
                 clearTimeout(timeout);
             }
         }, 200000);
