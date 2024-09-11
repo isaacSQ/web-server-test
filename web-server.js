@@ -40,14 +40,28 @@ const app = express();
 app.get('/', (req, res)=>{
     if(req.query?.id){
 
+        res.setHeader('Content-Type', 'image/jpeg')
+
         let unid = req.query.id
 
         const msg = `{"MSG":"2024","ENDPOINT":"/"}`;
         HOST_TCP_SOCKET?.write(msg);
 
-        res.setHeader('Content-Type', 'image/jpeg')
+        const timeout = setTimeout(() => {
+            if (pictureToServe !== null) {
+                clearTimeout(timeout);
+                console.log("pictureToServe", picturesToServe.length)
+                res.end(pictureToServe, "binary")
 
-        res.end(pictureToServe, "binary")
+            }
+        }, 50);
+        
+        setTimeout(() => {
+            if (processObject.locallyStoredBuzzerClips === null) {
+                console.log("Timeout: picture zip is still null.");
+                clearTimeout(timeout);
+            }
+        }, 200000);
 
         res.on("finish", function () {
             console.log('Image Served')
@@ -77,7 +91,6 @@ app.get('/get_round_pictures', (req,res) => {
             HOST_TCP_SOCKET?.write(msg);
             
             const timeout = setTimeout(() => {
-                processObject.locallyStoredBuzzerClips
                 if (picturesZip !== null) {
                     clearTimeout(timeout);
                     console.log("pictureZip", picturesZip.length)
@@ -86,7 +99,7 @@ app.get('/get_round_pictures', (req,res) => {
             }, 50);
             
             setTimeout(() => {
-                if (processObject.locallyStoredBuzzerClips === null) {
+                if (picturesZip === null) {
                     console.log("Timeout: picture zip is still null.");
                     clearTimeout(timeout);
                 }
