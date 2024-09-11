@@ -477,7 +477,6 @@ function forwardTcpToClient(buffer) {
           return;
         }
         const convertedJson = JSON.parse(jsonString);
-        console.log("🚀 ~ objects ~ convertedJson:", convertedJson.slice(0,100))
 
         if (convertedJson.MSG === "DESTROY") {
           Clients.get(convertedJson.UNID)?.socket.end();
@@ -490,6 +489,7 @@ function forwardTcpToClient(buffer) {
             convertedJson.DATA,
             "base64"
           ).toString("utf-8");
+          console.log("🚀 ~ objects ~ convertedJson.DATA:", convertedJson.DATA)
           updateProcessObject(JSON.parse(convertedJson.DATA));
           return;
         }
