@@ -67,8 +67,6 @@ app.get('/', (req, res)=>{
 
 app.get('/get_round_pictures', (req,res) => {
 
-    console.log("HERE", picturesZip)
-
 	if(req.query?.id){
 
 		res.setHeader('Content-Type', 'application/zip')
