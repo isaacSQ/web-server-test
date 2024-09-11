@@ -38,7 +38,8 @@ let processObject = {
 const app = express();
 
 app.get('/', (req, res)=>{
-    console.log("pictureToServe start", pictureToServe)
+    
+    console.log("🚀 ~ currentPictureQuestion:", currentPictureQuestion)
 
     if(req.query?.id){
 
@@ -52,7 +53,7 @@ app.get('/', (req, res)=>{
         res.on("finish", function () {
             console.log('Image Served')
             const servedMsg = `{"MSG":"2024","ENDPOINT":"picture_served","UNID":"${unid}"}`
-            HOST_TCP_SOCKET?.write(msg);
+            HOST_TCP_SOCKET?.write(servedMsg);
 
             res.destroy()
         })
