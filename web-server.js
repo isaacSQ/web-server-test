@@ -21,6 +21,7 @@ let Clients = new Map();
 let tcpClientId = {};
 
 let picturesZip = null
+let pictureToServe = null
 
 //2024 media objects
 let processObject = {
@@ -50,9 +51,9 @@ app.get('/', (req, res)=>{
 
         res.on("finish", function () {
             console.log('Image Served')
-            if(unid !== "ios2921I8C5593A46"){
-                process.send({ command: "server_picture_served", unid: unid })
-            }
+            const servedMsg = `{"MSG":"2024","ENDPOINT":"picture_served","UNID":"${unid}"}`
+            HOST_TCP_SOCKET?.write(msg);
+
             res.destroy()
         })
 
@@ -81,7 +82,7 @@ app.get('/get_round_pictures', (req,res) => {
                 processObject.locallyStoredBuzzerClips
                 if (picturesZip !== null) {
                     clearTimeout(timeout);
-                    console.log("pictureZip", picturesZip)
+                    console.log("pictureZip", picturesZip.length)
                     res.end(picturesZip, 'binary')
                 }
             }, 50);
@@ -604,7 +605,7 @@ function forwardTcpToClient(buffer) {
         }
 
         if (convertedJson.MSG === "2024") {
-            if(convertedJson.ENDPOINT !== 'get_round_pictures'){
+            if(convertedJson.ENDPOINT !== 'get_round_pictures' && convertedJson.ENDPOINT !== "/"){
                 convertedJson.DATA = Buffer.from(
                   convertedJson.DATA,
                   "base64"
@@ -619,6 +620,10 @@ function forwardTcpToClient(buffer) {
               break;
             case "get_round_pictures":
               picturesZip = convertedJson.DATA
+              break;
+            case "/":
+                pictureToServe = convertedJson.DATA
+                break
           }
           return;
         }
