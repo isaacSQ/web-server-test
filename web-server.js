@@ -196,40 +196,40 @@ app.get("/clips_used", (req, res) => {
 
 // /* SCOREBOARD ROUTE */
 
-// app.get('/get_scoreboard', (req,res) => {
+app.get('/get_scoreboard', (req,res) => {
 
-// 	res.setHeader('Content-Type', 'application/json')
-// 	//to be removed when 5.5.6 is minimum for host V5
-// 	let isV5 = req.query?.v5 ?? false
-// 	//  ----  //
-// 	if(req.query?.unid){
+	res.setHeader('Content-Type', 'application/json')
+	//to be removed when 5.5.6 is minimum for host V5
+	let isV5 = req.query?.v5 ?? false
+	//  ----  //
+	if(req.query?.unid){
 
-// 		const unid = req.query.unid
+		const unid = req.query.unid
 
-// 			const scoreboardArrWithHighlight = scoreboardArr.map(item => {
-// 				// ---
-// 			const name = isV5 ? item.name : item.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-// 				// ---
-// 			const owned = unid === item.id;
-// 			  return {
-// 			    pos: item.pos,
-// 			    name,
-// 			    score: item.score,
-// 				tab_colour: item.tab_colour,
-// 			    owned,
-// 			  };
-// 			});
+			const scoreboardArrWithHighlight = processObject.scoreboardArr.map(item => {
+				// ---
+			const name = isV5 ? item.name : item.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+				// ---
+			const owned = unid === item.id;
+			  return {
+			    pos: item.pos,
+			    name,
+			    score: item.score,
+				tab_colour: item.tab_colour,
+			    owned,
+			  };
+			});
 
-// 		res.json(scoreboardArrWithHighlight)
-// 		res.destroy()
+		res.json(scoreboardArrWithHighlight)
+		res.destroy()
 
-// 		}else{
+		}else{
 
-// 		res.json({error:'no_params'})
+		res.json({error:'no_params'})
 
-// 		}
+		}
 
-// })
+})
 
 // /* LANGUAGE ROUTE */
 // app.get('/get_i18n', (req,res) => {
@@ -325,32 +325,32 @@ app.get('/get_wheel_list', (req,res) => {
 // 	res.sendFile(publicPath + `/wheel.html`)
 
 // })
-// app.get('/assets/FontManifest.json', (req,res) => {
-// 	res.json([])
-// })
+app.get('/assets/FontManifest.json', (req,res) => {
+	res.json([])
+})
 
 // /* TEST ROUTE */
 
-// app.get('/test', (req,res) => {
+app.get('/test', (req,res) => {
 
-// 	res.setHeader('Content-Type', 'application/json')
+	res.setHeader('Content-Type', 'application/json')
 
-//     res.json({
-// 		SpeedQuizzing: true,
-// 		media_server: true,
-// 		req: req.url,
-// 		daftness: 19,
-// 	})
+    res.json({
+		SpeedQuizzing: true,
+		media_server: true,
+		req: req.url,
+		daftness: 19,
+	})
 
-// })
+})
 
-// app.get('/health-check', (req,res) => {
+app.get('/health-check', (req,res) => {
 
-//     res.setHeader('Content-Type', 'application/json')
+    res.setHeader('Content-Type', 'application/json')
 
-//     res.json({"status":"healthy"})
+    res.json({"status":"healthy"})
 
-// })
+})
 
 app.listen(2024, () => {
   console.log("WEB Server listening on port 2024");
