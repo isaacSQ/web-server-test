@@ -559,6 +559,7 @@ let dataContent = "";
 
 function forwardTcpToClient(buffer) {
   let data = dataContent + buffer;
+  console.log("🚀 ~ forwardTcpToClient ~ data:", data)
   if (data.includes("sm.json(")) {
     try {
       if (data.endsWith("})")) {
