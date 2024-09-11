@@ -433,25 +433,9 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
       socket.remoteAddress === HOST_ADDR &&
       socket.remotePort === HOST_TCP_PORT
     ) {
-      forwardTcpToClient(data);
+        forwardTcpToClient(data);
     } else {
-      if (data.slice(0, 19) == "qs.connectResponse(") {
-        const unid = data.toString().match(/\(([^,]+)/)[1];
-        Clients.set(unid, {
-          ...Clients.get(unid),
-          tcpPort: socket.remotePort,
-          socket: socket,
-        });
-        tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`] = unid;
-      }
-
-      const res = `{"MSG":"${data}","CP":${socket.remotePort},"CA":"${socket.remoteAddress}"}`;
-      try {
-        HOST_TCP_SOCKET.write(res);
-      } catch (e) {
-        console.log("HOST DEAD, CLEARING");
-        kickAndClearServers();
-      }
+        forwardTcpToHost(data)
     }
   });
 
@@ -596,6 +580,36 @@ function forwardTcpToClient(buffer) {
   } else {
     dataContent += data;
   }
+}
+
+let hostDataContent = ""
+function forwardTcpToHost(buffer) {
+    let data = hostDataContent + buffer
+
+    if(data.endsWith(')')){
+        hostDataContent = ""
+    } else {
+        hostDataContent = data
+        return
+    }
+
+    if (data.slice(0, 19) == "qs.connectResponse(") {
+        const unid = data.toString().match(/\(([^,]+)/)[1];
+        Clients.set(unid, {
+          ...Clients.get(unid),
+          tcpPort: socket.remotePort,
+          socket: socket,
+        });
+        tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`] = unid;
+      }
+
+      const res = `{"MSG":"${data}","CP":${socket.remotePort},"CA":"${socket.remoteAddress}"}`;
+      try {
+        HOST_TCP_SOCKET.write(res);
+      } catch (e) {
+        console.log("HOST DEAD, CLEARING");
+        kickAndClearServers();
+      }
 }
 
 function kickAndClearServers() {
