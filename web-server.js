@@ -36,34 +36,34 @@ let processObject = {
 
 const app = express();
 
-// app.get('/', (req, res)=>{
-//     if(req.query?.id){
+app.get('/', (req, res)=>{
+    if(req.query?.id){
 
-//         let unid = req.query.id
+        let unid = req.query.id
 
-//         const pictureToServe = fs.readFileSync(
-//                                 appPath + "/images/picture_questions/current_picture_question.jpg"
-//                             )
+        const pictureToServe = fs.readFileSync(
+                                appPath + "/images/picture_questions/current_picture_question.jpg"
+                            )
 
-//         res.setHeader('Content-Type', 'image/jpeg')
+        res.setHeader('Content-Type', 'image/jpeg')
 
-//         res.end(pictureToServe, "binary")
+        res.end(pictureToServe, "binary")
 
-//         res.on("finish", function () {
-//             console.log('Image Served')
-//             if(unid !== "ios2921I8C5593A46"){
-//                 process.send({ command: "server_picture_served", unid: unid })
-//             }
-//             res.destroy()
-//         })
+        res.on("finish", function () {
+            console.log('Image Served')
+            if(unid !== "ios2921I8C5593A46"){
+                process.send({ command: "server_picture_served", unid: unid })
+            }
+            res.destroy()
+        })
 
-//         }else{
+        }else{
 
-//             res.setHeader('Content-Type', 'application/json')
-//             res.json({error:'no_params'})
+            res.setHeader('Content-Type', 'application/json')
+            res.json({error:'no_params'})
 
-//         }
-// })
+        }
+})
 
 app.get('/get_round_pictures', (req,res) => {
 
@@ -92,7 +92,7 @@ app.get('/get_round_pictures', (req,res) => {
                     console.log("Timeout: picture zip is still null.");
                     clearTimeout(timeout);
                 }
-            }, 10000000);
+            }, 200000);
         } else {
             res.end(picturesZip, 'binary');
         }
