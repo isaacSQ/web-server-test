@@ -77,6 +77,8 @@ app.get('/get_round_pictures', (req,res) => {
 
 app.get("/clips", (req, res) => {
 
+    console.log(processObject.locallyStoredBuzzerClips)
+
       res.setHeader("Content-Type", "application/json");
       res.json(processObject.locallyStoredBuzzerClips);
 
