@@ -52,7 +52,7 @@ app.get('/', (req, res)=>{
         const timeout = setTimeout(() => {
             if (pictureToServe !== null) {
                 clearTimeout(timeout);
-                console.log("pictureToServe", pictureToServe.length, pictureToServe.slice(0,100))
+                console.log("pictureToServe", pictureToServe.length, pictureToServe.slice(0,10))
                 res.end(pictureToServe, "binary")
 
             }
