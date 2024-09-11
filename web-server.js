@@ -596,7 +596,7 @@ function forwardTcpToHost(buffer, socket) {
             return
         }
     }
-    console.log(data.slice(0,20))
+    console.log(data.slice(0,20), data.length)
     if (data.slice(0, 19) == "qs.connectResponse(") {
         const unid = data.toString().match(/\(([^,]+)/)[1];
         Clients.set(unid, {
