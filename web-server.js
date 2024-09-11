@@ -22,6 +22,7 @@ let tcpClientId = {};
 
 let picturesZip = null
 let pictureToServe = null
+let currentPictureQuestion = null
 
 //2024 media objects
 let processObject = {
@@ -42,6 +43,11 @@ app.get('/', (req, res)=>{
 
     if(req.query?.id){
 
+        let pictureToSend = Buffer.from(currentPictureQuestion);
+        res.end(pictureToSend, "binary")
+
+
+
         res.setHeader('Content-Type', 'image/jpeg')
 
         let unid = req.query.id
@@ -49,21 +55,21 @@ app.get('/', (req, res)=>{
         const msg = `{"MSG":"2024","ENDPOINT":"/"}`;
         HOST_TCP_SOCKET?.write(msg);
 
-        const timeout = setTimeout(() => {
-            if (pictureToServe !== null) {
-                clearTimeout(timeout);
-                console.log("pictureToServe", pictureToServe.length, pictureToServe.slice(0,10))
-                res.end(pictureToServe, "binary")
+        // const timeout = setTimeout(() => {
+        //     if (pictureToServe !== null) {
+        //         clearTimeout(timeout);
+        //         console.log("pictureToServe", pictureToServe.length, pictureToServe.slice(0,10))
+        //         res.end(pictureToServe, "binary")
 
-            }
-        }, 50);
+        //     }
+        // }, 50);
         
-        setTimeout(() => {
-            if (processObject.locallyStoredBuzzerClips === null) {
-                console.log("Timeout: picturetoserve is still null.");
-                clearTimeout(timeout);
-            }
-        }, 200000);
+        // setTimeout(() => {
+        //     if (processObject.locallyStoredBuzzerClips === null) {
+        //         console.log("Timeout: picturetoserve is still null.");
+        //         clearTimeout(timeout);
+        //     }
+        // }, 200000);
 
         res.on("finish", function () {
             console.log('Image Served')
@@ -705,6 +711,9 @@ function updateProcessObject(obj) {
     case "load_stream_deck":
       //loadStreamDeck();
       break;
+    case "update_current_picture_question":
+        currentPictureQuestion = obj.data
+			break
     default:
         console.log("UNKNOWN COMMAND", obj.command);
   }
