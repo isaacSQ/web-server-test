@@ -38,7 +38,7 @@ let processObject = {
 const app = express();
 
 app.get('/', (req, res)=>{
-    console.log("pictureToServe start", pictureToServe.length)
+    console.log("pictureToServe start", pictureToServe)
 
     if(req.query?.id){
 
