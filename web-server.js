@@ -41,9 +41,8 @@ app.get('/', (req, res)=>{
 
         let unid = req.query.id
 
-        const pictureToServe = fs.readFileSync(
-                                appPath + "/images/picture_questions/current_picture_question.jpg"
-                            )
+        const msg = `{"MSG":"2024","ENDPOINT":"/"}`;
+        HOST_TCP_SOCKET?.write(msg);
 
         res.setHeader('Content-Type', 'image/jpeg')
 
@@ -559,7 +558,6 @@ let dataContent = "";
 
 function forwardTcpToClient(buffer) {
   let data = dataContent + buffer;
-  console.log("🚀 ~ forwardTcpToClient ~ data:", data)
   if (data.includes("sm.json(")) {
     try {
       if (data.endsWith("})")) {
