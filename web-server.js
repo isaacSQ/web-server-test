@@ -66,38 +66,38 @@ app.get('/', (req, res)=>{
 
 app.get('/get_round_pictures', (req,res) => {
 
-	if(req.query?.id){
+	// if(req.query?.id){
 
-		res.setHeader('Content-Type', 'application/zip')
+	// 	res.setHeader('Content-Type', 'application/zip')
 
 
-        if(picturesZip === null){
-            const msg = `{"MSG":"2024","ENDPOINT":"get_round_pictures"}`;
-            HOST_TCP_SOCKET?.write(msg);
+    //     if(picturesZip === null){
+    //         const msg = `{"MSG":"2024","ENDPOINT":"get_round_pictures"}`;
+    //         HOST_TCP_SOCKET?.write(msg);
             
-            const timeout = setTimeout(() => {
-                if (picturesZip !== null) {
-                    clearTimeout(timeout);
-                    console.log("pictureZip", picturesZip.length)
-                    res.end(picturesZip, 'binary')
-                }
-            }, 50);
+    //         const timeout = setTimeout(() => {
+    //             if (picturesZip !== null) {
+    //                 clearTimeout(timeout);
+    //                 console.log("pictureZip", picturesZip.length)
+    //                 res.end(picturesZip, 'binary')
+    //             }
+    //         }, 50);
             
-            setTimeout(() => {
-                if (picturesZip === null) {
-                    console.log("Timeout: picture zip is still null.");
-                    clearTimeout(timeout);
-                }
-            }, 200000);
-        } else {
-            res.end(picturesZip, 'binary');
-        }
-	}else{
+    //         setTimeout(() => {
+    //             if (picturesZip === null) {
+    //                 console.log("Timeout: picture zip is still null.");
+    //                 clearTimeout(timeout);
+    //             }
+    //         }, 200000);
+    //     } else {
+    //         res.end(picturesZip, 'binary');
+    //     }
+	// }else{
 
-		res.setHeader('Content-Type', 'application/json')
-		res.json({error:'no_params'})
+	// 	res.setHeader('Content-Type', 'application/json')
+	// 	res.json({error:'no_params'})
 
-	}
+	// }
 
 })
 
