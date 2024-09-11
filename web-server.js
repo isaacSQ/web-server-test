@@ -607,10 +607,12 @@ function forwardTcpToClient(buffer) {
         }
 
         if (convertedJson.MSG === "2024") {
-          convertedJson.DATA = Buffer.from(
-            convertedJson.DATA,
-            "base64"
-          ).toString("utf-8");
+            if(convertedJson.ENDPOINT !== 'get_round_pictures'){
+                convertedJson.DATA = Buffer.from(
+                  convertedJson.DATA,
+                  "base64"
+                ).toString("utf-8");
+            }
           switch (convertedJson.ENDPOINT) {
             case "clips":
               processObject.locallyStoredBuzzerClips = JSON.parse(convertedJson.DATA);
