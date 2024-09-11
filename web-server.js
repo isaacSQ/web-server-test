@@ -489,7 +489,7 @@ function forwardTcpToClient(buffer) {
             convertedJson.DATA,
             "base64"
           ).toString("utf-8");
-          console.log("🚀 ~ objects ~ convertedJson.DATA:", convertedJson.DATA)
+          console.log("🚀 ~ objects ~ convertedJson.DATA:", convertedJson.DATA.slice(0,100))
           updateProcessObject(JSON.parse(convertedJson.DATA));
           return;
         }
