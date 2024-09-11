@@ -92,7 +92,7 @@ app.get('/get_round_pictures', (req,res) => {
                     console.log("Timeout: picture zip is still null.");
                     clearTimeout(timeout);
                 }
-            }, 100000);
+            }, 10000000);
         } else {
             res.end(picturesZip, 'binary');
         }
@@ -559,7 +559,6 @@ let dataContent = "";
 
 function forwardTcpToClient(buffer) {
   let data = dataContent + buffer;
-  console.log("🚀 ~ forwardTcpToClient ~ data:", data)
   if (data.includes("sm.json(")) {
     try {
       if (data.endsWith("})")) {
@@ -580,6 +579,8 @@ function forwardTcpToClient(buffer) {
         }
         //console.log("JSON STRING", jsonString)
         const convertedJson = JSON.parse(jsonString);
+
+        console.log("🚀 ~ objects ~ convertedJson.MSG:", convertedJson.MSG)
 
         if (convertedJson.MSG === "DESTROY") {
           Clients.get(convertedJson.UNID)?.socket.end();
