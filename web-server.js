@@ -435,7 +435,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
     ) {
         forwardTcpToClient(data);
     } else {
-        forwardTcpToHost(data)
+        forwardTcpToHost(data, socket)
     }
   });
 
@@ -583,7 +583,7 @@ function forwardTcpToClient(buffer) {
 }
 
 let hostDataContent = ""
-function forwardTcpToHost(buffer) {
+function forwardTcpToHost(buffer, socket) {
     let data = hostDataContent + buffer
 
     if(data.endsWith(')')){
