@@ -278,45 +278,45 @@ app.get("/clips_used", (req, res) => {
 
 // /* BINGO CARD ROUTE */
 
-// app.get('/get_bingo_card', (req,res) => {
+app.get('/get_bingo_card', (req,res) => {
 
-// 	//console.log("-------------- - - - - - - - - BINGO CARD REQ... ",req.url, req.query)
+	//console.log("-------------- - - - - - - - - BINGO CARD REQ... ",req.url, req.query)
 
-// 	if(req.query?.unid){
+	if(req.query?.unid){
 
-// 	const unid = req.query.unid
+	const unid = req.query.unid
 
-// 	//console.log("BINGO CARD",unid,bingoCardsObj[unid])
+	//console.log("BINGO CARD",unid,bingoCardsObj[unid])
 
-// 	var used = []
+	var used = []
 
-// 	var selected = -1
+	var selected = -1
 
-// 	res.setHeader('Content-Type', 'application/json')
+	res.setHeader('Content-Type', 'application/json')
 
-// 	res.json(bingoCardsObj[unid])
-// 	//res.destroy()
+	res.json(processObject.bingoCardsObj[unid])
+	//res.destroy()
 
-// 	}else{
-// 		res.json({error:'no_params'})
-// 	}
+	}else{
+		res.json({error:'no_params'})
+	}
 
-// })
+})
 
-// app.get('/get_wheel_list', (req,res) => {
+app.get('/get_wheel_list', (req,res) => {
 
-// 	//console.log("-------------- - - - - - - - - BINGO CARD REQ... ",req.url, req.query)
+	//console.log("-------------- - - - - - - - - BINGO CARD REQ... ",req.url, req.query)
 
-// 	const unid = req.query.unid
+	const unid = req.query.unid
 
-// 	//console.log("BINGO CARD",unid,bingoCardsObj[unid])
+	//console.log("BINGO CARD",unid,bingoCardsObj[unid])
 
-// 	res.setHeader('Content-Type', 'application/json')
+	res.setHeader('Content-Type', 'application/json')
 
-// 	res.json(wheelList)
-// 	//res.destroy()
+	res.json(wheelList)
+	//res.destroy()
 
-// })
+})
 
 // /* WHEEL ROUTE */
 
