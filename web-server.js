@@ -38,6 +38,8 @@ let processObject = {
 const app = express();
 
 app.get('/', (req, res)=>{
+    console.log("pictureToServe start", pictureToServe.length)
+
     if(req.query?.id){
 
         res.setHeader('Content-Type', 'image/jpeg')
@@ -80,6 +82,7 @@ app.get('/', (req, res)=>{
 })
 
 app.get('/get_round_pictures', (req,res) => {
+    console.log("pictureZip start", picturesZip.length)
 
 	if(req.query?.id){
 
