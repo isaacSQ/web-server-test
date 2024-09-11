@@ -623,6 +623,7 @@ function kickAndClearServers() {
   HOST_UDP_PORT = null;
   HOST_TCP_SOCKET = null;
   Clients.forEach((client) => {
+    console.log(client)
     client.socket.destroy();
   });
   Clients.clear();
