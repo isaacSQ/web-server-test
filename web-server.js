@@ -586,11 +586,13 @@ let hostDataContent = ""
 function forwardTcpToHost(buffer, socket) {
     let data = hostDataContent + buffer
 
-    if(data.endsWith(')')){
-        hostDataContent = ""
-    } else {
-        hostDataContent = data
-        return
+    if(data.indexOf("qs") !== 0){
+        if(data.includes("dataEnd+++++++++++")){
+           hostDataContent = "" 
+        } else{
+            hostDataContent = data
+            return
+        }
     }
 
     if (data.slice(0, 19) == "qs.connectResponse(") {
