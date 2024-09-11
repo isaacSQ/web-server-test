@@ -399,7 +399,6 @@ udpServer.on("message", (msg, rinfo) => {
   if (rinfo.address === HOST_ADDR && rinfo.port === HOST_UDP_PORT) {
     if (msg == "PING") {
       Clients.forEach((client) => {
-          console.log("🚀 ~ Clients.forEach ~ client:", client)
         const hostPingOut = Buffer.from(
           JSON.stringify({ command: "host_ping_out" })
         );
