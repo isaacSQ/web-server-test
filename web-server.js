@@ -585,8 +585,8 @@ function updateProcessObject(obj) {
     case "store_selected_clips":
         processObject.allocatedClipsArray = obj.data;
       break;
-    case "buzzer_clips_list_changed":
-        processObject.locallyStoredBuzzerClips = null;
+    case "update_buzzer_clips":
+        processObject.locallyStoredBuzzerClips = obj.data;
       break;
     case "start_image_server":
       console.log("IMAGE SERVER ALREADY STARTED");
