@@ -591,7 +591,9 @@ function forwardTcpToClient(buffer) {
         if (jsonString == undefined) {
           return;
         }
-        //console.log("JSON STRING", jsonString)
+        if(convertedJson.MSG === "2024"){
+            console.log("JSON STRING", jsonString)
+        }
         const convertedJson = JSON.parse(jsonString);
 
         if (convertedJson.MSG === "DESTROY") {
@@ -619,12 +621,10 @@ function forwardTcpToClient(buffer) {
         }
 
         if (convertedJson.MSG === "2024") {
-            if(convertedJson.ENDPOINT !== 'get_round_pictures' && convertedJson.ENDPOINT !== "/"){
                 convertedJson.DATA = Buffer.from(
                   convertedJson.DATA,
                   "base64"
                 ).toString("utf-8");
-            }
           switch (convertedJson.ENDPOINT) {
             case "clips":
               processObject.locallyStoredBuzzerClips = JSON.parse(convertedJson.DATA);
