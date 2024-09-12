@@ -424,7 +424,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
       socket.remotePort === HOST_TCP_PORT
     ) {
       console.log("HOST DISCONNECTED, CLEARING");
-      // kickAndClearServers();
+      kickAndClearServers();
     }
     const unid = tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`];
     if (unid) {
@@ -598,10 +598,6 @@ function forwardTcpToHost(buffer, socket) {
 
 function kickAndClearServers() {
   console.log("HOST DISCONNECTED, CLEARING");
-  HOST_ADDR = null;
-  HOST_TCP_PORT = null;
-  HOST_UDP_PORT = null;
-  HOST_TCP_SOCKET = null;
   Clients.forEach((client) => {
     console.log(client)
     client?.socket.destroy();
@@ -609,6 +605,10 @@ function kickAndClearServers() {
   Clients.clear();
   tcpClientId = {};
   udpClientId = {};
+  HOST_ADDR = null;
+  HOST_TCP_PORT = null;
+  HOST_UDP_PORT = null;
+  HOST_TCP_SOCKET = null;
 }
 
 function updateProcessObject(obj) {
