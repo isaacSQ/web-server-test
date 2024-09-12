@@ -145,10 +145,10 @@ app.get('/advert-*', (req,res) => {
         const msg = `{"MSG":"2024","CMD":"get_advert","FILE":"${filename}"}`
         HOST_TCP_SOCKET?.write(msg);
 
-        const advertTimeout = setTimeout(()=>{
+        const advertInterval = setInterval(()=>{
             console.log("🚀 ~ advertTimeout ~ advertsObject[filename]:", advertsObject[filename])
             if(advertsObject[filename]){
-                clearTimeout(advertTimeout);
+                clearInterval(advertInterval);
                 const advertToServe = Buffer.from(advertsObject[filename])
                 res.setHeader('Content-Type', 'image/jpeg')
 		        res.end(advertToServe, "binary")
@@ -157,7 +157,7 @@ app.get('/advert-*', (req,res) => {
 
         setTimeout(()=>{
             console.log("Advert file not found response")
-            clearTimeout(advertTimeout)
+            clearTimeout(advertInterval)
             res.destroy()
         }, 30000)
     }
@@ -507,7 +507,6 @@ function forwardTcpToClient(buffer) {
           switch (convertedJson.CMD) {
             case "process_init":
                 processObject = JSON.parse(convertedJson.DATA);
-                console.log("🚀 ~ objects ~ JSON.parse(convertedJson.DATA):", JSON.parse(convertedJson.DATA))
                 break;
             case "process_update":
                 updateProcessObject(JSON.parse(convertedJson.DATA));
