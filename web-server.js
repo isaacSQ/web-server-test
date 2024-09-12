@@ -315,7 +315,6 @@ udpServer.on("message", (msg, rinfo) => {
   }
 
   if (msg.slice(0, 2) == "FH") {
-    console.log("🚀 ~ udpServer.on ~ msg:", msg.toString())
     const unid = msg.toString().slice(3);
     Clients.set(unid, { ...Clients.get(unid), ipAddress: rinfo.address, udpPort: rinfo.port });
     udpClientId[`${rinfo.address}:${rinfo.port}`] = unid;
@@ -335,6 +334,7 @@ udpServer.on("message", (msg, rinfo) => {
   }
 
   if (rinfo.address === HOST_ADDR && rinfo.port === HOST_UDP_PORT) {
+    console.log('UDP From Host: ', msg.toString())
     if (msg == "PING") {
       Clients.forEach((client) => {
         const hostPingOut = Buffer.from(
