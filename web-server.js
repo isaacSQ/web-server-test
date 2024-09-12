@@ -355,7 +355,7 @@ udpServer.on("message", (msg, rinfo) => {
 
     const obj = JSON.parse(msg);
 
-    console.log(obj.unid, '<<<<<')
+    console.log(obj.UNID, '<<<<<')
 
     let message = obj.MSG;
 
