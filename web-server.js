@@ -1,6 +1,9 @@
 const net = require("net");
 const dgram = require("dgram");
 const express = require("express");
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
 const TCP_PORT = 2023;
 const UDP_PORT = 22023;
@@ -62,6 +65,49 @@ app.get('/', (req, res)=>{
             res.json({error:'no_params'})
         }
 })
+
+// Setup multer to store images in memory or in a specific folder
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadPath = path.join(__dirname, 'adverts');
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath);
+    }
+    cb(null, uploadPath); // Upload to 'uploads' folder
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + '-' + file.originalname); // Unique filename
+  }
+});
+
+const upload = multer({ storage: storage });
+
+
+// POST route for image upload
+app.post('/upload-image', upload.single('image'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+  
+  // Respond with the path to the uploaded image
+  const filePath = `/adverts/${req.file.filename}`;
+  res.json({ message: 'Image uploaded successfully', filePath: filePath });
+});
+
+// Route to serve uploaded images
+app.get('/uploads/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const filePath = path.join(__dirname, 'uploads', filename);
+
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).json({ error: 'File not found' });
+  }
+});
+
+
 
 app.get('/get_round_pictures', (req,res) => {
 
@@ -140,31 +186,39 @@ app.get('/advert-*', (req,res) => {
     const filename = req.url.substr(1)
     console.log("GET ADVERT", filename)
 
-    if(advertsObject[filename] !== undefined){
-        const advertToServe = Buffer.from(advertsObject[filename])
-        console.log("ADVERT EXISTS")
-		res.setHeader('Content-Type', 'image/jpeg')
-		res.end(advertToServe, "binary")
-    } else {
-        console.log("ADVERT DOES NOT EXIST")
-        const msg = `{"MSG":"2024","CMD":"get_advert","FILE":"${filename}"}`
-        HOST_TCP_SOCKET?.write(msg);
+    const filePath = path.join(__dirname, 'adverts', filename);
 
-        const advertInterval = setInterval(()=>{
-            if(advertsObject[filename]){
-                clearInterval(advertInterval);
-                const advertToServe = Buffer.from(advertsObject[filename])
-                res.setHeader('Content-Type', 'image/jpeg')
-		        res.end(advertToServe, "binary")
-            } 
-        }, 50)
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).json({ error: 'File not found' });
+  }
 
-        setTimeout(()=>{
-            console.log("Advert file not found response")
-            clearInterval(advertInterval)
-            res.destroy()
-        }, 30000)
-    }
+    // if(advertsObject[filename] !== undefined){
+    //     const advertToServe = Buffer.from(advertsObject[filename])
+    //     console.log("ADVERT EXISTS")
+		// res.setHeader('Content-Type', 'image/jpeg')
+		// res.end(advertToServe, "binary")
+    // } else {
+    //     console.log("ADVERT DOES NOT EXIST")
+    //     const msg = `{"MSG":"2024","CMD":"get_advert","FILE":"${filename}"}`
+    //     HOST_TCP_SOCKET?.write(msg);
+
+    //     const advertInterval = setInterval(()=>{
+    //         if(advertsObject[filename]){
+    //             clearInterval(advertInterval);
+    //             const advertToServe = Buffer.from(advertsObject[filename])
+    //             res.setHeader('Content-Type', 'image/jpeg')
+		//         res.end(advertToServe, "binary")
+    //         } 
+    //     }, 50)
+
+    //     setTimeout(()=>{
+    //         console.log("Advert file not found response")
+    //         clearInterval(advertInterval)
+    //         res.destroy()
+    //     }, 30000)
+    // }
 })
 
 // /* SCOREBOARD ROUTE */
