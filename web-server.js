@@ -289,7 +289,7 @@ udpServer.on("listening", () => {
 });
 
 udpServer.on("message", (msg, rinfo) => {
-    //console.log("🚀 ~ udpServer.on ~ msg:", msg.toString())
+    
   if (msg == "IHOST") {
     console.log("HOST RECEIVED", rinfo);
     HOST_ADDR = rinfo.address;
@@ -304,6 +304,7 @@ udpServer.on("message", (msg, rinfo) => {
   }
 
   if (msg.slice(0, 2) == "FH") {
+    console.log("🚀 ~ udpServer.on ~ msg:", msg.toString())
     const unid = msg.toString().slice(3);
     Clients.set(unid, { ipAddress: rinfo.address, udpPort: rinfo.port });
     const response = `{"MSG":"FH","CP":${rinfo.port},"CA":"${rinfo.address}"}`;
