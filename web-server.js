@@ -354,7 +354,6 @@ udpServer.on("message", (msg, rinfo) => {
     } 
 
     const client = Clients.get(obj.UNID)
-    console.log("🚀 ~ udpServer.on ~ client:", client)
 
     udpServer.send(message, 0, message.length, client.port, client.ipAddress, (err) => {
       if (err) console.error("UDP WEB send error:", err);
