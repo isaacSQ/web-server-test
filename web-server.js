@@ -136,7 +136,7 @@ app.get('/advert-*', (req,res) => {
     const filename = req.url.substr(1)
 
     if(advertsObject[filename] !== undefined){
-        console.log("ADVERT EXISTS", advertsObject[filename].slice(100))
+        console.log("ADVERT EXISTS", advertsObject[filename].slice(0,100))
         const advertToServe = Buffer.from(advertsObject[filename])
 		res.setHeader('Content-Type', 'image/jpeg')
 		res.end(advertToServe, "binary")
