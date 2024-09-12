@@ -28,7 +28,7 @@ let processObject = {
     roundPictures : null,
   };
 
-let 
+
 
 //UDP SERVER
 
