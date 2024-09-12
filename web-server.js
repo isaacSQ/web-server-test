@@ -423,6 +423,8 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
       socket.remoteAddress === HOST_ADDR &&
       socket.remotePort === HOST_TCP_PORT
     ) {
+      console.log("HOST DISCONNECTED, CLEARING");
+      // kickAndClearServers();
     }
     const unid = tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`];
     if (unid) {
