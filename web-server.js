@@ -28,6 +28,8 @@ let processObject = {
     roundPictures : null,
   };
 
+let 
+
 //UDP SERVER
 
 const app = express();
@@ -287,7 +289,7 @@ udpServer.on("listening", () => {
 });
 
 udpServer.on("message", (msg, rinfo) => {
-    console.log("🚀 ~ udpServer.on ~ msg:", msg.toString())
+    //console.log("🚀 ~ udpServer.on ~ msg:", msg.toString())
   if (msg == "IHOST") {
     console.log("HOST RECEIVED", rinfo);
     HOST_ADDR = rinfo.address;
@@ -492,7 +494,7 @@ function forwardTcpToClient(buffer) {
 
         if (convertedJson.MSG === "2024") {
             convertedJson.DATA = Buffer.from(convertedJson.DATA,"base64").toString("utf-8");
-            //console.log("🚀 ~ objects ~ convertedJson.DATA:", convertedJson.DATA.slice(0,100))
+            console.log("🚀 ~ objects ~ convertedJson.DATA:", convertedJson.DATA.slice(0,100))
           switch (convertedJson.CMD) {
             case "process_init":
                 processObject = JSON.parse(convertedJson.DATA);
@@ -500,6 +502,8 @@ function forwardTcpToClient(buffer) {
             case "process_update":
                 updateProcessObject(JSON.parse(convertedJson.DATA));
                 break;
+            case "get_advert":
+
           }
           return;
         }
@@ -507,7 +511,7 @@ function forwardTcpToClient(buffer) {
         convertedJson.MSG = Buffer.from(convertedJson.MSG, "base64").toString(
           "utf-8"
         );
-        //console.log("🚀 ~ objects ~ convertedJson.MSG:", convertedJson.MSG.slice(0,100))
+        console.log("🚀 ~ objects ~ convertedJson.MSG:", convertedJson.MSG.slice(0,100))
 
         const unid = tcpClientId[`${convertedJson.CA}:${convertedJson.CP}`];
 
