@@ -180,7 +180,7 @@ app.get("/clips_used", (req, res) => {
 app.get('/advert-*', (req,res) => {
     //ADVERTS
     
-  //   const filename = req.url.substr(1)
+    const filename = req.url.substr(1)
   //   console.log("GET ADVERT", filename)
 
   //   const filePath = path.join(__dirname, 'adverts', filename);
