@@ -134,7 +134,7 @@ app.get('/advert-*', (req,res) => {
     
 	const filename = req.url.substr(1)
 
-    const servedMsg = `{"MSG":"2024","CMD":"picture_served","FILE":"${filename}"}`
+    const servedMsg = `{"MSG":"2024","CMD":"get_advert","FILE":"${filename}"}`
     HOST_TCP_SOCKET?.write(servedMsg);
 
 	var pth = docsPath + "/._sq_imported/_handset_slides/";
@@ -492,7 +492,7 @@ function forwardTcpToClient(buffer) {
 
         if (convertedJson.MSG === "2024") {
             convertedJson.DATA = Buffer.from(convertedJson.DATA,"base64").toString("utf-8");
-            console.log("🚀 ~ objects ~ convertedJson.DATA:", convertedJson.DATA.slice(0,100))
+            //console.log("🚀 ~ objects ~ convertedJson.DATA:", convertedJson.DATA.slice(0,100))
           switch (convertedJson.CMD) {
             case "process_init":
                 processObject = JSON.parse(convertedJson.DATA);
@@ -507,7 +507,7 @@ function forwardTcpToClient(buffer) {
         convertedJson.MSG = Buffer.from(convertedJson.MSG, "base64").toString(
           "utf-8"
         );
-        console.log("🚀 ~ objects ~ convertedJson.MSG:", convertedJson.MSG.slice(0,100))
+        //console.log("🚀 ~ objects ~ convertedJson.MSG:", convertedJson.MSG.slice(0,100))
 
         const unid = tcpClientId[`${convertedJson.CA}:${convertedJson.CP}`];
 
