@@ -134,12 +134,14 @@ app.get('/advert-*', (req,res) => {
 	//ADVERTS
 
     const filename = req.url.substr(1)
-	console.log("ADVERT", req.url, advertsObject[filename].length, advertsObject[filename])
+	console.log("ADVERT", req.url, advertsObject[filename])
 
     if(advertsObject[filename]){
+        console.log("ADVERT EXISTS")
 		res.setHeader('Content-Type', 'image/jpeg')
 		res.end(advertsObject[filename], "binary")
     } else {
+        console.log("ADVERT DOES NOT EXIST")
         const msg = `{"MSG":"2024","CMD":"get_advert","FILE":"${filename}"}`
         HOST_TCP_SOCKET?.write(msg);
 
