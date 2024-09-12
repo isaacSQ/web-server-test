@@ -554,11 +554,9 @@ function forwardTcpToHost(buffer, socket) {
         }
     }
     console.log(data.slice(0,100), data.length)
-    
-    const unid = clientId[`${socket.remoteAddress}:${socket.remotePort}`]
 
     if (data.slice(0, 19) == "qs.connectResponse(") {
-        const unidCheck = data.toString().match(/\(([^,]+)/)[1];
+        const unid = data.toString().match(/\(([^,]+)/)[1];
         if(unid !== unidCheck){
             console.log("SOMETHING WENT WRONG. UNID: ", unid, "UNID CHECK: ", unidCheck)
         }
