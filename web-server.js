@@ -536,6 +536,8 @@ function forwardTcpToClient(buffer) {
 let hostDataContent = ""
 function forwardTcpToHost(buffer, socket) {
     let data = hostDataContent + buffer
+    console.log("🚀 ~ forwardTcpToHost ~ data:", data)
+
 
     if(data.indexOf("qs") !== 0){
         if(data.includes("dataEnd+++++++++++")){
@@ -546,7 +548,7 @@ function forwardTcpToHost(buffer, socket) {
             return
         }
     }
-    console.log(data.slice(0,20), data.length)
+    console.log(data.slice(0,100), data.length)
     if (data.slice(0, 19) == "qs.connectResponse(") {
         const unid = data.toString().match(/\(([^,]+)/)[1];
         Clients.set(unid, {
