@@ -1,7 +1,6 @@
 const net = require("net");
 const dgram = require("dgram");
 const express = require("express");
-const { clearTimeout } = require("timers");
 
 const TCP_PORT = 2023;
 const UDP_PORT = 22023;
@@ -14,7 +13,7 @@ let HOST_TCP_SOCKET;
 
 let Clients = new Map();
 
-let tcpClientId = {};
+let clientId = {};
 
 //2024 media objects
 let processObject = {
@@ -291,6 +290,7 @@ const udpServer = dgram.createSocket({ type: "udp4", reuseAddr: true });
 
 udpServer.on("listening", () => {
   const address = udpServer.address();
+  console.log(`UDP Server listening on ${address.address}:${address.port}`);
 });
 
 udpServer.on("message", (msg, rinfo) => {
@@ -311,8 +311,10 @@ udpServer.on("message", (msg, rinfo) => {
   if (msg.slice(0, 2) == "FH") {
     console.log("🚀 ~ udpServer.on ~ msg:", msg.toString())
     const unid = msg.toString().slice(3);
-    Clients.set(unid, { ipAddress: rinfo.address, udpPort: rinfo.port });
-    const response = `{"MSG":"FH","CP":${rinfo.port},"CA":"${rinfo.address}"}`;
+    Clients.set(unid, { ...Clients.get(unid), ipAddress: rinfo.address, port: rinfo.port });
+    clientId[`${rinfo.address}:${rinfo.port}`] = unid;
+
+    const response = `{"MSG":"FH","UNID":"${unid}"}`;
     udpServer.send(
       response,
       0,
@@ -336,7 +338,7 @@ udpServer.on("message", (msg, rinfo) => {
           hostPingOut,
           0,
           hostPingOut.length,
-          client.udpPort,
+          client.port,
           client.ipAddress
         );
       });
@@ -345,27 +347,23 @@ udpServer.on("message", (msg, rinfo) => {
 
     const obj = JSON.parse(msg);
 
-    //console.log(`sending ${msg} to:`, obj.CA, obj.CP)
-
     let message = obj.MSG;
-    //console.log("🚀 ~ udpServer.on ~ obj.MSG:", obj.MSG)
 
     if (typeof obj.MSG === "object") {
       message = JSON.stringify(obj.MSG);
-    } else{
-        console.log(message)
-    }
+    } 
 
-    //console.log("🚀 ~ udpServer.on ~ message:", message)
+    const client = Clients.get(obj.UNID)
 
-    udpServer.send(message, 0, message.length, obj.CP, obj.CA, (err) => {
-      //console.log(`HOST MESSAGE ${message} sent to ${obj.CA}:${obj.CP}`)
+    udpServer.send(message, 0, message.length, client.port, client.ipAddress, (err) => {
       if (err) console.error("UDP WEB send error:", err);
     });
     return;
   }
 
-  const response = `{"MSG":${msg},"CP":${rinfo.port},"CA":"${rinfo.address}"}`;
+  const unid = clientId[`${rinfo.address}:${rinfo.port}`]
+
+  const response = `{"MSG":${msg},"UNID":"${unid}"}`;
 
   udpServer.send(
     response,
@@ -392,7 +390,6 @@ udpServer.bind(UDP_PORT, "0.0.0.0");
 
 const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
   console.log("TCP client connected:", socket.remoteAddress, socket.remotePort);
-  console.log("CURRENT CLIENTS: ", Clients)
 
   socket.on("data", (data) => {
     //console.log(`TCP Server received: ${data} from ${socket.remoteAddress}:${socket.remotePort}`);
@@ -404,15 +401,15 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
       return;
     }
 
-    if (HOST_TCP_SOCKET === null) {
-      console.log("NO HOST TCP YET");
+    if (HOST_TCP_SOCKET === null || HOST_ADDR === null) {
+      console.log("NO HOST YET");
       kickAndClearServers();
       return;
     }
 
     if (
-      socket.remoteAddress === HOST_ADDR &&
-      socket.remotePort === HOST_TCP_PORT
+        socket.remoteAddress === HOST_ADDR &&
+        socket.remotePort === HOST_TCP_PORT
     ) {
         forwardTcpToClient(data);
     } else {
@@ -430,7 +427,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
       socket.remotePort === HOST_TCP_PORT
     ) {
     }
-    unid = tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`];
+    unid = clientId[`${socket.remoteAddress}:${socket.remotePort}`];
     if (unid) {
       const msg = `{"MSG":"END","UNID":"${unid}"}`;
       try {
@@ -441,10 +438,9 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
         kickAndClearServers();
       }
       Clients.delete(unid);
-      delete tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`];
+      delete clientId[`${socket.remoteAddress}:${socket.remotePort}`];
     }
   });
-
   serverCallback(socket);
 });
 
@@ -524,16 +520,13 @@ function forwardTcpToClient(buffer) {
         convertedJson.MSG = Buffer.from(convertedJson.MSG, "base64").toString(
           "utf-8"
         );
-        console.log("🚀 ~ objects ~ convertedJson.MSG:", convertedJson.MSG.slice(0,100))
+        console.log("🚀 ~ objects ~ convertedJson.MSG:", convertedJson.MSG.slice(0,100), convertedJson.UNID)
 
-        const unid = tcpClientId[`${convertedJson.CA}:${convertedJson.CP}`];
-
-        Clients.get(unid)?.socket.write(convertedJson.MSG);
+        Clients.get(convertedJson.UNID)?.socket.write(convertedJson.MSG);
 
         return convertedJson;
       });
 
-      //console.log("🚀 ~ forwardTcpToClient ~ objects:", objects)
     } catch (err) {
       console.error(err);
     }
@@ -547,7 +540,6 @@ function forwardTcpToHost(buffer, socket) {
     let data = hostDataContent + buffer
     console.log("🚀 ~ forwardTcpToHost ~ data:", data.slice(0,50),"...", data.slice(data.length - 50))
 
-
     if(data.indexOf("qs") !== 0){
         if(data.includes("dataEnd+++++++++++")){
             console.log("MADE IT TO DATA END")
@@ -558,17 +550,18 @@ function forwardTcpToHost(buffer, socket) {
         }
     }
     console.log(data.slice(0,100), data.length)
+    
+    const unid = clientId[`${socket.remoteAddress}:${socket.remotePort}`]
+
     if (data.slice(0, 19) == "qs.connectResponse(") {
-        const unid = data.toString().match(/\(([^,]+)/)[1];
-        Clients.set(unid, {
-          ...Clients.get(unid),
-          tcpPort: socket.remotePort,
-          socket: socket,
-        });
-        tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`] = unid;
+        const unidCheck = data.toString().match(/\(([^,]+)/)[1];
+        if(unid !== unidCheck){
+            console.log("SOMETHING WENT WRONG. UNID: ", unid, "UNID CHECK: ", unidCheck)
+        }
+        Clients.set(unid, {...Clients.get(unid),socket: socket});
       }
 
-      const res = `{"MSG":"${data}","CP":${socket.remotePort},"CA":"${socket.remoteAddress}"}`;
+      const res = `{"MSG":"${data}","UNID":"${unid}"}`;
       try {
         HOST_TCP_SOCKET.write(res);
       } catch (e) {
