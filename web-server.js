@@ -14,7 +14,6 @@ let HOST_TCP_SOCKET;
 let Clients = new Map();
 
 setInterval(()=>{
-    console.log(Clients)
     console.log('host', HOST_ADDR, HOST_UDP_PORT, HOST_TCP_PORT)
 },5000)  
 
@@ -326,7 +325,7 @@ udpServer.on("message", (msg, rinfo) => {
       ipAddress: rinfo.address,
       udpPort: rinfo.port,
     };
-
+    console.log('updating Client with 28' , unid, updatedClient)
     Clients.set(unid, updatedClient);
     udpClientId[`${rinfo.address}:${rinfo.port}`] = unid;
 
@@ -561,6 +560,11 @@ function forwardTcpToHost(buffer, socket) {
       const existingClient = Clients.get(resUnid) || {};
   
       // Set the updated client data, merging with existing data
+      console.log('updating Client with', resUnid, {
+        ...existingClient, 
+        socket: socket     
+    })
+
       Clients.set(resUnid, {
           ...existingClient,  // Merge any existing client data
           socket: socket      // Overwrite or add the socket field
