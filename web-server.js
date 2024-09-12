@@ -139,7 +139,7 @@ app.get('/advert-*', (req,res) => {
     if(advertsObject[filename]){
         console.log("ADVERT EXISTS")
 		res.setHeader('Content-Type', 'image/jpeg')
-		res.end(advertsObject[filename], "binary")
+		res.end(Buffer.from(advertsObject[filename]), "binary")
     } else {
         console.log("ADVERT DOES NOT EXIST")
         const msg = `{"MSG":"2024","CMD":"get_advert","FILE":"${filename}"}`
@@ -150,7 +150,7 @@ app.get('/advert-*', (req,res) => {
             if(advertsObject[filename]){
                 clearTimeout(advertTimeout);
                 res.setHeader('Content-Type', 'image/jpeg')
-                res.end(advertsObject[filename], "binary")
+                res.end(Buffer.from(advertsObject[filename]), "binary")
             } 
         }, 50)
 
@@ -510,8 +510,7 @@ function forwardTcpToClient(buffer) {
                 updateProcessObject(JSON.parse(convertedJson.DATA));
                 break;
             case "get_advert":
-                console.log(convertedJson.DATA)
-                advertsObject[convertedJson.FILE] = Buffer.from(convertedJson.DATA)
+                advertsObject[convertedJson.FILE] = JSON.parse(convertedJson.DATA).data;
           }
           return;
         }
