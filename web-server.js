@@ -287,7 +287,7 @@ udpServer.on("listening", () => {
 });
 
 udpServer.on("message", (msg, rinfo) => {
-    console.log("🚀 ~ udpServer.on ~ msg:", msg)
+    console.log("🚀 ~ udpServer.on ~ msg:", msg.toString())
   if (msg == "IHOST") {
     console.log("HOST RECEIVED", rinfo);
     HOST_ADDR = rinfo.address;
@@ -535,7 +535,6 @@ function forwardTcpToHost(buffer, socket) {
            hostDataContent = "" 
         } else{
             hostDataContent = data
-            console.log(hostDataContent.length)
             return
         }
     }
