@@ -405,6 +405,8 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
       return;
     }
 
+    console.log(`HOST: \n PORT: ${HOST_TCP_PORT} \n IP: ${HOST_ADDR} \n\n SOCKET: \n PORT: ${socket.remotePort} \n IP: ${socket.remoteAddress}`)
+
     if (
       socket.remoteAddress === HOST_ADDR &&
       socket.remotePort === HOST_TCP_PORT
@@ -536,7 +538,7 @@ function forwardTcpToClient(buffer) {
 let hostDataContent = ""
 function forwardTcpToHost(buffer, socket) {
     let data = hostDataContent + buffer
-    console.log("🚀 ~ forwardTcpToHost ~ data:", data)
+    console.log("🚀 ~ forwardTcpToHost ~ data:", data.slice(0,50),"...", data.slice(data.length - 50))
 
 
     if(data.indexOf("qs") !== 0){
