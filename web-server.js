@@ -76,8 +76,7 @@ const storage = multer.diskStorage({
     cb(null, uploadPath); // Upload to 'uploads' folder
   },
   filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + '-' + file.originalname); // Unique filename
+    cb(null, 'advert-' + file.originalname); // Unique filename
   }
 });
 
@@ -90,12 +89,11 @@ app.post('/upload-image', upload.single('image'), (req, res) => {
     return res.status(400).json({ error: 'No file uploaded' });
   }
   
-  console.log('Serving file:', filePath);
-
   // Respond with the path to the uploaded image
   const filePath = `/adverts/${req.file.filename}`;
   res.json({ message: 'Image uploaded successfully', filePath: filePath });
 });
+
 
 
 app.get('/get_round_pictures', (req,res) => {
