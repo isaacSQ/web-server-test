@@ -135,9 +135,9 @@ app.get('/advert-*', (req,res) => {
 
     const filename = req.url.substr(1)
 
-    if(advertsObject[filename]){
-        console.log("ADVERT EXISTS")
-        const advertToServe = Buffer.from(advertsObject.filename)
+    if(advertsObject[filename] !== undefined){
+        console.log("ADVERT EXISTS", advertsObject[filename].slice(100))
+        const advertToServe = Buffer.from(advertsObject[filename])
 		res.setHeader('Content-Type', 'image/jpeg')
 		res.end(advertToServe, "binary")
     } else {
@@ -148,7 +148,7 @@ app.get('/advert-*', (req,res) => {
         const advertTimeout = setTimeout(()=>{
             if(advertsObject[filename]){
                 clearTimeout(advertTimeout);
-                const advertToServe = Buffer.from(advertsObject.filename)
+                const advertToServe = Buffer.from(advertsObject[filename])
                 res.setHeader('Content-Type', 'image/jpeg')
 		        res.end(advertToServe, "binary")
             } 
@@ -157,6 +157,7 @@ app.get('/advert-*', (req,res) => {
         setTimeout(()=>{
             console.log("Advert file not found response")
             clearTimeout(advertTimeout)
+            res.destroy()
         }, 30000)
     }
 })
