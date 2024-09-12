@@ -318,75 +318,61 @@ udpServer.on("message", (msg, rinfo) => {
 
   if (msg.slice(0, 2) == "FH") {
     const unid = msg.toString().slice(3);
-    Clients.set(unid, { ...Clients.get(unid), ipAddress: rinfo.address, udpPort: rinfo.port });
+    const existingClient = Clients.get(unid) || {};
+    
+    // Merge the new data (ipAddress and udpPort) with the existing data
+    const updatedClient = {
+      ...existingClient,
+      ipAddress: rinfo.address,
+      udpPort: rinfo.port,
+    };
+
+    Clients.set(unid, updatedClient);
     udpClientId[`${rinfo.address}:${rinfo.port}`] = unid;
 
     const response = `{"MSG":"FH","UNID":"${unid}"}`;
-    udpServer.send(
-      response,
-      0,
-      response.length,
-      HOST_UDP_PORT,
-      HOST_ADDR,
-      (err) => {
-        if (err) console.error("UDP WEB send error:", err);
-      }
-    );
+    udpServer.send(response, 0, response.length, HOST_UDP_PORT, HOST_ADDR, (err) => {
+      if (err) console.error("UDP WEB send error:", err);
+    });
     return;
   }
 
   if (rinfo.address === HOST_ADDR && rinfo.port === HOST_UDP_PORT) {
-    console.log('UDP From Host: ', msg.toString())
+    console.log('UDP From Host: ', msg.toString());
     if (msg == "PING") {
       Clients.forEach((client) => {
         const hostPingOut = Buffer.from(
           JSON.stringify({ command: "host_ping_out" })
         );
-        udpServer.send(
-          hostPingOut,
-          0,
-          hostPingOut.length,
-          client.udpPort,
-          client.ipAddress
-        );
+        udpServer.send(hostPingOut, 0, hostPingOut.length, client.udpPort, client.ipAddress);
       });
       return;
     }
 
     const obj = JSON.parse(msg);
-
-    console.log(obj.UNID, '<<<<<')
-
+    console.log(obj.UNID, '<<<<<');
     let message = obj.MSG;
 
     if (typeof obj.MSG === "object") {
       message = JSON.stringify(obj.MSG);
     } 
 
-    const client = Clients.get(obj.UNID)
-  console.log('CLIENT', client.udpPort)
-
-    udpServer.send(message, 0, message.length, client.udpPort, client.ipAddress, (err) => {
-      if (err) console.error("UDP WEB send error:", err);
-    });
+    const client = Clients.get(obj.UNID);
+    if (client?.udpPort && client?.ipAddress) {
+      udpServer.send(message, 0, message.length, client.udpPort, client.ipAddress, (err) => {
+        if (err) console.error("UDP WEB send error:", err);
+      });
+    }
     return;
   }
 
-  const unid = udpClientId[`${rinfo.address}:${rinfo.port}`]
+  const unid = udpClientId[`${rinfo.address}:${rinfo.port}`];
 
   const response = `{"MSG":${msg},"UNID":"${unid}"}`;
 
-  udpServer.send(
-    response,
-    0,
-    response.length,
-    HOST_UDP_PORT,
-    HOST_ADDR,
-    (err) => {
-      //console.log(`UDP message ${response} sent to ${HOST_ADDR}:${HOST_UDP_PORT}`);
-      if (err) console.error("UDP WEB send error:", err);
-    }
-  );
+  udpServer.send(response, 0, response.length, HOST_UDP_PORT, HOST_ADDR, (err) => {
+    if (err) console.error("UDP WEB send error:", err);
+  });
 });
 
 udpServer.on("error", (err) => {
@@ -565,11 +551,24 @@ function forwardTcpToHost(buffer, socket) {
 
     console.log("🚀 ~ forwardTcpToHost ~ unid before:", unid)
     if (data.slice(0, 19) == "qs.connectResponse(") {
-        const resUnid = data.toString().match(/\(([^,]+)/)[1];
-        tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`] = resUnid;
-        unid = resUnid
-        Clients.set(resUnid, {...Clients.get(unid), socket: socket});
-    }
+      const resUnid = data.toString().match(/\(([^,]+)/)[1];
+      console.log('TCP UNID', resUnid);
+  
+      // Store the UNID in the tcpClientId map
+      tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`] = resUnid;
+  
+      // Retrieve the existing client data, if any
+      const existingClient = Clients.get(resUnid) || {};
+  
+      // Set the updated client data, merging with existing data
+      Clients.set(resUnid, {
+          ...existingClient,  // Merge any existing client data
+          socket: socket      // Overwrite or add the socket field
+      });
+  
+      // Set unid for further processing
+      unid = resUnid;
+  }
     console.log("🚀 ~ forwardTcpToHost ~ unid after:", unid)
 
     if(unid === undefined){
