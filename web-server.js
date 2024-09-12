@@ -180,42 +180,42 @@ app.get("/clips_used", (req, res) => {
 app.get('/advert-*', (req,res) => {
     //ADVERTS
     
-    const filename = req.url.substr(1)
-    console.log("GET ADVERT", filename)
+  //   const filename = req.url.substr(1)
+  //   console.log("GET ADVERT", filename)
 
-    const filePath = path.join(__dirname, 'adverts', filename);
+  //   const filePath = path.join(__dirname, 'adverts', filename);
 
-  if (fs.existsSync(filePath)) {
-    res.sendFile(filePath);
-  } else {
-    res.status(404).json({ error: 'File not found' });
-  }
+  // if (fs.existsSync(filePath)) {
+  //   res.sendFile(filePath);
+  // } else {
+  //   res.status(404).json({ error: 'File not found' });
+  // }
 
-    // if(advertsObject[filename] !== undefined){
-    //     const advertToServe = Buffer.from(advertsObject[filename])
-    //     console.log("ADVERT EXISTS")
-		// res.setHeader('Content-Type', 'image/jpeg')
-		// res.end(advertToServe, "binary")
-    // } else {
-    //     console.log("ADVERT DOES NOT EXIST")
-    //     const msg = `{"MSG":"2024","CMD":"get_advert","FILE":"${filename}"}`
-    //     HOST_TCP_SOCKET?.write(msg);
+    if(advertsObject[filename] !== undefined){
+        const advertToServe = Buffer.from(advertsObject[filename])
+        console.log("ADVERT EXISTS")
+		res.setHeader('Content-Type', 'image/jpeg')
+		res.end(advertToServe, "binary")
+    } else {
+        console.log("ADVERT DOES NOT EXIST")
+        const msg = `{"MSG":"2024","CMD":"get_advert","FILE":"${filename}"}`
+        HOST_TCP_SOCKET?.write(msg);
 
-    //     const advertInterval = setInterval(()=>{
-    //         if(advertsObject[filename]){
-    //             clearInterval(advertInterval);
-    //             const advertToServe = Buffer.from(advertsObject[filename])
-    //             res.setHeader('Content-Type', 'image/jpeg')
-		//         res.end(advertToServe, "binary")
-    //         } 
-    //     }, 50)
+        const advertInterval = setInterval(()=>{
+            if(advertsObject[filename]){
+                clearInterval(advertInterval);
+                const advertToServe = Buffer.from(advertsObject[filename])
+                res.setHeader('Content-Type', 'image/jpeg')
+		        res.end(advertToServe, "binary")
+            } 
+        }, 50)
 
-    //     setTimeout(()=>{
-    //         console.log("Advert file not found response")
-    //         clearInterval(advertInterval)
-    //         res.destroy()
-    //     }, 30000)
-    // }
+        setTimeout(()=>{
+            console.log("Advert file not found response")
+            clearInterval(advertInterval)
+            res.destroy()
+        }, 30000)
+    }
 })
 
 // /* SCOREBOARD ROUTE */
