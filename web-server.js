@@ -347,6 +347,8 @@ udpServer.on("message", (msg, rinfo) => {
 
     if (typeof obj.MSG === "object") {
       message = JSON.stringify(obj.MSG);
+    } else{
+        console.log(message)
     }
 
     //console.log("🚀 ~ udpServer.on ~ message:", message)
