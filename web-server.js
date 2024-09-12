@@ -136,8 +136,8 @@ app.get('/advert-*', (req,res) => {
     const filename = req.url.substr(1)
 
     if(advertsObject[filename] !== undefined){
-        console.log("ADVERT EXISTS", advertsObject[filename].slice(0,100))
         const advertToServe = Buffer.from(advertsObject[filename])
+        console.log("ADVERT EXISTS", advertToServe.slice(0,100))
 		res.setHeader('Content-Type', 'image/jpeg')
 		res.end(advertToServe, "binary")
     } else {
@@ -146,6 +146,7 @@ app.get('/advert-*', (req,res) => {
         HOST_TCP_SOCKET?.write(msg);
 
         const advertTimeout = setTimeout(()=>{
+            console.log("🚀 ~ advertTimeout ~ advertsObject[filename]:", advertsObject[filename])
             if(advertsObject[filename]){
                 clearTimeout(advertTimeout);
                 const advertToServe = Buffer.from(advertsObject[filename])
