@@ -432,7 +432,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
       socket.remotePort === HOST_TCP_PORT
     ) {
     }
-    unid = clientId[`${socket.remoteAddress}:${socket.remotePort}`];
+    const unid = clientId[`${socket.remoteAddress}:${socket.remotePort}`];
     if (unid) {
       const msg = `{"MSG":"END","UNID":"${unid}"}`;
       try {
@@ -555,9 +555,10 @@ function forwardTcpToHost(buffer, socket) {
         }
     }
     console.log(data.slice(0,100), data.length)
+    const unid = clientId[`${socket.remoteAddress}:${socket.remotePort}`];
 
     if (data.slice(0, 19) == "qs.connectResponse(") {
-        const unid = data.toString().match(/\(([^,]+)/)[1];
+        //const unid = data.toString().match(/\(([^,]+)/)[1];
         Clients.set(unid, {...Clients.get(unid), socket: socket});
       }
 
