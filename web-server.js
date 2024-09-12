@@ -149,16 +149,12 @@ app.get('/advert-*', (req,res) => {
                 clearTimeout(advertTimeout);
                 res.setHeader('Content-Type', 'image/jpeg')
                 res.end(advertsObject[filename], "binary")
-            } else {
-                return
-            }
+            } 
         }, 50)
 
         setTimeout(()=>{
             console.log("Advert file not found response")
             clearTimeout(advertTimeout)
-            res.setHeader('Content-Type', 'application/json')
-	        res.json({error:'no_params'})
         }, 3000)
     }
 })
