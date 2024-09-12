@@ -15,6 +15,7 @@ let Clients = new Map();
 
 setInterval(()=>{
     console.log(Clients)
+    console.log('host', HOST_ADDR, HOST_UDP_PORT, HOST_TCP_PORT)
 },5000)  
 
 let udpClientId = {};
