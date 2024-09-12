@@ -558,6 +558,8 @@ function forwardTcpToHost(buffer, socket) {
   
       // Retrieve the existing client data, if any
       const existingClient = Clients.get(resUnid) || {};
+
+      console.log('existingClient!!!!!!!!!!!!!!!!', existingClient)
   
       // Set the updated client data, merging with existing data
       console.log('updating Client with', resUnid, {
