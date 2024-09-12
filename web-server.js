@@ -410,8 +410,6 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
       return;
     }
 
-    console.log(`HOST: \n PORT: ${HOST_TCP_PORT} \n IP: ${HOST_ADDR} \n\n SOCKET: \n PORT: ${socket.remotePort} \n IP: ${socket.remoteAddress}`)
-
     if (
       socket.remoteAddress === HOST_ADDR &&
       socket.remotePort === HOST_TCP_PORT
