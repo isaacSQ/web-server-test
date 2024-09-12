@@ -13,6 +13,10 @@ let HOST_TCP_SOCKET;
 
 let Clients = new Map();
 
+setInterval(()=>{
+    console.log(Clients)
+},5000)  
+
 let clientId = {};
 
 //2024 media objects
@@ -311,7 +315,7 @@ udpServer.on("message", (msg, rinfo) => {
   if (msg.slice(0, 2) == "FH") {
     console.log("🚀 ~ udpServer.on ~ msg:", msg.toString())
     const unid = msg.toString().slice(3);
-    Clients.set(unid, { ...Clients.get(unid), ipAddress: rinfo.address, port: rinfo.port });
+    Clients.set(unid, { ...Clients.get(unid), ipAddress: rinfo.address, udpPort: rinfo.port });
     clientId[`${rinfo.address}:${rinfo.port}`] = unid;
 
     const response = `{"MSG":"FH","UNID":"${unid}"}`;
@@ -338,7 +342,7 @@ udpServer.on("message", (msg, rinfo) => {
           hostPingOut,
           0,
           hostPingOut.length,
-          client.port,
+          client.udpPort,
           client.ipAddress
         );
       });
@@ -355,7 +359,7 @@ udpServer.on("message", (msg, rinfo) => {
 
     const client = Clients.get(obj.UNID)
 
-    udpServer.send(message, 0, message.length, client.port, client.ipAddress, (err) => {
+    udpServer.send(message, 0, message.length, client.udpPort, client.ipAddress, (err) => {
       if (err) console.error("UDP WEB send error:", err);
     });
     return;
@@ -558,7 +562,7 @@ function forwardTcpToHost(buffer, socket) {
         if(unid !== unidCheck){
             console.log("SOMETHING WENT WRONG. UNID: ", unid, "UNID CHECK: ", unidCheck)
         }
-        Clients.set(unid, {...Clients.get(unid),socket: socket});
+        Clients.set(unid, {...Clients.get(unid), socket: socket});
       }
 
       const res = `{"MSG":"${data}","UNID":"${unid}"}`;
