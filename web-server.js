@@ -510,7 +510,7 @@ function forwardTcpToClient(buffer) {
                 updateProcessObject(JSON.parse(convertedJson.DATA));
                 break;
             case "get_advert":
-                advertsObject[convertedJson.FILE] = JSON.parse(convertedJson.DATA).data;
+                advertsObject[convertedJson.FILE] = convertedJson.DATA;
           }
           return;
         }
