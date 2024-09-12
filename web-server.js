@@ -44,7 +44,7 @@ app.get('/', (req, res)=>{
 
         res.on("finish", function () {
             console.log('Image Served')
-            const servedMsg = `{"MSG":"2024","ENDPOINT":"picture_served","UNID":"${unid}"}`
+            const servedMsg = `{"MSG":"2024","CMD":"picture_served","UNID":"${unid}"}`
             HOST_TCP_SOCKET?.write(servedMsg);
 
             res.destroy()
@@ -127,31 +127,34 @@ app.get("/clips_used", (req, res) => {
 	}
 });
 
-// app.get('/advert-*', (req,res) => {
-// 	//ADVERTS
+app.get('/advert-*', (req,res) => {
+	//ADVERTS
 
-// 	console.log(req.url)
+	console.log(req.url)
+    
+	const filename = req.url.substr(1)
 
-// 	var filename = req.url.substr(1)
+    const servedMsg = `{"MSG":"2024","CMD":"picture_served","FILE":"${filename}"}`
+    HOST_TCP_SOCKET?.write(servedMsg);
 
-// 	var pth = docsPath + "/._sq_imported/_handset_slides/";
+	var pth = docsPath + "/._sq_imported/_handset_slides/";
 
-// 	fs.readFile(pth + filename, function (err, file) {
-// 		//in case
-// 		if (err) file = fs.readFileSync(pth + "-sq-advert-1.jpg")
+	fs.readFile(pth + filename, function (err, file) {
+		//in case
+		if (err) file = fs.readFileSync(pth + "-sq-advert-1.jpg")
 
-// 		res.setHeader('Content-Type', 'image/jpeg')
+		res.setHeader('Content-Type', 'image/jpeg')
 
-// 		res.end(file, "binary")
+		res.end(file, "binary")
 
-// 		res.on('finish', function() {
-// 					console.log('Image Served')
-// 		      process.send({'command':'server_advert_served',ip:res.remoteAddress})
-// 		   })
+		res.on('finish', function() {
+					console.log('Image Served')
+		      process.send({'command':'server_advert_served',ip:res.remoteAddress})
+		   })
 
-// 	})
+	})
 
-// })
+})
 
 // /* SCOREBOARD ROUTE */
 
@@ -284,6 +287,7 @@ udpServer.on("listening", () => {
 });
 
 udpServer.on("message", (msg, rinfo) => {
+    console.log("🚀 ~ udpServer.on ~ msg:", msg)
   if (msg == "IHOST") {
     console.log("HOST RECEIVED", rinfo);
     HOST_ADDR = rinfo.address;
@@ -486,22 +490,16 @@ function forwardTcpToClient(buffer) {
           return;
         }
 
-        if (convertedJson.MSG === "PROCESS") {
-          convertedJson.DATA = Buffer.from(
-            convertedJson.DATA,
-            "base64"
-          ).toString("utf-8");
-          console.log("🚀 ~ objects ~ convertedJson.DATA:", convertedJson.DATA.slice(0,100))
-          updateProcessObject(JSON.parse(convertedJson.DATA));
-          return;
-        }
-
         if (convertedJson.MSG === "2024") {
             convertedJson.DATA = Buffer.from(convertedJson.DATA,"base64").toString("utf-8");
-          switch (convertedJson.ENDPOINT) {
-            case "process":
-              processObject = JSON.parse(convertedJson.DATA);
-              break;
+            console.log("🚀 ~ objects ~ convertedJson.DATA:", convertedJson.DATA.slice(0,100))
+          switch (convertedJson.CMD) {
+            case "process_init":
+                processObject = JSON.parse(convertedJson.DATA);
+                break;
+            case "process_update":
+                updateProcessObject(JSON.parse(convertedJson.DATA));
+                break;
           }
           return;
         }
