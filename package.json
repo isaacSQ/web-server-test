@@ -3,7 +3,8 @@
     "version": "",
     "description": "About =====",
     "scripts": {
-        "start": "node web-server.js"
+        "start": "node web-server.js",
+        "git-push": "git add . && git commit -m '1' && git push"
     },
     "dependencies": {
         "express": "^4.14.0"
