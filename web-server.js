@@ -418,6 +418,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
   });
 
   socket.on("end", () => {
+    console.log("TCP client disconnected");
     if (
       socket.remoteAddress === HOST_ADDR &&
       socket.remotePort === HOST_TCP_PORT
