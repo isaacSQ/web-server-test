@@ -566,6 +566,7 @@ function forwardTcpToHost(buffer, socket) {
     console.log("🚀 ~ forwardTcpToHost ~ unid before:", unid)
     if (data.slice(0, 19) == "qs.connectResponse(") {
         const resUnid = data.toString().match(/\(([^,]+)/)[1];
+        console.log(Clients.get(unid).udpPort, 'teehee')
         Clients.set(resUnid, {...Clients.get(unid), socket: socket});
         tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`] = resUnid;
         unid = resUnid
