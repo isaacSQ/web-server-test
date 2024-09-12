@@ -90,25 +90,12 @@ app.post('/upload-image', upload.single('image'), (req, res) => {
     return res.status(400).json({ error: 'No file uploaded' });
   }
   
+  console.log('Serving file:', filePath);
+
   // Respond with the path to the uploaded image
   const filePath = `/adverts/${req.file.filename}`;
   res.json({ message: 'Image uploaded successfully', filePath: filePath });
 });
-
-// Route to serve uploaded images
-app.get('/uploads/:filename', (req, res) => {
-  const filename = req.params.filename;
-  const filePath = path.join(__dirname, 'uploads', filename);
-
-  console.log('Serving file:', filePath);
-
-  if (fs.existsSync(filePath)) {
-    res.sendFile(filePath);
-  } else {
-    res.status(404).json({ error: 'File not found' });
-  }
-});
-
 
 
 app.get('/get_round_pictures', (req,res) => {
