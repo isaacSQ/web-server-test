@@ -1,6 +1,7 @@
 const net = require("net");
 const dgram = require("dgram");
 const express = require("express");
+const { clearTimeout } = require("timers");
 
 const TCP_PORT = 2023;
 const UDP_PORT = 22023;
@@ -28,7 +29,7 @@ let processObject = {
     roundPictures : null,
   };
 
-
+let advertsObject = {}
 
 //UDP SERVER
 
@@ -132,30 +133,34 @@ app.get("/clips_used", (req, res) => {
 app.get('/advert-*', (req,res) => {
 	//ADVERTS
 
-	console.log(req.url)
-    
-	const filename = req.url.substr(1)
+	console.log("ADVERT", req.url)
+    const filename = req.url.substr(1)
 
-    const servedMsg = `{"MSG":"2024","CMD":"get_advert","FILE":"${filename}"}`
-    HOST_TCP_SOCKET?.write(servedMsg);
-
-	var pth = docsPath + "/._sq_imported/_handset_slides/";
-
-	fs.readFile(pth + filename, function (err, file) {
-		//in case
-		if (err) file = fs.readFileSync(pth + "-sq-advert-1.jpg")
-
+    if(advertsObject[filename]){
 		res.setHeader('Content-Type', 'image/jpeg')
+		res.end(advertsObject[filename], "binary")
+    } else {
+        const msg = `{"MSG":"2024","CMD":"get_advert","FILE":"${filename}"}`
+        HOST_TCP_SOCKET?.write(msg);
 
-		res.end(file, "binary")
+        const advertTimeout = setTimeout(()=>{
+            console.log(advertsObject[filename], "advert file")
+            if(advertsObject[filename]){
+                clearTimeout(advertTimeout);
+                res.setHeader('Content-Type', 'image/jpeg')
+                res.end(advertsObject[filename], "binary")
+            } else {
+                return
+            }
+        }, 50)
 
-		res.on('finish', function() {
-					console.log('Image Served')
-		      process.send({'command':'server_advert_served',ip:res.remoteAddress})
-		   })
-
-	})
-
+        setTimeout(()=>{
+            console.log("Advert file not found response")
+            clearTimeout(advertTimeout)
+            res.setHeader('Content-Type', 'application/json')
+	        res.json({error:'no_params'})
+        }, 3000)
+    }
 })
 
 // /* SCOREBOARD ROUTE */
@@ -509,7 +514,7 @@ function forwardTcpToClient(buffer) {
                 updateProcessObject(JSON.parse(convertedJson.DATA));
                 break;
             case "get_advert":
-
+                advertsObject[convertedJson.FILE] = Buffer.from(convertedJson.DATA)
           }
           return;
         }
