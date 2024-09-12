@@ -131,13 +131,14 @@ app.get("/clips_used", (req, res) => {
 });
 
 app.get('/advert-*', (req,res) => {
-	//ADVERTS
-
+    //ADVERTS
+    
     const filename = req.url.substr(1)
+    console.log("GET ADVERT", filename)
 
     if(advertsObject[filename] !== undefined){
         const advertToServe = Buffer.from(advertsObject[filename])
-        console.log("ADVERT EXISTS", advertToServe.slice(0,100))
+        console.log("ADVERT EXISTS")
 		res.setHeader('Content-Type', 'image/jpeg')
 		res.end(advertToServe, "binary")
     } else {
@@ -146,7 +147,6 @@ app.get('/advert-*', (req,res) => {
         HOST_TCP_SOCKET?.write(msg);
 
         const advertInterval = setInterval(()=>{
-            console.log("🚀 ~ advertTimeout ~ advertsObject[filename]:", advertsObject[filename])
             if(advertsObject[filename]){
                 clearInterval(advertInterval);
                 const advertToServe = Buffer.from(advertsObject[filename])
