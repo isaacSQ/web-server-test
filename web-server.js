@@ -507,6 +507,7 @@ function forwardTcpToClient(buffer) {
           switch (convertedJson.CMD) {
             case "process_init":
                 processObject = JSON.parse(convertedJson.DATA);
+                console.log("🚀 ~ objects ~ JSON.parse(convertedJson.DATA):", JSON.parse(convertedJson.DATA))
                 break;
             case "process_update":
                 updateProcessObject(JSON.parse(convertedJson.DATA));
