@@ -133,8 +133,8 @@ app.get("/clips_used", (req, res) => {
 app.get('/advert-*', (req,res) => {
 	//ADVERTS
 
-	console.log("ADVERT", req.url)
     const filename = req.url.substr(1)
+	console.log("ADVERT", req.url, advertsObject[filename].length, advertsObject[filename])
 
     if(advertsObject[filename]){
 		res.setHeader('Content-Type', 'image/jpeg')
