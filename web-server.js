@@ -157,7 +157,7 @@ app.get('/advert-*', (req,res) => {
         setTimeout(()=>{
             console.log("Advert file not found response")
             clearTimeout(advertTimeout)
-        }, 3000)
+        }, 30000)
     }
 })
 
@@ -510,6 +510,7 @@ function forwardTcpToClient(buffer) {
                 updateProcessObject(JSON.parse(convertedJson.DATA));
                 break;
             case "get_advert":
+                console.log(convertedJson.DATA)
                 advertsObject[convertedJson.FILE] = Buffer.from(convertedJson.DATA)
           }
           return;
