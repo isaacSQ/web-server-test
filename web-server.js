@@ -157,7 +157,7 @@ app.get('/advert-*', (req,res) => {
 
         setTimeout(()=>{
             console.log("Advert file not found response")
-            clearTimeout(advertInterval)
+            clearInterval(advertInterval)
             res.destroy()
         }, 30000)
     }
