@@ -18,6 +18,7 @@ setInterval(()=>{
 },5000)  
 
 let clientId = {};
+let tcpClientId = {};
 
 //2024 media objects
 let processObject = {
@@ -557,9 +558,6 @@ function forwardTcpToHost(buffer, socket) {
 
     if (data.slice(0, 19) == "qs.connectResponse(") {
         const unid = data.toString().match(/\(([^,]+)/)[1];
-        if(unid !== unidCheck){
-            console.log("SOMETHING WENT WRONG. UNID: ", unid, "UNID CHECK: ", unidCheck)
-        }
         Clients.set(unid, {...Clients.get(unid), socket: socket});
       }
 
