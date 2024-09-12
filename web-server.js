@@ -494,7 +494,7 @@ function forwardTcpToClient(buffer) {
           return;
         }
 
-        console.log(jsonString, 'hweo');
+        console.log(jsonString.slice(0,100), 'hweo');
         const convertedJson = JSON.parse(jsonString);
 
         if (convertedJson.MSG === "DESTROY") {
