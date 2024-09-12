@@ -82,6 +82,16 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+app.post('/upload-images', upload.array('images', 10), (req, res) => {
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).json({ error: 'No files uploaded' });
+  }
+
+  const filePaths = req.files.map(file => `/adverts/${file.filename}`);
+
+  // Respond with the paths to the uploaded images
+  res.json({ message: 'Images uploaded successfully', filePaths: filePaths });
+});
 
 // POST route for image upload
 app.post('/upload-image', upload.single('image'), (req, res) => {
@@ -94,16 +104,6 @@ app.post('/upload-image', upload.single('image'), (req, res) => {
   res.json({ message: 'Image uploaded successfully', filePath: filePath });
 });
 
-app.post('/upload-images', upload.array('images', 10), (req, res) => {
-  if (!req.files || req.files.length === 0) {
-    return res.status(400).json({ error: 'No files uploaded' });
-  }
-
-  const filePaths = req.files.map(file => `/adverts/${file.filename}`);
-
-  // Respond with the paths to the uploaded images
-  res.json({ message: 'Images uploaded successfully', filePaths: filePaths });
-});
 
 
 app.get('/get_round_pictures', (req,res) => {
