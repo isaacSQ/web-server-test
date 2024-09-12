@@ -387,6 +387,7 @@ udpServer.bind(UDP_PORT, "0.0.0.0");
 
 const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
   console.log("TCP client connected:", socket.remoteAddress, socket.remotePort);
+  console.log("CURRENT CLIENTS: ", Clients)
 
   socket.on("data", (data) => {
     //console.log(`TCP Server received: ${data} from ${socket.remoteAddress}:${socket.remotePort}`);
