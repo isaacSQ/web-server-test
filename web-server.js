@@ -17,7 +17,7 @@ setInterval(()=>{
     console.log(Clients)
 },5000)  
 
-let clientId = {};
+let udpClientId = {};
 let tcpClientId = {};
 
 //2024 media objects
@@ -317,7 +317,7 @@ udpServer.on("message", (msg, rinfo) => {
     console.log("🚀 ~ udpServer.on ~ msg:", msg.toString())
     const unid = msg.toString().slice(3);
     Clients.set(unid, { ...Clients.get(unid), ipAddress: rinfo.address, udpPort: rinfo.port });
-    clientId[`${rinfo.address}:${rinfo.port}`] = unid;
+    udpClientId[`${rinfo.address}:${rinfo.port}`] = unid;
 
     const response = `{"MSG":"FH","UNID":"${unid}"}`;
     udpServer.send(
@@ -366,7 +366,7 @@ udpServer.on("message", (msg, rinfo) => {
     return;
   }
 
-  const unid = clientId[`${rinfo.address}:${rinfo.port}`]
+  const unid = udpClientId[`${rinfo.address}:${rinfo.port}`]
 
   const response = `{"MSG":${msg},"UNID":"${unid}"}`;
 
@@ -432,7 +432,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
       socket.remotePort === HOST_TCP_PORT
     ) {
     }
-    const unid = clientId[`${socket.remoteAddress}:${socket.remotePort}`];
+    const unid = tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`];
     if (unid) {
       const msg = `{"MSG":"END","UNID":"${unid}"}`;
       try {
@@ -443,7 +443,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
         kickAndClearServers();
       }
       Clients.delete(unid);
-      delete clientId[`${socket.remoteAddress}:${socket.remotePort}`];
+      delete tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`];
     }
   });
   serverCallback(socket);
@@ -555,12 +555,22 @@ function forwardTcpToHost(buffer, socket) {
         }
     }
     console.log(data.slice(0,100), data.length)
-    const unid = clientId[`${socket.remoteAddress}:${socket.remotePort}`];
+    let unid = tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`];
 
+    console.log("🚀 ~ forwardTcpToHost ~ unid before:", unid)
     if (data.slice(0, 19) == "qs.connectResponse(") {
-        //const unid = data.toString().match(/\(([^,]+)/)[1];
-        Clients.set(unid, {...Clients.get(unid), socket: socket});
-      }
+        const responseUnid = data.toString().match(/\(([^,]+)/)[1];
+        Clients.set(responseUnid, {...Clients.get(unid), socket: socket});
+        tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`] = responseUnid;
+    }
+    console.log("🚀 ~ forwardTcpToHost ~ unid after:", unid)
+
+    if(unid === undefined){
+        console.log("UNID NOT FOUND, KICKING")
+        socket.end();
+        socket.destroy();
+        return;
+    }
 
       const res = `{"MSG":"${data}","UNID":"${unid}"}`;
       try {
@@ -582,6 +592,8 @@ function kickAndClearServers() {
     client?.socket.destroy();
   });
   Clients.clear();
+  tcpClientId = {};
+  udpClientId = {};
 }
 
 function updateProcessObject(obj) {
