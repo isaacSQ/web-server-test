@@ -200,39 +200,39 @@ app.get('/advert-*', (req,res) => {
     const filename = req.url.slice(1)
    console.log("GET ADVERT", filename)
 
-  //   const filePath = path.join(__dirname, 'adverts', filename);
+    const filePath = path.join(__dirname, 'adverts', filename);
 
-  // if (fs.existsSync(filePath)) {
-  //   res.sendFile(filePath);
-  // } else {
-  //   res.status(404).json({ error: 'File not found' });
-  // }
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).json({ error: 'File not found' });
+  }
 
-    if(advertsObject[filename] !== undefined){
-        console.log("ADVERT EXISTS")
-		res.setHeader('Content-Type', 'image/jpeg')
-		res.end(advertsObject[filename], "binary")
-    } else {
-        console.log("ADVERT DOES NOT EXIST")
-        const msg = `{"MSG":"2024","CMD":"get_advert","FILE":"${filename}"}`
-        HOST_TCP_SOCKET?.write(msg);
+//     if(advertsObject[filename] !== undefined){
+//         console.log("ADVERT EXISTS")
+// 		res.setHeader('Content-Type', 'image/jpeg')
+// 		res.end(advertsObject[filename], "binary")
+//     } else {
+//         console.log("ADVERT DOES NOT EXIST")
+//         const msg = `{"MSG":"2024","CMD":"get_advert","FILE":"${filename}"}`
+//         HOST_TCP_SOCKET?.write(msg);
 
-        const advertInterval = setInterval(()=>{
-            console.log("🚀 ~ advertInterval ~ advertsObject[filename]:", advertsObject[filename])
-            if(advertsObject[filename]){
-                clearInterval(advertInterval);
-                res.setHeader('Content-Type', 'image/jpeg')
-		        res.end(advertsObject[filename], "binary")
-            } 
-        }, 50)
+//         const advertInterval = setInterval(()=>{
+//             console.log("🚀 ~ advertInterval ~ advertsObject[filename]:", advertsObject[filename])
+//             if(advertsObject[filename]){
+//                 clearInterval(advertInterval);
+//                 res.setHeader('Content-Type', 'image/jpeg')
+// 		        res.end(advertsObject[filename], "binary")
+//             } 
+//         }, 50)
 
-        setTimeout(()=>{
-            console.log("Advert file not found response")
-            clearInterval(advertInterval)
-            res.destroy()
-        }, 1000)
-    }
-})
+//         setTimeout(()=>{
+//             console.log("Advert file not found response")
+//             clearInterval(advertInterval)
+//             res.destroy()
+//         }, 1000)
+//     }
+// })
 
 // /* SCOREBOARD ROUTE */
 
