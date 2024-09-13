@@ -121,6 +121,12 @@ app.post('/process_update', (req, res)=>{
     res.send("POST Request Called")
 })
 
+app.post('/advert-*', (req, res)=>{
+    const filename = req.url.slice(1)
+    console.log("ADVERT", filename)
+    advertsObject[filename] = req.body
+})
+
 app.get('/get_round_pictures', (req,res) => {
 
 	if(req.query?.id){
@@ -138,8 +144,6 @@ app.get('/get_round_pictures', (req,res) => {
 
 })
 
-/* CLIP LIST ROUTE */
-
 app.get("/clips", (req, res) => {
 
     //console.log(processObject.locallyStoredBuzzerClips)
@@ -148,10 +152,6 @@ app.get("/clips", (req, res) => {
       res.json(processObject.locallyStoredBuzzerClips);
 
 });
-
-// Run the file
-
-/* CLIP USED ROUTE */
 
 app.get("/clips_used", (req, res) => {
 
@@ -195,7 +195,7 @@ app.get("/clips_used", (req, res) => {
 app.get('/advert-*', (req,res) => {
     //ADVERTS
     
-    const filename = req.url.substr(1)
+    const filename = req.url.slice(1)
   //   console.log("GET ADVERT", filename)
 
   //   const filePath = path.join(__dirname, 'adverts', filename);
@@ -206,36 +206,31 @@ app.get('/advert-*', (req,res) => {
   //   res.status(404).json({ error: 'File not found' });
   // }
 
+    if(advertsObject[filename] !== undefined){
+        const advertToServe = Buffer.from(advertsObject[filename])
+        console.log("ADVERT EXISTS")
+		res.setHeader('Content-Type', 'image/jpeg')
+		res.end(advertToServe, "binary")
+    } else {
+        console.log("ADVERT DOES NOT EXIST")
+        const msg = `{"MSG":"2024","CMD":"get_advert","FILE":"${filename}"}`
+        HOST_TCP_SOCKET?.write(msg);
 
-  axios.get(`http://192.168.4.181:2024${req.url}`).then((response)=>{
-    console.log("HERE", response)
-  }).catch(err => console.log(err))
+        const advertInterval = setInterval(()=>{
+            if(advertsObject[filename]){
+                clearInterval(advertInterval);
+                const advertToServe = Buffer.from(advertsObject[filename])
+                res.setHeader('Content-Type', 'image/jpeg')
+		        res.end(advertToServe, "binary")
+            } 
+        }, 50)
 
-    // if(advertsObject[filename] !== undefined){
-    //     const advertToServe = Buffer.from(advertsObject[filename])
-    //     console.log("ADVERT EXISTS")
-	// 	res.setHeader('Content-Type', 'image/jpeg')
-	// 	res.end(advertToServe, "binary")
-    // } else {
-    //     console.log("ADVERT DOES NOT EXIST")
-    //     const msg = `{"MSG":"2024","CMD":"get_advert","FILE":"${filename}"}`
-    //     HOST_TCP_SOCKET?.write(msg);
-
-    //     const advertInterval = setInterval(()=>{
-    //         if(advertsObject[filename]){
-    //             clearInterval(advertInterval);
-    //             const advertToServe = Buffer.from(advertsObject[filename])
-    //             res.setHeader('Content-Type', 'image/jpeg')
-	// 	        res.end(advertToServe, "binary")
-    //         } 
-    //     }, 50)
-
-    //     setTimeout(()=>{
-    //         console.log("Advert file not found response")
-    //         clearInterval(advertInterval)
-    //         res.destroy()
-    //     }, 30000)
-    // }
+        setTimeout(()=>{
+            console.log("Advert file not found response")
+            clearInterval(advertInterval)
+            res.destroy()
+        }, 30000)
+    }
 })
 
 // /* SCOREBOARD ROUTE */
@@ -569,18 +564,6 @@ function forwardTcpToClient(buffer) {
           return;
         }
 
-        if (convertedJson.MSG === "2024") {
-            convertedJson.DATA = Buffer.from(convertedJson.DATA,"base64").toString("utf-8");
-            console.log("🚀 ~ objects ~ convertedJson.DATA:", convertedJson.DATA.slice(0,100))
-          switch (convertedJson.CMD) {
-            case "get_advert":
-                const advert = JSON.parse(convertedJson.DATA);
-                advertsObject[advert.filename] = advert.data;
-                break;
-          }
-          return;
-        }
-
         convertedJson.MSG = Buffer.from(convertedJson.MSG, "base64").toString(
           "utf-8"
         );
@@ -686,9 +669,6 @@ function updateProcessObject(obj) {
       break;
     case "store_selected_clips":
         processObject.allocatedClipsArray = obj.data;
-      break;
-    case "update_buzzer_clips":
-        processObject.locallyStoredBuzzerClips = obj.data;
       break;
     case "start_image_server":
       console.log("IMAGE SERVER ALREADY STARTED");
