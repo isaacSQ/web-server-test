@@ -211,12 +211,12 @@ app.get('/advert-*', (req,res) => {
     HOST_TCP_SOCKET?.write(msg);
 
     const advertInterval = setInterval(()=>{
-        if(fs.existsSync(filePath)){
+        if(fs.existsSync(filePath) && fs.statSync(filePath).size > 0){
             console.log("exists")
         } else {
             console.log("does not exist")
         }
-        if(fs.existsSync(filePath)){
+        if(fs.existsSync(filePath) && fs.statSync(filePath).size > 0){
             clearInterval(advertInterval);
             res.sendFile(filePath);
         }
