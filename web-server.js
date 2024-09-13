@@ -216,6 +216,7 @@ app.get('/advert-*', (req,res) => {
         HOST_TCP_SOCKET?.write(msg);
 
         const advertInterval = setInterval(()=>{
+            console.log("🚀 ~ advertInterval ~ advertsObject[filename]:", advertsObject[filename])
             if(advertsObject[filename]){
                 clearInterval(advertInterval);
                 res.setHeader('Content-Type', 'image/jpeg')
