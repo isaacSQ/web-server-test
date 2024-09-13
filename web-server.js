@@ -42,6 +42,8 @@ let advertsObject = {}
 
 const app = express();
 
+app.use(express.json())
+
 app.get('/', (req, res)=>{
 
     if(req.query?.id){
@@ -106,7 +108,7 @@ app.post('/upload-image', upload.single('image'), (req, res) => {
 });
 
 app.post('/process_init', (req, res)=>{
-    console.log("MADE IT HERE", req)
+    console.log("MADE IT HERE", req.body)
     res.send("POST Request Called")
 })
 
