@@ -214,7 +214,7 @@ app.get('/advert-*', (req,res) => {
         if(fs.existsSync(filePath) && fs.statSync(filePath).size > 0){
             console.log("exists")
         } else {
-            console.log("does not exist")
+            console.log("does not exist", fs.statSync(filePath))
         }
         if(fs.existsSync(filePath) && fs.statSync(filePath).size > 0){
             clearInterval(advertInterval);
