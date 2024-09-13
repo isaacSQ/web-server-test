@@ -207,10 +207,9 @@ app.get('/advert-*', (req,res) => {
   // }
 
     if(advertsObject[filename] !== undefined){
-        const advertToServe = Buffer.from(advertsObject[filename])
         console.log("ADVERT EXISTS")
 		res.setHeader('Content-Type', 'image/jpeg')
-		res.end(advertToServe, "binary")
+		res.end(advertsObject[filename], "binary")
     } else {
         console.log("ADVERT DOES NOT EXIST")
         const msg = `{"MSG":"2024","CMD":"get_advert","FILE":"${filename}"}`
@@ -219,9 +218,8 @@ app.get('/advert-*', (req,res) => {
         const advertInterval = setInterval(()=>{
             if(advertsObject[filename]){
                 clearInterval(advertInterval);
-                const advertToServe = Buffer.from(advertsObject[filename])
                 res.setHeader('Content-Type', 'image/jpeg')
-		        res.end(advertToServe, "binary")
+		        res.end(advertsObject[filename], "binary")
             } 
         }, 50)
 
@@ -229,7 +227,7 @@ app.get('/advert-*', (req,res) => {
             console.log("Advert file not found response")
             clearInterval(advertInterval)
             res.destroy()
-        }, 30000)
+        }, 1000)
     }
 })
 
