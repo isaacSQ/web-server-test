@@ -203,13 +203,8 @@ app.get('/advert-*', (req,res) => {
 
   if (fs.existsSync(filePath)) {
     console.log("ADVERT EXISTS")
-
     res.sendFile(filePath);
   } else {
-    console.log("ADVERT DOES NOT EXIST")
-    const msg = `{"MSG":"2024","CMD":"get_advert","FILE":"${filename}"}`
-    HOST_TCP_SOCKET?.write(msg);
-
     res.status(404).json({ error: 'File not found' });
   }
 })
