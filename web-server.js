@@ -125,7 +125,7 @@ app.post('/advert-*', (req, res)=>{
     const filename = req.url.slice(1)
     console.log("ADVERT", filename)
     console.log("🚀 ~ app.post ~ req.body:", req.body)
-    advertsObject[filename] = req.body
+    advertsObject[filename] = req.body.data
 })
 
 app.get('/get_round_pictures', (req,res) => {
