@@ -210,26 +210,7 @@ app.get('/advert-*', (req,res) => {
     const msg = `{"MSG":"2024","CMD":"get_advert","FILE":"${filename}"}`
     HOST_TCP_SOCKET?.write(msg);
 
-    const advertInterval = setInterval(()=>{
-        if(fs.existsSync(filePath) && fs.statSync(filePath).size > 0){
-            console.log("exists")
-        } else {
-            console.log("does not exist", fs.statSync(filePath))
-        }
-        if(fs.existsSync(filePath) && fs.statSync(filePath).size > 0){
-            clearInterval(advertInterval);
-            res.sendFile(filePath);
-        }
-    },50)
-
-    setTimeout(()=>{
-        console.log("Advert file not found response")
-        clearInterval(advertInterval)
-        //res.status(404).json({ error: 'File not found' });
-    }, 5000)
-
-
-
+    res.status(404).json({ error: 'File not found' });
   }
 })
 
