@@ -194,7 +194,7 @@ app.get("/clips_used", (req, res) => {
 	}
 });
 
-app.get('/advert-*', (req,res) => {
+app.get('/advert-*', upload.single('file'), (req,res) => {
     //ADVERTS
     
     const filename = req.url.slice(1)
