@@ -106,7 +106,7 @@ app.post('/upload-image', upload.single('image'), (req, res) => {
 });
 
 app.post('/process_init', (req, res)=>{
-    console.log("MADE IT HERE", req.body)
+    console.log("MADE IT HERE", req)
     res.send("POST Request Called")
 })
 
