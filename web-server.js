@@ -504,6 +504,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
       }
       Clients.delete(unid);
       delete tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`];
+      console.table(Clients);
     }
   });
   serverCallback(socket);
