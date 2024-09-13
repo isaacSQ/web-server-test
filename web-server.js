@@ -213,6 +213,11 @@ app.get('/advert-*', (req,res) => {
 
     const advertInterval = setInterval(()=>{
         if(fs.existsSync(filePath)){
+            console.log("exists")
+        } else {
+            console.log("does not exist")
+        }
+        if(fs.existsSync(filePath)){
             clearInterval(advertInterval);
             res.sendFile(filePath);
         }
