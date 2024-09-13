@@ -232,7 +232,7 @@ app.get('/advert-*', (req,res) => {
 //             res.destroy()
 //         }, 1000)
 //     }
-// })
+})
 
 // /* SCOREBOARD ROUTE */
 
