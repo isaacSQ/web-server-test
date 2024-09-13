@@ -123,7 +123,7 @@ app.post('/process_update', (req, res)=>{
 })
 
 app.post('/advert-*', (req, res)=>{
-    console.log("HERE HERE HERE HERE", req)
+    console.log("HERE HERE HERE HERE", req.body)
     const filename = req.url.slice(1)
     console.log("ADVERT", filename)
     advertsObject[filename] = req.body
