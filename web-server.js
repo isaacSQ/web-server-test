@@ -16,9 +16,9 @@ let HOST_TCP_SOCKET;
 
 let Clients = new Map();
 
-setInterval(()=>{
-    console.log('host', HOST_ADDR, HOST_UDP_PORT, HOST_TCP_PORT)
-},5000)  
+// setInterval(()=>{
+//     console.log('host', HOST_ADDR, HOST_UDP_PORT, HOST_TCP_PORT)
+// },5000)  
 
 let udpClientId = {};
 let tcpClientId = {};
@@ -83,6 +83,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 app.post('/upload-images', upload.array('images', 10), (req, res) => {
+    console.log(req,res)
   if (!req.files || req.files.length === 0) {
     return res.status(400).json({ error: 'No files uploaded' });
   }
@@ -127,7 +128,7 @@ app.get('/get_round_pictures', (req,res) => {
 
 app.get("/clips", (req, res) => {
 
-    console.log(processObject.locallyStoredBuzzerClips)
+    //console.log(processObject.locallyStoredBuzzerClips)
 
       res.setHeader("Content-Type", "application/json");
       res.json(processObject.locallyStoredBuzzerClips);
@@ -167,7 +168,7 @@ app.get("/clips_used", (req, res) => {
 
 	var resstr = '{"used_clips": "' + used.toString() + '","selected_clip": "' + selected + '"}'
 
-	console.log("-- SERVED CLIP USED /clips_used ---",resstr)
+	//console.log("-- SERVED CLIP USED /clips_used ---",resstr)
 
 	res.end(resstr)
 
@@ -351,7 +352,7 @@ udpServer.on("listening", () => {
 
 udpServer.on("message", (msg, rinfo) => {
 
-  console.log("UDP From: ", rinfo.address, rinfo.port, msg.toString());
+  //console.log("UDP From: ", rinfo.address, rinfo.port, msg.toString());
     
   if (msg == "IHOST") {
     console.log("HOST RECEIVED", rinfo);
@@ -376,7 +377,7 @@ udpServer.on("message", (msg, rinfo) => {
       ipAddress: rinfo.address,
       udpPort: rinfo.port,
     };
-    console.log('updating Client with 28' , unid, updatedClient)
+    //console.log('updating Client with 28' , unid, updatedClient)
     Clients.set(unid, updatedClient);
     udpClientId[`${rinfo.address}:${rinfo.port}`] = unid;
 
@@ -388,7 +389,7 @@ udpServer.on("message", (msg, rinfo) => {
   }
 
   if (rinfo.address === HOST_ADDR && rinfo.port === HOST_UDP_PORT) {
-    console.log('UDP From Host: ', msg.toString());
+    //console.log('UDP From Host: ', msg.toString());
     if (msg == "PING") {
       Clients.forEach((client) => {
         const hostPingOut = Buffer.from(
