@@ -7,6 +7,7 @@
         "git-push": "git add . && git commit -m '1' && git push"
     },
     "dependencies": {
+        "axios": "^1.7.7",
         "express": "^4.14.0",
         "multer": "^1.4.5-lts.1"
     }

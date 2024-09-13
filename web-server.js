@@ -1,6 +1,7 @@
 const net = require("net");
 const dgram = require("dgram");
 const express = require("express");
+const axios = require("axios");
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -84,7 +85,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-app.post('/upload-images', upload.array('images', 10), (req, res) => {
+app.post('/upload_images', upload.array('images', 10), (req, res) => {
     console.log(req,res)
   if (!req.files || req.files.length === 0) {
     return res.status(400).json({ error: 'No files uploaded' });
@@ -97,7 +98,7 @@ app.post('/upload-images', upload.array('images', 10), (req, res) => {
 });
 
 // POST route for image upload
-app.post('/upload-image', upload.single('image'), (req, res) => {
+app.post('/upload_image', upload.single('image'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
@@ -108,11 +109,17 @@ app.post('/upload-image', upload.single('image'), (req, res) => {
 });
 
 app.post('/process_init', (req, res)=>{
-    console.log("MADE IT HERE", req.body)
+    console.log("PROCESS INIT")
+    processObject = req.body
     res.send("POST Request Called")
 })
 
+app.post('/process_update', (req, res)=>{
+    console.log("PROCESS UPDATE", req.body)
+    updateProcessObject(req.body);
 
+    res.send("POST Request Called")
+})
 
 app.get('/get_round_pictures', (req,res) => {
 
@@ -199,31 +206,36 @@ app.get('/advert-*', (req,res) => {
   //   res.status(404).json({ error: 'File not found' });
   // }
 
-    if(advertsObject[filename] !== undefined){
-        const advertToServe = Buffer.from(advertsObject[filename])
-        console.log("ADVERT EXISTS")
-		res.setHeader('Content-Type', 'image/jpeg')
-		res.end(advertToServe, "binary")
-    } else {
-        console.log("ADVERT DOES NOT EXIST")
-        const msg = `{"MSG":"2024","CMD":"get_advert","FILE":"${filename}"}`
-        HOST_TCP_SOCKET?.write(msg);
 
-        const advertInterval = setInterval(()=>{
-            if(advertsObject[filename]){
-                clearInterval(advertInterval);
-                const advertToServe = Buffer.from(advertsObject[filename])
-                res.setHeader('Content-Type', 'image/jpeg')
-		        res.end(advertToServe, "binary")
-            } 
-        }, 50)
+  axios.get(`http://192.168.4.181:2024${req.url}`).then((response)=>{
+    console.log("HERE", response)
+  }).catch(err => console.log(err))
 
-        setTimeout(()=>{
-            console.log("Advert file not found response")
-            clearInterval(advertInterval)
-            res.destroy()
-        }, 30000)
-    }
+    // if(advertsObject[filename] !== undefined){
+    //     const advertToServe = Buffer.from(advertsObject[filename])
+    //     console.log("ADVERT EXISTS")
+	// 	res.setHeader('Content-Type', 'image/jpeg')
+	// 	res.end(advertToServe, "binary")
+    // } else {
+    //     console.log("ADVERT DOES NOT EXIST")
+    //     const msg = `{"MSG":"2024","CMD":"get_advert","FILE":"${filename}"}`
+    //     HOST_TCP_SOCKET?.write(msg);
+
+    //     const advertInterval = setInterval(()=>{
+    //         if(advertsObject[filename]){
+    //             clearInterval(advertInterval);
+    //             const advertToServe = Buffer.from(advertsObject[filename])
+    //             res.setHeader('Content-Type', 'image/jpeg')
+	// 	        res.end(advertToServe, "binary")
+    //         } 
+    //     }, 50)
+
+    //     setTimeout(()=>{
+    //         console.log("Advert file not found response")
+    //         clearInterval(advertInterval)
+    //         res.destroy()
+    //     }, 30000)
+    // }
 })
 
 // /* SCOREBOARD ROUTE */
@@ -561,12 +573,6 @@ function forwardTcpToClient(buffer) {
             convertedJson.DATA = Buffer.from(convertedJson.DATA,"base64").toString("utf-8");
             console.log("🚀 ~ objects ~ convertedJson.DATA:", convertedJson.DATA.slice(0,100))
           switch (convertedJson.CMD) {
-            case "process_init":
-                processObject = JSON.parse(convertedJson.DATA);
-                break;
-            case "process_update":
-                updateProcessObject(JSON.parse(convertedJson.DATA));
-                break;
             case "get_advert":
                 const advert = JSON.parse(convertedJson.DATA);
                 advertsObject[advert.filename] = advert.data;
