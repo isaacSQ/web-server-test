@@ -651,7 +651,7 @@ function kickAndClearServers() {
   console.log("HOST DISCONNECTED, CLEARING");
   Clients.forEach((client) => {
     console.log(client)
-    client?.socket.destroy();
+    client?.socket?.destroy();
   });
   Clients.clear();
   tcpClientId = {};
