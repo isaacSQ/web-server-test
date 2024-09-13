@@ -105,6 +105,11 @@ app.post('/upload-image', upload.single('image'), (req, res) => {
   res.json({ message: 'Image uploaded successfully', filePath: filePath });
 });
 
+app.post('/process_init', (req, res)=>{
+    console.log("MADE IT HERE", req.body)
+    res.send("POST Request Called")
+})
+
 
 
 app.get('/get_round_pictures', (req,res) => {
