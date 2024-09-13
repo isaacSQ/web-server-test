@@ -122,7 +122,7 @@ app.post('/process_update', (req, res)=>{
     res.send("POST Request Called")
 })
 
-app.post('/advert-*', (req, res)=>{
+app.post('/advert-*', upload.single('file'), (req, res)=>{
     console.log("HERE HERE HERE HERE", req.body)
     const filename = req.url.slice(1)
     console.log("ADVERT", filename)
@@ -194,7 +194,7 @@ app.get("/clips_used", (req, res) => {
 	}
 });
 
-app.get('/advert-*', upload.single('file'), (req,res) => {
+app.get('/advert-*', (req,res) => {
     //ADVERTS
     
     const filename = req.url.slice(1)
