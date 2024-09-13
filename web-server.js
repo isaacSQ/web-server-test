@@ -122,10 +122,18 @@ app.post('/process_update', (req, res)=>{
     res.send("POST Request Called")
 })
 
-app.post('/advert-*', upload.single('file'), (req, res)=>{
+app.post('/advert-*', (req, res)=>{
     const filename = req.url.slice(1)
     console.log("ADVERT", filename)
-    //advertsObject[filename] = req.body
+    const filePath = `/adverts/${filename}`;
+
+    if (fs.existsSync(filePath)) {
+        console.log("FILE EXISTS ALREADY")
+        return res.status(400).json({ error: "File already exists" });
+    }
+
+}, upload.single('file'), (req, res)=>{
+    console.log("HERE UPLOADING FILE:", req.file.filename)
 })
 
 app.get('/get_round_pictures', (req,res) => {
