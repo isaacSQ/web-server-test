@@ -721,9 +721,9 @@ function updateProcessObject(obj) {
 
 setInterval(()=>{
     fs.readdir(__dirname + '/adverts', (err, data)=>{
-        console.table("CURRENT ADVERT DISK STORAGE", data)
+        console.log("CURRENT ADVERT DISK STORAGE", data)
     })
     fs.readdir(__dirname + '/roundpics', (err, data)=>{
-        console.table("CURRENT ROUND PICTURES DISK STORAGE", data)
+        console.log("CURRENT ROUND PICTURES DISK STORAGE", data)
     })
 }, 5000)
