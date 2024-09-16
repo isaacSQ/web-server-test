@@ -602,6 +602,7 @@ function forwardTcpToClient(buffer) {
 
 let hostDataContent = ""
 function forwardTcpToHost(buffer, socket) {
+    console.log("🚀 ~ forwardTcpToHost ~ buffer:", buffer)
     let data = hostDataContent + buffer
     console.log("data:", data.slice(0,20),"...", data.slice(data.length - 100))
 
@@ -615,36 +616,23 @@ function forwardTcpToHost(buffer, socket) {
         }
     }
 
-    let unid = tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`];
-
-    console.log("🚀 ~ forwardTcpToHost ~ unid before:", unid)
+    
     if (data.slice(0, 19) == "qs.connectResponse(") {
-      const resUnid = data.toString().match(/\(([^,]+)/)[1];
-      console.log('TCP UNID', resUnid);
-  
-      // Store the UNID in the tcpClientId map
-      tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`] = resUnid;
-  
-      // Retrieve the existing client data, if any
-      const existingClient = Clients.get(resUnid) || {};
-
-      console.log('existingClient!!!!!!!!!!!!!!!!', existingClient)
-  
-      // Set the updated client data, merging with existing data
-      console.log('updating Client with', resUnid, {
-        ...existingClient, 
-        socket: socket     
-    })
-
-      Clients.set(resUnid, {
-          ...existingClient,  // Merge any existing client data
-          socket: socket      // Overwrite or add the socket field
-      });
-  
-      // Set unid for further processing
-      unid = resUnid;
-  }
-    console.log("🚀 ~ forwardTcpToHost ~ unid after:", unid)
+        const resUnid = data.toString().match(/\(([^,]+)/)[1];
+        // Store the UNID in the tcpClientId map
+        tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`] = resUnid;
+        // Retrieve the existing client data, if any
+        const existingClient = Clients.get(resUnid) || {};
+        
+        // Set the updated client data, merging with existing data
+        
+        Clients.set(resUnid, {
+            ...existingClient,  // Merge any existing client data
+            socket: socket      // Overwrite or add the socket field
+        });
+    }
+    
+    const unid = tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`];
 
     if(unid === undefined){
         console.log("UNID NOT FOUND, KICKING")
