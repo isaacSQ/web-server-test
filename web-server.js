@@ -152,8 +152,21 @@ app.post('/advert-*', upload.single('file') , (req, res)=>{
 
 })
 
-app.post('/get_round_pictures', upload.single('file'), (req, res) => {
+app.post('/get_round_pictures', zipUpload.single('file'), (req, res) => {
+    console.log("ZIP:", req.file)
 
+    // if(fs.existsSync(filePath)){
+    //     console.log("ADVERT ALREADY EXISTS")
+    //     return res.status(400).json({ error: "File already exists" });
+    // }
+
+    // if(!req.file){
+    //     return res.status(400).json({ error: 'No file uploaded' });
+    // }
+
+    console.log("UPLOADING ZIP:", req.file.filename);
+    
+    res.status(200).json({ message: "File uploaded successfully", file: req.file.filename });
 })
 
 app.get('/get_round_pictures', (req,res) => {
