@@ -279,22 +279,22 @@ app.get('/get_scoreboard', (req,res) => {
 })
 
 // /* LANGUAGE ROUTE */
-app.get('/get_i18n', (req,res) => {
-    console.log("HERE HERE HERE HERE --------------------------------------------------")
-    const hash = req.query?.hash ? req.query.hash : "sillysausages"
-    const servedMsg = `{"MSG":"2024","CMD":"lang_check_update","HASH":"${hash}"}`
-    HOST_TCP_SOCKET?.write(servedMsg);
-		process.send({ command: "lang_check_update", hash: req.query.hash })
+// app.get('/get_i18n', (req,res) => {
+//     console.log("HERE HERE HERE HERE --------------------------------------------------")
+//     const hash = req.query?.hash ? req.query.hash : "sillysausages"
+//     const servedMsg = `{"MSG":"2024","CMD":"lang_check_update","HASH":"${hash}"}`
+//     HOST_TCP_SOCKET?.write(servedMsg);
+// 		process.send({ command: "lang_check_update", hash: req.query.hash })
 
 
-	//waiting 2000 for appLanguageJson update
-	setTimeout(function () {
-	    res.setHeader('Content-Type', 'application/json')
-	    res.end(processObject.appLanguageJson)
-		res.destroy()
-	}, 2000)
+// 	//waiting 2000 for appLanguageJson update
+// 	setTimeout(function () {
+// 	    res.setHeader('Content-Type', 'application/json')
+// 	    res.end(processObject.appLanguageJson)
+// 		res.destroy()
+// 	}, 2000)
 
-})
+// })
 
 // /* PROFILE PICTURES ROUTE */
 
