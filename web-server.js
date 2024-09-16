@@ -383,7 +383,7 @@ udpServer.on("listening", () => {
 
 udpServer.on("message", (msg, rinfo) => {
 
-  console.log("UDP From: ", rinfo.address, rinfo.port, msg.toString());
+  //console.log("UDP From: ", rinfo.address, rinfo.port, msg.toString());
     
   if (msg == "IHOST") {
     console.log("HOST RECEIVED", rinfo);
@@ -432,7 +432,7 @@ udpServer.on("message", (msg, rinfo) => {
     }
 
     const obj = JSON.parse(msg);
-    console.log(obj.UNID, '<<<<<');
+    //console.log(obj.UNID, '<<<<<');
     let message = obj.MSG;
 
     if (typeof obj.MSG === "object") {
@@ -573,7 +573,7 @@ function forwardTcpToClient(buffer) {
           return;
         }
 
-        console.log(jsonString.slice(0,100), 'hweo');
+        //console.log(jsonString.slice(0,100), 'hweo');
         const convertedJson = JSON.parse(jsonString);
 
         if (convertedJson.MSG === "DESTROY") {
