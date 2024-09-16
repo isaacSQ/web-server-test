@@ -171,19 +171,21 @@ app.post('/get_round_pictures', zipUpload.single('file'), (req, res) => {
 
 app.get('/get_round_pictures', (req,res) => {
 
-	if(req.query?.id){
-
-        const zipToServe = Buffer.from(processObject.roundPictures)
-
-		res.setHeader('Content-Type', 'application/zip')
-        res.end(zipToServe, 'binary');
-	}else{
-
+    if(req.query?.id){
+        fs.readdir(path.join(__dirname, 'roundpics'), (err, files) => {
+            if(files[0]){
+                const filePath = path.join(__dirname, 'roundpics', files[0]);
+                res.setHeader('Content-Type', 'application/zip')
+                res.sendFile(filePath);
+            } else {
+                res.setHeader('Content-Type', 'application/json')
+                res.json({error:'no_params'})
+            }
+        })
+    } else {
 		res.setHeader('Content-Type', 'application/json')
 		res.json({error:'no_params'})
-
-	}
-
+    }
 })
 
 app.get("/clips", (req, res) => {
