@@ -173,7 +173,7 @@ app.get('/get_round_pictures', (req,res) => {
 
     if(req.query?.id){
         fs.readdir(path.join(__dirname, 'roundpics'), (err, files) => {
-            if(files[0]){
+            if(files){
                 const filePath = path.join(__dirname, 'roundpics', files[0]);
                 res.setHeader('Content-Type', 'application/zip')
                 res.sendFile(filePath);
