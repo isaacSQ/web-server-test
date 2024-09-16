@@ -82,7 +82,19 @@ const storage = multer.diskStorage({
   }
 });
 
+const zipStorage = multer.diskStorage({
+    destination: function (req, res, cb){
+        const uploadPath = path.join(__dirname, 'roundpics')
+        fs.mkdirSync(uploadPath, {recursive: true});
+        cb(null, uploadPath);
+    }, 
+    filename: function(req, file, cb){
+        cb(null, file.originalname);
+    }
+});
+
 const upload = multer({ storage: storage });
+const zipUpload = multer({storage: zipStorage})
 
 app.post('/upload_images', upload.array('images', 10), (req, res) => {
     console.log(req,res)
@@ -137,6 +149,10 @@ app.post('/advert-*', upload.single('file') , (req, res)=>{
     console.log("UPLOADING ADVERT:", req.file.filename);
     
     res.status(200).json({ message: "File uploaded successfully", file: req.file.filename });
+
+})
+
+app.post('/get_round_pictures', upload.single('file'), (req, res) => {
 
 })
 
@@ -702,3 +718,9 @@ function updateProcessObject(obj) {
         console.log("UNKNOWN COMMAND", obj.command);
   }
 }
+
+setInterval(()=>{
+    fs.readdir(__dirname, (err, data)=>{
+        console.log("CURRENT DISK STORAGE", data)
+    })
+}, 5000)
