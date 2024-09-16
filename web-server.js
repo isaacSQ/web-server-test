@@ -682,7 +682,7 @@ function kickAndClearServers() {
 }
 
 const deleteStorage = () => {
-
+    console.log("HERE HERE")
     //const files = 
     fs.readdirSync(__dirname, (err, files)=>{
         console.log("HERE:", files)
