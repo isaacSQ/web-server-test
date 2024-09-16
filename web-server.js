@@ -678,10 +678,14 @@ function kickAndClearServers() {
   HOST_UDP_PORT = null;
   HOST_TCP_SOCKET = null;
 
-  deleteAllAdverts();
+  deleteStorage();
 }
 
-const deleteAllAdverts = () => {
+const deleteStorage = () => {
+
+    const files = fs.readdirSync(__dirname, (err, files)=>{
+        console.log("HERE:", files)
+    })
     const directory = path.join(__dirname, 'adverts');
   
     if (fs.existsSync(directory)) {
