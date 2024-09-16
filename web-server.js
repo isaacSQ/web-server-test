@@ -603,7 +603,7 @@ function forwardTcpToClient(buffer) {
 let hostDataContent = ""
 function forwardTcpToHost(buffer, socket) {
     let data = hostDataContent + buffer
-    console.log("🚀 ~ forwardTcpToHost ~ data:", data.slice(0,50),"...", data.slice(data.length - 50))
+    console.log("data:", data.slice(0,20),"...", data.slice(data.length - 100))
 
     if(data.indexOf("qs") !== 0){
         if(data.includes("dataEnd+++++++++++")){
@@ -614,7 +614,7 @@ function forwardTcpToHost(buffer, socket) {
             return
         }
     }
-    console.log(data.slice(0,100), data.length)
+
     let unid = tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`];
 
     console.log("🚀 ~ forwardTcpToHost ~ unid before:", unid)
