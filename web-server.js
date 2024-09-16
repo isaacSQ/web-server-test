@@ -684,14 +684,12 @@ function kickAndClearServers() {
 const deleteStorage = () => {
     console.log("HERE HERE")
     const files = fs.readdirSync(__dirname)
-    console.log("FILES", files)
-    const directory = path.join(__dirname, 'adverts');
-  
-    if (fs.existsSync(directory)) {
-        fs.rmSync(directory, { recursive: true, force: true })
-    } else {
-      console.log('Adverts directory does not exist.');
-    }
+
+    files.filter(file => file === 'adverts' || file === 'roundpics').forEach((file) => {
+        console.log("Deleting:", file)
+            const filePath = path.join(__dirname, file)
+            fs.rmSync(filePath, { recursive: true, force: true });
+    })
   };
 
 function updateProcessObject(obj) {
