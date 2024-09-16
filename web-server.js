@@ -128,7 +128,6 @@ app.post('/process_init', (req, res)=>{
 })
 
 app.post('/process_update', (req, res)=>{
-    console.log("PROCESS UPDATE", req.body)
     updateProcessObject(req.body);
 
     res.send("POST Request Called")
