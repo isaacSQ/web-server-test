@@ -641,7 +641,7 @@ function forwardTcpToHost(buffer, socket) {
         return;
     }
 
-      const res = `{"MSG":"${data}","UNID":"${unid}"}`;
+      const res = `{"MSG":"${data}","UNID":"${unid}"}msgEnd++++++`;
       try {
         HOST_TCP_SOCKET.write(res);
       } catch (e) {
