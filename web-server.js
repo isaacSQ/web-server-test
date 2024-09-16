@@ -602,13 +602,12 @@ function forwardTcpToClient(buffer) {
 
 let hostDataContent = ""
 function forwardTcpToHost(buffer, socket) {
-    console.log("🚀 ~ forwardTcpToHost ~ buffer:", buffer.toString().slice(0,50), buffer.toString().slice(buffer.length - 50))
     let data = hostDataContent + buffer
-    console.log("data:", data.slice(0,20),"...", data.slice(data.length - 100))
 
     if(data.indexOf("qs") !== 0){
         if(data.includes("dataEnd+++++++++++")){
             console.log("MADE IT TO DATA END")
+            console.log("data:", data.slice(0,20),"...", data.slice(data.length - 100))
            hostDataContent = "" 
         } else{
             hostDataContent = data
