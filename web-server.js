@@ -37,8 +37,6 @@ let processObject = {
     roundPictures : null,
   };
 
-let advertsObject = {}
-
 //UDP SERVER
 
 const app = express();
