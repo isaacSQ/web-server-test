@@ -100,7 +100,6 @@ const upload = multer({ storage: storage });
 const zipUpload = multer({storage: zipStorage})
 
 app.post('/upload_images', upload.array('images', 10), (req, res) => {
-    console.log(req,res)
   if (!req.files || req.files.length === 0) {
     return res.status(400).json({ error: 'No files uploaded' });
   }
@@ -137,11 +136,10 @@ app.post('/process_update', (req, res)=>{
 
 app.post('/advert-*', upload.single('file') , (req, res)=>{
     const filename = req.url.slice(1)
-    console.log("ADVERT", filename)
     const filePath = path.join(__dirname, 'adverts', filename);
 
     if(fs.existsSync(filePath)){
-        console.log("ADVERT ALREADY EXISTS")
+        //console.log("ADVERT ALREADY EXISTS")
         return res.status(400).json({ error: "File already exists" });
     }
 
@@ -173,7 +171,6 @@ app.post('/get_round_pictures', zipUpload.single('file'), (req, res) => {
 })
 
 app.get('/get_round_pictures', (req,res) => {
-
     if(req.query?.id){
         fs.readdir(path.join(__dirname, 'roundpics'), (err, files) => {
             if(files){
@@ -243,12 +240,10 @@ app.get('/advert-*', (req,res) => {
     //ADVERTS
     
     const filename = req.url.slice(1)
-   console.log("GET ADVERT", filename)
 
     const filePath = path.join(__dirname, 'adverts', filename);
 
   if (fs.existsSync(filePath)) {
-    console.log("ADVERT EXISTS")
     res.sendFile(filePath);
   } else {
     res.status(404).json({ error: 'File not found' });
@@ -284,21 +279,22 @@ app.get('/get_scoreboard', (req,res) => {
 })
 
 // /* LANGUAGE ROUTE */
-// app.get('/get_i18n', (req,res) => {
+app.get('/get_i18n', (req,res) => {
+    console.log("HERE HERE HERE HERE --------------------------------------------------")
+    const hash = req.query?.hash ? req.query.hash : "sillysausages"
+    const servedMsg = `{"MSG":"2024","CMD":"lang_check_update","HASH":"${hash}"}`
+    HOST_TCP_SOCKET?.write(servedMsg);
+		process.send({ command: "lang_check_update", hash: req.query.hash })
 
-// 	if(req.query?.hash){
-// 		process.send({ command: "lang_check_update", hash: req.query.hash })
-// 	} else
-// 		process.send({ command: "lang_check_update", hash: "sillysausages" })
 
-// 	//waiting 2000 for appLanguageJson update
-// 	setTimeout(function () {
-// 		res.setHeader('Content-Type', 'application/json')
-// 	  res.end(appLanguageJson)
-// 		res.destroy()
-// 	}, 2000)
+	//waiting 2000 for appLanguageJson update
+	setTimeout(function () {
+	    res.setHeader('Content-Type', 'application/json')
+	    res.end(processObject.appLanguageJson)
+		res.destroy()
+	}, 2000)
 
-// })
+})
 
 // /* PROFILE PICTURES ROUTE */
 
@@ -685,7 +681,6 @@ function kickAndClearServers() {
 }
 
 const deleteStorage = () => {
-    console.log("HERE HERE")
     const files = fs.readdirSync(__dirname)
 
     files.filter(file => file === 'adverts' || file === 'roundpics').forEach((file) => {
@@ -738,11 +733,11 @@ function updateProcessObject(obj) {
   }
 }
 
-setInterval(()=>{
-    fs.readdir(__dirname + '/adverts', (err, data)=>{
-        console.log("CURRENT ADVERT DISK STORAGE", data)
-    })
-    fs.readdir(__dirname + '/roundpics', (err, data)=>{
-        console.log("CURRENT ROUND PICTURES DISK STORAGE", data)
-    })
-}, 5000)
+// setInterval(()=>{
+//     fs.readdir(__dirname + '/adverts', (err, data)=>{
+//         console.log("CURRENT ADVERT DISK STORAGE", data)
+//     })
+//     fs.readdir(__dirname + '/roundpics', (err, data)=>{
+//         console.log("CURRENT ROUND PICTURES DISK STORAGE", data)
+//     })
+// }, 5000)
