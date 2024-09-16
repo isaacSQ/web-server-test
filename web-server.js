@@ -85,7 +85,10 @@ const storage = multer.diskStorage({
 const zipStorage = multer.diskStorage({
     destination: function (req, res, cb){
         const uploadPath = path.join(__dirname, 'roundpics')
-        fs.mkdirSync(uploadPath, {recursive: true});
+        if (fs.existsSync(uploadPath)) {
+            fs.rmSync(uploadPath, { recursive: true, force: true });
+        }
+        fs.mkdirSync(uploadPath);
         cb(null, uploadPath);
     }, 
     filename: function(req, file, cb){
