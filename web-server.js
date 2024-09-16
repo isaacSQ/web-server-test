@@ -600,21 +600,22 @@ function forwardTcpToClient(buffer) {
   }
 }
 
-
+let hostDataContent = ""
 function forwardTcpToHost(buffer, socket) {
-    const data = buffer.toString()
+    console.log("🚀 ~ forwardTcpToHost ~ buffer:", buffer.toString().slice(0,50), buffer.toString().slice(buffer.length - 50))
+    let data = hostDataContent + buffer
     console.log("data:", data.slice(0,20),"...", data.slice(data.length - 100))
-
-    socket.complete = true
 
     if(data.indexOf("qs") !== 0){
         if(data.includes("dataEnd+++++++++++")){
             console.log("MADE IT TO DATA END")
-           socket.complete = true
+           hostDataContent = "" 
         } else{
-            socket.complete = false
+            hostDataContent = data
+            return
         }
-    } 
+    }
+
     
     if (data.slice(0, 19) == "qs.connectResponse(") {
         const resUnid = data.toString().match(/\(([^,]+)/)[1];
@@ -639,9 +640,8 @@ function forwardTcpToHost(buffer, socket) {
         socket.destroy();
         return;
     }
-      const msgComplete = socket.complete ? "T" : "F"
-      console.log("MESSAGE COMPLETED", msgComplete, socket.complete)
-      const res = `{"MSG":"${data}","UNID":"${unid}","END":"${msgComplete}"}`;
+
+      const res = `{"MSG":"${data}","UNID":"${unid}"}`;
       try {
         HOST_TCP_SOCKET.write(res);
       } catch (e) {
