@@ -654,24 +654,7 @@ const deleteAllAdverts = () => {
     const directory = path.join(__dirname, 'adverts');
   
     if (fs.existsSync(directory)) {
-      fs.readdir(directory, (err, files) => {
-        if (err) {
-          console.error('Error reading the directory:', err);
-          return;
-        }
-        for (const file of files) {
-          const filePath = path.join(directory, file);
-          if (fs.lstatSync(filePath).isFile()) {
-            fs.unlink(filePath, (err) => {
-              if (err) {
-                console.error('Error deleting file:', err);
-              } else {
-                console.log(`Deleted: ${filePath}`);
-              }
-            });
-          }
-        }
-      });
+        fs.rmSync(directory, { recursive: true, force: true })
     } else {
       console.log('Adverts directory does not exist.');
     }
