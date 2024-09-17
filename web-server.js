@@ -454,6 +454,7 @@ udpServer.on("message", (msg, rinfo) => {
 
   const response = `{"MSG":${msg},"UNID":"${unid}"}`;
 
+  console.log("!!!!!!!!🚀 ~ udpServer.on ~ response:", response)
   udpServer.send(response, 0, response.length, HOST_UDP_PORT, HOST_ADDR, (err) => {
     if (err) console.error("UDP WEB send error:", err);
   });
@@ -604,6 +605,11 @@ function forwardTcpToClient(buffer) {
   }
 }
 
+function sendPhantomPingResponse() {
+  const phantomPingOut = Buffer.from(JSON.stringify({ command: "phantom_ping_out" }));
+  HOST_TCP_SOCKET.write(phantomPingOut);
+}
+
 let hostDataContent = ""
 function forwardTcpToHost(buffer, socket) {
     let data = hostDataContent + buffer
@@ -614,6 +620,9 @@ function forwardTcpToHost(buffer, socket) {
             console.log("data:", data.slice(0,20),"...", data.slice(data.length - 100))
            hostDataContent = "" 
         } else{
+            // POTENTIAL FLAW - UDP MESSAGES NOT SENT WHILST SENDING LARGE TCP MESSAGE e.g. PROFILE PICTURE
+            // UNHAPPY WITH THIS SOLUTION
+            sendPhantomPingEcho()
             hostDataContent = data
             return
         }
@@ -631,12 +640,8 @@ function forwardTcpToHost(buffer, socket) {
             socket: socket,
         });
     }
-        
-    
-    const unid = socket.unid
-    console.log("🚀 ~ forwardTcpToHost ~ unid:", unid)
 
-    if(unid === undefined){
+    if(socket.unid === undefined){
         console.log("UNID NOT FOUND, KICKING")
         socket.end();
         socket.destroy();
