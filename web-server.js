@@ -404,6 +404,7 @@ udpServer.on("message", (msg, rinfo) => {
       ...existingClient,
       ipAddress: rinfo.address,
       udpPort: rinfo.port,
+      unid: unid,
     };
     //console.log('updating Client with 28' , unid, updatedClient)
     clients.set(unid, updatedClient);
