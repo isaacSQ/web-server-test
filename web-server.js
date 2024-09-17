@@ -608,7 +608,7 @@ function forwardTcpToClient(buffer) {
 }
 
 function sendPhantomPingEcho(unid) {
-    console.log("\n\nSEND PHANTOM PING \n\n")
+    console.log(`\n\nSEND PHANTOM PING, ${unid} \n\n`)
   const response = `{"MSG":{"command": "host_ping_echo", "unid": "${unid}"},"UNID":"${unid}"}`;
 
   udpServer.send(response, 0, response.length, HOST_UDP_PORT, HOST_ADDR, (err) => {
@@ -628,6 +628,7 @@ function forwardTcpToHost(buffer, socket) {
         } else{
             // POTENTIAL FLAW - UDP MESSAGES NOT SENT WHILST SENDING LARGE TCP MESSAGE e.g. PROFILE PICTURE
             // UNHAPPY WITH THIS SOLUTION
+            console.log("HERE POOTY")
             sendPhantomPingEcho(socket.unid)
             hostDataContent = data
             return
