@@ -423,7 +423,9 @@ udpServer.on("message", (msg, rinfo) => {
         const hostPingOut = Buffer.from(
           JSON.stringify({ command: "host_ping_out" })
         );
-        udpServer.send(hostPingOut, 0, hostPingOut.length, client.udpPort, client.ipAddress);
+        if(client['udpPort']){
+            udpServer.send(hostPingOut, 0, hostPingOut.length, client.udpPort, client.ipAddress);
+        }
       });
       return;
     }
@@ -435,6 +437,7 @@ udpServer.on("message", (msg, rinfo) => {
     if (typeof obj.MSG === "object") {
       message = JSON.stringify(obj.MSG);
     } 
+    console.log("!!!!!!!!🚀 ~ udpServer.send ~ message:", message)
 
     const client = clients.get(obj.UNID);
     if (client?.udpPort && client?.ipAddress) {
@@ -454,7 +457,6 @@ udpServer.on("message", (msg, rinfo) => {
 
   const response = `{"MSG":${msg},"UNID":"${unid}"}`;
 
-  console.log("!!!!!!!!🚀 ~ udpServer.on ~ response:", response)
   udpServer.send(response, 0, response.length, HOST_UDP_PORT, HOST_ADDR, (err) => {
     if (err) console.error("UDP WEB send error:", err);
   });
