@@ -465,8 +465,6 @@ udpServer.bind(UDP_PORT, "0.0.0.0");
 
 //---------------------------------------TCP SERVER----------------------------------------------------------------
 
-const tcpThrottle = new Throttle(50 * 1024)
-
 const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
   console.log("TCP client connected:", socket.remoteAddress, socket.remotePort);
 
@@ -640,9 +638,7 @@ function forwardTcpToHost(buffer, socket) {
 
       const res = `{"MSG":"${data}","UNID":"${unid}"}`;
       try {
-        const throttledStream = tcpThrottle.pipe(HOST_TCP_SOCKET)
-        throttledStream.write(res);
-        // HOST_TCP_SOCKET.write(res);
+        HOST_TCP_SOCKET.write(res);
       } catch (e) {
         console.log("HOST DEAD, CLEARING");
         kickAndClearServers();
