@@ -446,7 +446,7 @@ udpServer.on("message", (msg, rinfo) => {
 
   let unid 
   clients.forEach((client)=>{
-    console.log(client.name)
+    console.log(client.keys())
       if(client.udpPort === rinfo.port && client.ipAddress === rinfo.address){
           unid = client.unid
       }
