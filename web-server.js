@@ -624,7 +624,7 @@ function forwardTcpToHost(buffer, socket) {
         const resUnid = data.toString().match(/\(([^,]+)/)[1];
         // Retrieve the existing client data, if any
         const existingClient = clients.get(resUnid) || {};
-        //socket.unid = resUnid
+        socket.unid = resUnid
         // Set the updated client data, merging with existing data
         clients.set(resUnid, {
             ...existingClient,  // Merge any existing client data
