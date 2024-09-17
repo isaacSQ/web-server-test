@@ -618,6 +618,7 @@ function sendPhantomPingEcho(unid) {
 
 let hostDataContent = ""
 function forwardTcpToHost(buffer, socket) {
+    console.log("HERE POOTY")
     let data = hostDataContent + buffer
 
     if(data.indexOf("qs") !== 0){
@@ -628,7 +629,6 @@ function forwardTcpToHost(buffer, socket) {
         } else{
             // POTENTIAL FLAW - UDP MESSAGES NOT SENT WHILST SENDING LARGE TCP MESSAGE e.g. PROFILE PICTURE
             // UNHAPPY WITH THIS SOLUTION
-            console.log("HERE POOTY")
             sendPhantomPingEcho(socket.unid)
             hostDataContent = data
             return
