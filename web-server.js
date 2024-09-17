@@ -626,11 +626,9 @@ function forwardTcpToHost(buffer, socket) {
         });
     }
 
-    const unid = clients.forEach((client)=>{
+    const unid = clients.find((client)=>{
         console.log("CLIENTS: ", client)
-        if(client.tcpPort === socket.remotePort && client.ipAddress === socket.remoteAddress){
-            return client.unid
-        }
+        return client.tcpPort === socket.remotePort && client.ipAddress === socket.remoteAddress
     })
     // const unid = [ ...clients].filter((client) => {
     //     return (client.tcpPort === socket.remotePort && client.ipAddress === socket.remoteAddress)
