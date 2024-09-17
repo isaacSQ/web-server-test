@@ -447,7 +447,6 @@ udpServer.on("message", (msg, rinfo) => {
 
   let unid 
   clients.forEach((client)=>{
-    console.log(client)
       if(client.udpPort === rinfo.port && client.ipAddress === rinfo.address){
           unid = client.unid
       }
@@ -625,22 +624,16 @@ function forwardTcpToHost(buffer, socket) {
         const resUnid = data.toString().match(/\(([^,]+)/)[1];
         // Retrieve the existing client data, if any
         const existingClient = clients.get(resUnid) || {};
-        socket.unid = resUnid
+        //socket.unid = resUnid
         // Set the updated client data, merging with existing data
         clients.set(resUnid, {
             ...existingClient,  // Merge any existing client data
-            tcpPort: socket.remotePort,      // Overwrite or add the socket field
             socket: socket,
         });
     }
-
-    let unid 
-    clients.forEach((client)=>{
-        if(client.tcpPort === socket.remotePort && client.ipAddress === socket.remoteAddress){
-            unid = client.unid
-        }
-    })
         
+    
+    const unid = socket.unid
     console.log("🚀 ~ forwardTcpToHost ~ unid:", unid)
 
     if(unid === undefined){
@@ -650,7 +643,7 @@ function forwardTcpToHost(buffer, socket) {
         return;
     }
 
-      const res = `{"MSG":"${data}","UNID":"${unid}"}`;
+      const res = `{"MSG":"${data}","UNID":"${socket.unid}"}`;
       try {
         HOST_TCP_SOCKET.write(res);
       } catch (e) {
