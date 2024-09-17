@@ -404,7 +404,6 @@ udpServer.on("message", (msg, rinfo) => {
       ...existingClient,
       ipAddress: rinfo.address,
       udpPort: rinfo.port,
-      unid: unid
     };
     //console.log('updating Client with 28' , unid, updatedClient)
     clients.set(unid, updatedClient);
@@ -447,6 +446,7 @@ udpServer.on("message", (msg, rinfo) => {
 
   let unid 
   clients.forEach((client)=>{
+    console.log(client.name)
       if(client.udpPort === rinfo.port && client.ipAddress === rinfo.address){
           unid = client.unid
       }
@@ -512,12 +512,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
       kickAndClearServers();
     }
 
-    let unid 
-    clients.forEach((client)=>{
-        if(client.tcpPort === socket.remotePort && client.ipAddress === socket.remoteAddress){
-            unid = client.unid
-        }
-    })
+    const unid = socket?.unid
 
     console.log("🚀 ~ socket.on ~ unid:", unid)
     if (unid) {
@@ -629,11 +624,12 @@ function forwardTcpToHost(buffer, socket) {
         const resUnid = data.toString().match(/\(([^,]+)/)[1];
         // Retrieve the existing client data, if any
         const existingClient = clients.get(resUnid) || {};
+        socket.unid = resUnid
         // Set the updated client data, merging with existing data
         clients.set(resUnid, {
             ...existingClient,  // Merge any existing client data
+            tcpPort: socket.remotePort,      // Overwrite or add the socket field
             socket: socket,
-            tcpPort: socket.remotePort      // Overwrite or add the socket field
         });
     }
 
