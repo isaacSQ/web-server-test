@@ -608,7 +608,7 @@ function forwardTcpToClient(buffer) {
 }
 
 function sendPhantomPingEcho(unid) {
-
+    console.log("\n\nSEND PHANTOM PING \n\n")
   const response = `{"MSG":{"command": "host_ping_echo", "unid": "${unid}"},"UNID":"${unid}"}`;
 
   udpServer.send(response, 0, response.length, HOST_UDP_PORT, HOST_ADDR, (err) => {
