@@ -445,8 +445,12 @@ udpServer.on("message", (msg, rinfo) => {
     return;
   }
 
-  const unid = [...clients].filter((client) => (client.udpPort === rinfo.port && client.ipAddress === rinfo.address)).unid
-  console.log("🚀 ~ udpServer.on ~ unid:", unid)
+  let unid 
+  clients.forEach((client)=>{
+      if(client.udpPort === rinfo.port && client.ipAddress === rinfo.address){
+          unid = client.unid
+      }
+  })
 
   const response = `{"MSG":${msg},"UNID":"${unid}"}`;
 
@@ -507,7 +511,14 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
       console.log("HOST DISCONNECTED, CLEARING");
       kickAndClearServers();
     }
-    const unid = [...clients].filter((client) => (client.tcpPort === socket.remotePort && client.ipAddress === socket.remoteAddress))?.unid
+
+    let unid 
+    clients.forEach((client)=>{
+        if(client.tcpPort === socket.remotePort && client.ipAddress === socket.remoteAddress){
+            unid = client.unid
+        }
+    })
+
     console.log("🚀 ~ socket.on ~ unid:", unid)
     if (unid) {
       const msg = `{"MSG":"END","UNID":"${unid}"}`;
@@ -628,15 +639,10 @@ function forwardTcpToHost(buffer, socket) {
 
     let unid 
     clients.forEach((client)=>{
-        console.log("CLIENTS: ", client)
         if(client.tcpPort === socket.remotePort && client.ipAddress === socket.remoteAddress){
             unid = client.unid
-            return
         }
     })
-    // const unid = [ ...clients].filter((client) => {
-    //     return (client.tcpPort === socket.remotePort && client.ipAddress === socket.remoteAddress)
-    // })?.unid
         
     console.log("🚀 ~ forwardTcpToHost ~ unid:", unid)
 
