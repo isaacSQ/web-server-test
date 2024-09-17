@@ -5,6 +5,7 @@ const axios = require("axios");
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const Throttle = require('throttle');
 
 const TCP_PORT = 2023;
 const UDP_PORT = 22023;
@@ -467,6 +468,8 @@ udpServer.bind(UDP_PORT, "0.0.0.0");
 
 //---------------------------------------TCP SERVER----------------------------------------------------------------
 
+const tcpThrottle = new Throttle(100 * 1024)
+
 const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
   console.log("TCP client connected:", socket.remoteAddress, socket.remotePort);
 
@@ -606,7 +609,7 @@ function forwardTcpToHost(buffer, socket) {
 
     if(data.indexOf("qs") !== 0){
         if(data.includes("dataEnd+++++++++++")){
-            console.log("MADE IT TO DATA END")
+            console.log("MADE IT TO DATA END. SIZE: ", data.length)
             console.log("data:", data.slice(0,20),"...", data.slice(data.length - 100))
            hostDataContent = "" 
         } else{
@@ -642,7 +645,9 @@ function forwardTcpToHost(buffer, socket) {
 
       const res = `{"MSG":"${data}","UNID":"${unid}"}`;
       try {
-        HOST_TCP_SOCKET.write(res);
+        const throttledStream = tcpThrottle.pipe(HOST_TCP_SOCKET)
+        throttledStream.write(res);
+        // HOST_TCP_SOCKET.write(res);
       } catch (e) {
         console.log("HOST DEAD, CLEARING");
         kickAndClearServers();
