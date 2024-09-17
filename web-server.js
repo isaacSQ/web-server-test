@@ -380,7 +380,7 @@ udpServer.on("listening", () => {
 
 udpServer.on("message", (msg, rinfo) => {
 
-  //console.log("UDP From: ", rinfo.address, rinfo.port, msg.toString());
+  console.log("UDP From: ", rinfo.address, rinfo.port, msg.toString());
     
   if (msg == "IHOST") {
     console.log("HOST RECEIVED", rinfo);
@@ -437,7 +437,7 @@ udpServer.on("message", (msg, rinfo) => {
     if (typeof obj.MSG === "object") {
       message = JSON.stringify(obj.MSG);
     } 
-    console.log("!!!!!!!!🚀 ~ udpServer.send ~ message:", message)
+    //console.log("!!!!!!!!🚀 ~ udpServer.send ~ message:", message)
 
     const client = clients.get(obj.UNID);
     if (client?.udpPort && client?.ipAddress) {
@@ -607,7 +607,7 @@ function forwardTcpToClient(buffer) {
   }
 }
 
-function sendPhantomPingResponse() {
+function sendPhantomPingEcho() {
   const phantomPingOut = Buffer.from(JSON.stringify({ command: "phantom_ping_out" }));
   HOST_TCP_SOCKET.write(phantomPingOut);
 }
@@ -624,7 +624,7 @@ function forwardTcpToHost(buffer, socket) {
         } else{
             // POTENTIAL FLAW - UDP MESSAGES NOT SENT WHILST SENDING LARGE TCP MESSAGE e.g. PROFILE PICTURE
             // UNHAPPY WITH THIS SOLUTION
-            //sendPhantomPingEcho()
+            sendPhantomPingEcho()
             hostDataContent = data
             return
         }
