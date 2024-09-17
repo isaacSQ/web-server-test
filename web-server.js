@@ -5,7 +5,6 @@ const axios = require("axios");
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const Throttle = require('throttle');
 
 const TCP_PORT = 2023;
 const UDP_PORT = 22023;
@@ -16,14 +15,11 @@ let HOST_TCP_PORT = null;
 
 let HOST_TCP_SOCKET;
 
-let Clients = new Map();
+let clients = new Map();
 
 // setInterval(()=>{
 //     console.log('host', HOST_ADDR, HOST_UDP_PORT, HOST_TCP_PORT)
-// },5000)  
-
-let udpClientId = {};
-let tcpClientId = {};
+// },5000)
 
 //2024 media objects
 let processObject = {
@@ -401,17 +397,17 @@ udpServer.on("message", (msg, rinfo) => {
 
   if (msg.slice(0, 2) == "FH") {
     const unid = msg.toString().slice(3);
-    const existingClient = Clients.get(unid) || {};
+    const existingClient = clients.get(unid) || {};
     
     // Merge the new data (ipAddress and udpPort) with the existing data
     const updatedClient = {
       ...existingClient,
       ipAddress: rinfo.address,
       udpPort: rinfo.port,
+      unid: unid
     };
     //console.log('updating Client with 28' , unid, updatedClient)
-    Clients.set(unid, updatedClient);
-    udpClientId[`${rinfo.address}:${rinfo.port}`] = unid;
+    clients.set(unid, updatedClient);
 
     const response = `{"MSG":"FH","UNID":"${unid}"}`;
     udpServer.send(response, 0, response.length, HOST_UDP_PORT, HOST_ADDR, (err) => {
@@ -423,7 +419,7 @@ udpServer.on("message", (msg, rinfo) => {
   if (rinfo.address === HOST_ADDR && rinfo.port === HOST_UDP_PORT) {
     //console.log('UDP From Host: ', msg.toString());
     if (msg == "PING") {
-      Clients.forEach((client) => {
+      clients.forEach((client) => {
         const hostPingOut = Buffer.from(
           JSON.stringify({ command: "host_ping_out" })
         );
@@ -440,7 +436,7 @@ udpServer.on("message", (msg, rinfo) => {
       message = JSON.stringify(obj.MSG);
     } 
 
-    const client = Clients.get(obj.UNID);
+    const client = clients.get(obj.UNID);
     if (client?.udpPort && client?.ipAddress) {
       udpServer.send(message, 0, message.length, client.udpPort, client.ipAddress, (err) => {
         if (err) console.error("UDP WEB send error:", err);
@@ -449,7 +445,8 @@ udpServer.on("message", (msg, rinfo) => {
     return;
   }
 
-  const unid = udpClientId[`${rinfo.address}:${rinfo.port}`];
+  const unid = [...clients].filter((client) => (client.udpPort === rinfo.port && client.ipAddress === rinfo.address)).unid
+  console.log("🚀 ~ udpServer.on ~ unid:", unid)
 
   const response = `{"MSG":${msg},"UNID":"${unid}"}`;
 
@@ -512,7 +509,8 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
       console.log("HOST DISCONNECTED, CLEARING");
       kickAndClearServers();
     }
-    const unid = tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`];
+    const unid = [...clients].filter((client) => (client.tcpPort === socket.remotePort && client.ipAddress === socket.remoteAddress))?.unid
+    console.log("🚀 ~ socket.on ~ unid:", unid)
     if (unid) {
       const msg = `{"MSG":"END","UNID":"${unid}"}`;
       try {
@@ -522,9 +520,8 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
         console.log("HOST DEAD, CLEARING", e);
         kickAndClearServers();
       }
-      Clients.delete(unid);
-      delete tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`];
-      console.table(Clients);
+      clients.delete(unid);
+      console.table(clients);
     }
   });
   serverCallback(socket);
@@ -580,8 +577,8 @@ function forwardTcpToClient(buffer) {
         const convertedJson = JSON.parse(jsonString);
 
         if (convertedJson.MSG === "DESTROY") {
-          Clients.get(convertedJson.UNID)?.socket.end();
-          Clients.get(convertedJson.UNID)?.socket.destroy();
+          clients.get(convertedJson.UNID)?.socket.end();
+          clients.get(convertedJson.UNID)?.socket.destroy();
           return;
         }
 
@@ -590,7 +587,7 @@ function forwardTcpToClient(buffer) {
         );
         console.log("🚀 ~ objects ~ convertedJson.MSG:", convertedJson.MSG.slice(0,100), convertedJson.UNID)
 
-        Clients.get(convertedJson.UNID)?.socket.write(convertedJson.MSG);
+        clients.get(convertedJson.UNID)?.socket.write(convertedJson.MSG);
 
         return convertedJson;
       });
@@ -621,20 +618,18 @@ function forwardTcpToHost(buffer, socket) {
     
     if (data.slice(0, 19) == "qs.connectResponse(") {
         const resUnid = data.toString().match(/\(([^,]+)/)[1];
-        // Store the UNID in the tcpClientId map
-        tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`] = resUnid;
         // Retrieve the existing client data, if any
-        const existingClient = Clients.get(resUnid) || {};
-        
+        const existingClient = clients.get(resUnid) || {};
         // Set the updated client data, merging with existing data
-        
-        Clients.set(resUnid, {
+        clients.set(resUnid, {
             ...existingClient,  // Merge any existing client data
-            socket: socket      // Overwrite or add the socket field
+            socket: socket,
+            tcpPort: socket.remotePort      // Overwrite or add the socket field
         });
     }
-    
-    const unid = tcpClientId[`${socket.remoteAddress}:${socket.remotePort}`];
+
+    const unid = [ ...clients].filter((client) => (client.tcpPort === socket.remotePort && client.ipAddress === socket.remoteAddress))?.unid
+    console.log("🚀 ~ forwardTcpToHost ~ unid:", unid)
 
     if(unid === undefined){
         console.log("UNID NOT FOUND, KICKING")
@@ -656,13 +651,11 @@ function forwardTcpToHost(buffer, socket) {
 
 function kickAndClearServers() {
   console.log("HOST DISCONNECTED, CLEARING");
-  Clients.forEach((client) => {
+  clients.forEach((client) => {
     console.log(client)
     client?.socket?.destroy();
   });
-  Clients.clear();
-  tcpClientId = {};
-  udpClientId = {};
+  clients.clear();
   HOST_ADDR = null;
   HOST_TCP_PORT = null;
   HOST_UDP_PORT = null;
