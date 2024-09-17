@@ -468,7 +468,7 @@ udpServer.bind(UDP_PORT, "0.0.0.0");
 
 //---------------------------------------TCP SERVER----------------------------------------------------------------
 
-const tcpThrottle = new Throttle(100 * 1024)
+const tcpThrottle = new Throttle(50 * 1024)
 
 const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
   console.log("TCP client connected:", socket.remoteAddress, socket.remotePort);
