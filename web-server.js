@@ -629,7 +629,6 @@ function forwardTcpToHost(buffer, socket) {
         } else{
             // POTENTIAL FLAW - UDP MESSAGES NOT SENT WHILST SENDING LARGE TCP MESSAGE e.g. PROFILE PICTURE
             // UNHAPPY WITH THIS SOLUTION
-            sendPhantomPingEcho(socket.unid)
             hostDataContent = data
             return
         }
