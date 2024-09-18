@@ -379,8 +379,6 @@ udpServer.on("listening", () => {
 });
 
 udpServer.on("message", (msg, rinfo) => {
-
-  console.log("UDP From: ", rinfo.address, rinfo.port, msg.toString());
     
   if (msg == "IHOST") {
     console.log("HOST RECEIVED", rinfo);
