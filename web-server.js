@@ -618,7 +618,6 @@ function sendPhantomPingEcho(unid) {
 
 let hostDataContent = ""
 function forwardTcpToHost(buffer, socket) {
-    console.log("HERE POOTY")
     let data = hostDataContent + buffer
 
     if(data.indexOf("qs") !== 0){
