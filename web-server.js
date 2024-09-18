@@ -17,9 +17,9 @@ let HOST_TCP_SOCKET;
 
 let clients = new Map();
 
-setInterval(()=>{
-    console.log('host', processObject)
-},5000)
+// setInterval(()=>{
+//     console.log('host', processObject)
+// },5000)
 
 //2024 media objects
 let processObject = {
