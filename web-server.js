@@ -400,7 +400,13 @@ udpServer.on("message", (msg, rinfo) => {
     const splitMsg = msg.toString().split(":")
     console.log("🚀 ~ udpServer.on ~ splitMsg:", splitMsg)
     const quizCode = splitMsg[1]
-    console.log(quizzes.get(quizCode), quizCode)
+    console.log(quizzes, quizzes.get(quizCode), quizCode)
+
+    if(!quizzes.get(quizCode)){
+      console.log("quiz code not found")
+      return
+    }
+
     const unid = splitMsg[2]
     const existingClient = clients.get(unid) || {};
     
