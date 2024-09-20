@@ -393,11 +393,11 @@ udpServer.on("message", (msg, rinfo) => {
 
     
 
-  if (HOST_ADDR === null || HOST_UDP_PORT === null) {
-    console.log("NO HOST UDP YET");
-    kickAndClearServers();
-    return;
-  }
+  // if (HOST_ADDR === null || HOST_UDP_PORT === null) {
+  //   console.log("NO HOST UDP YET");
+  //   kickAndClearServers();
+  //   return;
+  // }
 
   if (msg.slice(0, 2) == "FH") {
     const splitMsg = msg.split(":")
