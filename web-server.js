@@ -389,7 +389,7 @@ udpServer.on("message", (msg, rinfo) => {
       });
       return
     } else {
-      quizzes.set(quizCode, {host: {ipAddress: rinfo.address, udpPort: rinfo.port}})
+      quizzes.set(quizCode, {host: {ipAddress: rinfo.address, udpPort: rinfo.port}, code: quizCode})
     }
 
     console.log("HOST RECEIVED", quizzes.get(quizCode));
@@ -418,59 +418,51 @@ udpServer.on("message", (msg, rinfo) => {
     };
     //console.log('updating Client with 28' , unid, updatedClient)
     clients.set(unid, updatedClient);
-    const host = quizzes.get(quizCode).host
-    console.log("🚀 ~ udpServer.on ~ host:", host)
-    const response = `{"MSG":"FH","UNID":"${unid}"}`;
-    udpServer.send(response, 0, response.length, host.udpPort, host.ipAddress, (err) => {
-      if (err) console.error("UDP WEB send error:", err);
-    });
+
+    sendUdpToHost(quizCode, `"FH"`, unid)
     return;
   }
 
-  if (rinfo.address === HOST_ADDR && rinfo.port === HOST_UDP_PORT) {
-    //console.log('UDP From Host: ', msg.toString());
-    if (msg == "PING") {
-      clients.forEach((client) => {
-        const hostPingOut = Buffer.from(
-          JSON.stringify({ command: "host_ping_out" })
-        );
-        if(client['udpPort']){
-            udpServer.send(hostPingOut, 0, hostPingOut.length, client.udpPort, client.ipAddress);
+  let msgFromHost = false
+  quizzes.forEach(({host, code})=>{
+    if(host.udpPort === rinfo.port && host.ipAddress === rinfo.address){
+      msgFromHost = true
+      if (msg == "PING") {
+        clients.forEach((client) => {
+          if(client.quizCode === code){
+            const hostPingOut = Buffer.from(
+              JSON.stringify({ command: "host_ping_out" })
+            );
+            if(client['udpPort']){
+              udpServer.send(hostPingOut, 0, hostPingOut.length, client.udpPort, client.ipAddress);
+            }
+          }
+          });
+      } else {
+        const obj = JSON.parse(msg);
+        let message = obj.MSG;
+    
+        if (typeof obj.MSG === "object") {
+          message = JSON.stringify(obj.MSG);
+        } 
+    
+        const client = clients.get(obj.UNID);
+        if (client?.udpPort && client?.ipAddress) {
+          udpServer.send(message, 0, message.length, client.udpPort, client.ipAddress, (err) => {
+            if (err) console.error("UDP WEB send error:", err);
+          });
         }
-      });
-      return;
-    }
-
-    const obj = JSON.parse(msg);
-    //console.log(obj.UNID, '<<<<<');
-    let message = obj.MSG;
-
-    if (typeof obj.MSG === "object") {
-      message = JSON.stringify(obj.MSG);
-    } 
-    //console.log("!!!!!!!!🚀 ~ udpServer.send ~ message:", message)
-
-    const client = clients.get(obj.UNID);
-    if (client?.udpPort && client?.ipAddress) {
-      udpServer.send(message, 0, message.length, client.udpPort, client.ipAddress, (err) => {
-        if (err) console.error("UDP WEB send error:", err);
-      });
-    }
-    return;
-  }
-
-  let unid 
-  clients.forEach((client)=>{
-      if(client.udpPort === rinfo.port && client.ipAddress === rinfo.address){
-          unid = client.unid
       }
+    }
   })
 
-  const response = `{"MSG":${msg},"UNID":"${unid}"}`;
-
-  udpServer.send(response, 0, response.length, HOST_UDP_PORT, HOST_ADDR, (err) => {
-    if (err) console.error("UDP WEB send error:", err);
-  });
+  if(!msgFromHost) {
+    clients.forEach((client)=>{
+        if(client.udpPort === rinfo.port && client.ipAddress === rinfo.address){
+            sendUdpToHost(client.quizCode, msg, client.unid)
+        }
+    })
+  }
 });
 
 udpServer.on("error", (err) => {
@@ -480,6 +472,14 @@ udpServer.on("error", (err) => {
 });
 
 udpServer.bind(UDP_PORT, "0.0.0.0");
+
+const sendUdpToHost = (quizCode, msg, unid) => {
+  const host = quizzes.get(quizCode).host
+  const response = `{"MSG":${msg},"UNID":"${unid}"}`;
+  udpServer.send(response, 0, response.length, host.udpPort, host.ipAddress, (err) => {
+    if (err) console.error("UDP WEB send error:", err);
+  });
+}
 
 //---------------------------------------TCP SERVER----------------------------------------------------------------
 
@@ -616,15 +616,6 @@ function forwardTcpToClient(buffer) {
   } else {
     dataContent += data;
   }
-}
-
-function sendPhantomPingEcho(unid) {
-    console.log(`\n\nSEND PHANTOM PING, ${unid} \n\n`)
-  const response = `{"MSG":{"command": "host_ping_echo", "unid": "${unid}"},"UNID":"${unid}"}`;
-
-  udpServer.send(response, 0, response.length, HOST_UDP_PORT, HOST_ADDR, (err) => {
-    if (err) console.error("UDP WEB send error:", err);
-  });
 }
 
 let hostDataContent = ""
