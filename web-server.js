@@ -9,7 +9,7 @@ const fs = require('fs');
 const TCP_PORT = 2023;
 const UDP_PORT = 22023;
 
-const games = new Map();
+const quizzes = new Map();
 
 let HOST_ADDR = null;
 let HOST_UDP_PORT = null;
@@ -378,26 +378,29 @@ udpServer.on("message", (msg, rinfo) => {
   console.log(msg.toString())
     
   if (msg.slice(0,5) == "IHOST") {
-    const gameCode = msg.toString().slice(6)
-    console.log("current games",games, gameCode)
+    const quizCode = msg.toString().slice(6)
+    console.log("current quizzes",quizzes, quizCode)
 
-    console.log(games.get(gameCode))
+    if(quizzes.get(quizCode)){
+      console.log("quiz code already exists")
+      const response = `CODE USED`;
+      udpServer.send(response, 0, response.length, rinfo.port, rinfo.address, (err) => {
+        if (err) console.error("UDP WEB send error:", err);
+      });
+      return
+    } else {
+      quizzes.set(quizCode, {host: {ipAddress: rinfo.address, udpPort: rinfo.port}})
+    }
 
-    const updatedHost = {
-        ...existingHost,
-        ipAddress: rinfo.address,
-        udpPort: rinfo.port,
-        hostId: hostId,
-    };
-    hosts.set(hostId, updatedHost)
-    console.log("HOST RECEIVED", hosts.get(hostId));
+    console.log("HOST RECEIVED", quizzes.get(quizCode));
     return
     }
 
   if (msg.slice(0, 2) == "FH") {
     const splitMsg = msg.toString().split(":")
     console.log("🚀 ~ udpServer.on ~ splitMsg:", splitMsg)
-    const gameCode = splitMsg[1]
+    const quizCode = splitMsg[1]
+    console.log(quizzes.get(quizCode), quizCode)
     const unid = splitMsg[2]
     const existingClient = clients.get(unid) || {};
     
