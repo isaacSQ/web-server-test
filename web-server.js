@@ -9,6 +9,8 @@ const fs = require('fs');
 const TCP_PORT = 2023;
 const UDP_PORT = 22023;
 
+const hosts = new Map();
+
 let HOST_ADDR = null;
 let HOST_UDP_PORT = null;
 let HOST_TCP_PORT = null;
@@ -31,7 +33,6 @@ let processObject = {
     allocatedClipsArray : [],
     currentPicture : null,
     winningTeamPic : null,
-    roundPictures : null,
   };
 
 //UDP SERVER
@@ -149,17 +150,12 @@ app.post('/advert-*', upload.single('file') , (req, res)=>{
 
 })
 
-app.post('/get_round_pictures', zipUpload.single('file'), (req, res) => {
+app.post('/post_round_pictures', zipUpload.single('file'), (req, res) => {
     console.log("ZIP:", req.file)
 
-    // if(fs.existsSync(filePath)){
-    //     console.log("ADVERT ALREADY EXISTS")
-    //     return res.status(400).json({ error: "File already exists" });
-    // }
-
-    // if(!req.file){
-    //     return res.status(400).json({ error: 'No file uploaded' });
-    // }
+    if(!req.file){
+        return res.status(400).json({ error: 'No file uploaded' });
+    }
 
     console.log("UPLOADING ZIP:", req.file.filename);
     
@@ -380,12 +376,19 @@ udpServer.on("listening", () => {
 
 udpServer.on("message", (msg, rinfo) => {
     
-  if (msg == "IHOST") {
-    console.log("HOST RECEIVED", rinfo);
-    HOST_ADDR = rinfo.address;
-    HOST_UDP_PORT = rinfo.port;
-    return;
-  }
+  if (msg.slice(0,5) == "IHOST") {
+    const hostId = msg.toString().slice(6)
+    const existingHost = hosts.get(hostId) || {};
+    const updatedHost = {
+        ...existingHost,
+        ipAddress: rinfo.address,
+        udpPort: rinfo.port,
+        hostId: hostId,
+    };
+    hosts.set(hostId, updatedHost)
+    console.log("HOST RECEIVED", hosts.get(hostId));
+    return
+    }
 
   if (HOST_ADDR === null || HOST_UDP_PORT === null) {
     console.log("NO HOST UDP YET");
@@ -696,23 +699,11 @@ function updateProcessObject(obj) {
     case "store_selected_clips":
         processObject.allocatedClipsArray = obj.data;
       break;
-    case "start_image_server":
-      console.log("IMAGE SERVER ALREADY STARTED");
-      break;
-    case "stop_image_server":
-      console.log("IMAGE SERVER STOPPED");
-      break;
     case "update_app_language_json":
         processObject.appLanguageJson = obj.data;
       break;
     case "update_wheel_list":
         processObject.wheelList = obj.data;
-      break;
-    case "wheel_action":
-        console.log("wheel_action command")
-      break;
-    case "load_stream_deck":
-      //loadStreamDeck();
       break;
     case "update_current_picture_question":
         processObject.currentPicture = obj.data
@@ -724,7 +715,7 @@ function updateProcessObject(obj) {
         processObject.roundPictures = obj.data
         break
     default:
-        console.log("UNKNOWN COMMAND", obj.command);
+        console.log("UNUSED COMMAND", obj.command, obj.data);
   }
 }
 
