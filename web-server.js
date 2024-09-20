@@ -416,12 +416,13 @@ udpServer.on("message", (msg, rinfo) => {
       ipAddress: rinfo.address,
       udpPort: rinfo.port,
       unid: unid,
+      quizCode: quizCode,
     };
     //console.log('updating Client with 28' , unid, updatedClient)
     clients.set(unid, updatedClient);
-
+    const host = quizzes.get(quizCode).host
     const response = `{"MSG":"FH","UNID":"${unid}"}`;
-    udpServer.send(response, 0, response.length, HOST_UDP_PORT, HOST_ADDR, (err) => {
+    udpServer.send(response, 0, response.length, host.udpPort, host.ipAddress, (err) => {
       if (err) console.error("UDP WEB send error:", err);
     });
     return;
