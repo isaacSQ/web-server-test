@@ -375,6 +375,7 @@ udpServer.on("listening", () => {
 });
 
 udpServer.on("message", (msg, rinfo) => {
+  console.log(msg.toString())
     
   if (msg.slice(0,5) == "IHOST") {
     const hostId = msg.toString().slice(6)
@@ -389,6 +390,8 @@ udpServer.on("message", (msg, rinfo) => {
     console.log("HOST RECEIVED", hosts.get(hostId));
     return
     }
+
+    
 
   if (HOST_ADDR === null || HOST_UDP_PORT === null) {
     console.log("NO HOST UDP YET");
