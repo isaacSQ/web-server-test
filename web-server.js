@@ -400,7 +400,7 @@ udpServer.on("message", (msg, rinfo) => {
   // }
 
   if (msg.slice(0, 2) == "FH") {
-    const splitMsg = msg.split(":")
+    const splitMsg = msg.toString().split(":")
     console.log("🚀 ~ udpServer.on ~ splitMsg:", splitMsg)
     const unid = msg.toString().slice(3);
     const existingClient = clients.get(unid) || {};
