@@ -398,9 +398,7 @@ udpServer.on("message", (msg, rinfo) => {
 
   if (msg.slice(0, 2) == "FH") {
     const splitMsg = msg.toString().split(":")
-    console.log("🚀 ~ udpServer.on ~ splitMsg:", splitMsg)
     const quizCode = splitMsg[1]
-    console.log(quizzes, quizzes.get(quizCode), quizCode)
 
     if(!quizzes.get(quizCode)){
       console.log("quiz code not found")
@@ -421,6 +419,7 @@ udpServer.on("message", (msg, rinfo) => {
     //console.log('updating Client with 28' , unid, updatedClient)
     clients.set(unid, updatedClient);
     const host = quizzes.get(quizCode).host
+    console.log("🚀 ~ udpServer.on ~ host:", host)
     const response = `{"MSG":"FH","UNID":"${unid}"}`;
     udpServer.send(response, 0, response.length, host.udpPort, host.ipAddress, (err) => {
       if (err) console.error("UDP WEB send error:", err);
