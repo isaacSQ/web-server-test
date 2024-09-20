@@ -9,7 +9,7 @@ const fs = require('fs');
 const TCP_PORT = 2023;
 const UDP_PORT = 22023;
 
-const hosts = new Map();
+const games = new Map();
 
 let HOST_ADDR = null;
 let HOST_UDP_PORT = null;
@@ -378,8 +378,11 @@ udpServer.on("message", (msg, rinfo) => {
   console.log(msg.toString())
     
   if (msg.slice(0,5) == "IHOST") {
-    const hostId = msg.toString().slice(6)
-    const existingHost = hosts.get(hostId) || {};
+    const gameCode = msg.toString().slice(6)
+    console.log("current games",games, gameCode)
+
+    console.log(games.get(gameCode))
+
     const updatedHost = {
         ...existingHost,
         ipAddress: rinfo.address,
@@ -391,18 +394,11 @@ udpServer.on("message", (msg, rinfo) => {
     return
     }
 
-    
-
-  // if (HOST_ADDR === null || HOST_UDP_PORT === null) {
-  //   console.log("NO HOST UDP YET");
-  //   kickAndClearServers();
-  //   return;
-  // }
-
   if (msg.slice(0, 2) == "FH") {
     const splitMsg = msg.toString().split(":")
     console.log("🚀 ~ udpServer.on ~ splitMsg:", splitMsg)
-    const unid = msg.toString().slice(3);
+    const gameCode = splitMsg[1]
+    const unid = splitMsg[2]
     const existingClient = clients.get(unid) || {};
     
     // Merge the new data (ipAddress and udpPort) with the existing data
