@@ -684,4 +684,6 @@ setInterval(()=>{
     fs.readdir(__dirname, (err, data)=>{
         console.log("CURRENT DISK STORAGE", data)
     })
-}, 10000)
+    console.log("\n\nCURRENT QUIZZES: ", quizzes)
+    console.log("\n\nCURRENT CLIENTS: ", clients)
+}, 30000)
