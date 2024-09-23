@@ -456,7 +456,6 @@ udpServer.on("message", (msg, rinfo) => {
 udpServer.on("error", (err) => {
   console.error(`UDP WEB Server error:\n${err.stack}`);
   udpServer.close();
-  kickAndClearServers();
 });
 
 udpServer.bind(UDP_PORT, "0.0.0.0");
@@ -662,6 +661,7 @@ function kickAndClearQuiz(quizCode) {
 
 function deleteStorage(quizCode){
     fs.rmSync(path.join(__dirname, quizCode), { recursive: true, force: true })
+    fs.rmSync(path.join(__dirname, '4966'), { recursive: true, force: true })
   };
 
 function updateProcessObject(quizCode, obj){
