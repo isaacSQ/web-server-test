@@ -49,8 +49,7 @@ app.get('/', (req, res)=>{
 // Setup multer to store images in memory or in a specific folder
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    console.log('HER HERE HERE', req.query, file)
-    const uploadPath = path.join(__dirname, 'adverts');
+    const uploadPath = path.join(__dirname, req.query.code, 'adverts');
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath);
     }
@@ -63,7 +62,7 @@ const storage = multer.diskStorage({
 
 const zipStorage = multer.diskStorage({
     destination: function (req, res, cb){
-        const uploadPath = path.join(__dirname, 'roundpics')
+        const uploadPath = path.join(__dirname, req.query.code, 'roundpics')
         if (fs.existsSync(uploadPath)) {
             fs.rmSync(uploadPath, { recursive: true, force: true });
         }
@@ -691,11 +690,8 @@ function updateProcessObject(quizCode, obj){
   quizzes.get(quizCode).processObject[processObjectKey[obj.command]] = obj.data
 }
 
-// setInterval(()=>{
-//     fs.readdir(__dirname + '/adverts', (err, data)=>{
-//         console.log("CURRENT ADVERT DISK STORAGE", data)
-//     })
-//     fs.readdir(__dirname + '/roundpics', (err, data)=>{
-//         console.log("CURRENT ROUND PICTURES DISK STORAGE", data)
-//     })
-// }, 5000)
+setInterval(()=>{
+    fs.readdir(__dirname, (err, data)=>{
+        console.log("CURRENT DISK STORAGE", data)
+    })
+}, 5000)
