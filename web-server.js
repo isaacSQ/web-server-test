@@ -681,9 +681,9 @@ function updateProcessObject(quizCode, obj){
 }
 
 setInterval(()=>{
-    fs.readdir(__dirname, (err, data)=>{
-        console.log("CURRENT DISK STORAGE", data)
-    })
-    console.log("\n\nCURRENT QUIZZES: ", quizzes)
-    console.log("\n\nCURRENT CLIENTS: ", clients)
+  console.log("CURRENT QUIZZES: ", quizzes)
+  console.log("\nCURRENT CLIENTS: ", clients, "\n")
+  fs.readdir(__dirname, (err, data)=>{
+      console.log("CURRENT DISK STORAGE", data)
+  })
 }, 30000)
