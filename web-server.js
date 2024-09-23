@@ -11,28 +11,9 @@ const UDP_PORT = 22023;
 
 const quizzes = new Map();
 
-let HOST_ADDR = null;
-let HOST_TCP_PORT = null;
-
-let HOST_TCP_SOCKET;
-
-let clients = new Map();
-
-// setInterval(()=>{
-//     console.log('host', processObject)
-// },5000)
+const clients = new Map();
 
 //2024 media objects
-let processObject = {
-    scoreboardArr : [],
-    appLanguageJson : JSON.stringify({}),
-    bingoCardsObj : {},
-    wheelList : {},
-    locallyStoredBuzzerClips : null,
-    allocatedClipsArray : [],
-    currentPicture : null,
-    winningTeamPic : null,
-  };
 
 //UDP SERVER
 
@@ -43,18 +24,18 @@ app.use(express.urlencoded({limit: '50mb', extended: true}));
 
 app.get('/', (req, res)=>{
 
-    if(req.query?.id){
+  const {id, code} = req.query
+    if(id && code){
+        const quiz = quizzes.get(code)
 
-        let unid = req.query.id
-
-        const pictureToServe = Buffer.from(processObject.currentPicture);
+        const pictureToServe = Buffer.from(quiz.processObject.currentPicture);
         res.setHeader('Content-Type', 'image/jpeg')
         res.end(pictureToServe, "binary")
 
         res.on("finish", function () {
             console.log('Image Served')
-            const servedMsg = `{"MSG":"2024","CMD":"picture_served","UNID":"${unid}"}`
-            HOST_TCP_SOCKET?.write(servedMsg);
+            const servedMsg = `{"MSG":"2024","CMD":"picture_served","UNID":"${id}"}`
+            quiz.host.socket.write(servedMsg)
 
             res.destroy()
         })
@@ -68,6 +49,7 @@ app.get('/', (req, res)=>{
 // Setup multer to store images in memory or in a specific folder
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
+    console.log('HER HERE HERE', req.query, file)
     const uploadPath = path.join(__dirname, 'adverts');
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath);
@@ -96,43 +78,23 @@ const zipStorage = multer.diskStorage({
 const upload = multer({ storage: storage });
 const zipUpload = multer({storage: zipStorage})
 
-app.post('/upload_images', upload.array('images', 10), (req, res) => {
-  if (!req.files || req.files.length === 0) {
-    return res.status(400).json({ error: 'No files uploaded' });
-  }
-
-  const filePaths = req.files.map(file => `/adverts/${file.filename}`);
-
-  // Respond with the paths to the uploaded images
-  res.json({ message: 'Images uploaded successfully', filePaths: filePaths });
-});
-
-// POST route for image upload
-app.post('/upload_image', upload.single('image'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded' });
-  }
-  
-  // Respond with the path to the uploaded image
-  const filePath = `/adverts/${req.file.filename}`;
-  res.json({ message: 'Image uploaded successfully', filePath: filePath });
-});
-
 app.post('/process_init', (req, res)=>{
-    console.log("PROCESS INIT")
-    processObject = req.body
-    res.send("POST Request Called")
+  console.log("PROCESS INIT")
+  const {code} = req.query
+  quizzes.get(code).processObject = req.body
+  res.send("POST Request Called")
 })
 
 app.post('/process_update', (req, res)=>{
-    updateProcessObject(req.body);
+    updateProcessObject(req.query.code, req.body);
 
     res.send("POST Request Called")
 })
 
 app.post('/advert-*', upload.single('file') , (req, res)=>{
+  const {code} = req.query
     const filename = req.url.slice(1)
-    const filePath = path.join(__dirname, 'adverts', filename);
+    const filePath = path.join(__dirname, code, 'adverts', filename);
 
     if(fs.existsSync(filePath)){
         //console.log("ADVERT ALREADY EXISTS")
@@ -143,7 +105,7 @@ app.post('/advert-*', upload.single('file') , (req, res)=>{
         return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    console.log("UPLOADING ADVERT:", req.file.filename);
+    console.log("UPLOADING ADVERT:", req.file.filename, " TO ", code);
     
     res.status(200).json({ message: "File uploaded successfully", file: req.file.filename });
 
@@ -162,10 +124,11 @@ app.post('/post_round_pictures', zipUpload.single('file'), (req, res) => {
 })
 
 app.get('/get_round_pictures', (req,res) => {
-    if(req.query?.id){
-        fs.readdir(path.join(__dirname, 'roundpics'), (err, files) => {
+  const {id, code} = req.query
+    if(id && code){
+        fs.readdir(path.join(__dirname, code, 'roundpics'), (err, files) => {
             if(files){
-                const filePath = path.join(__dirname, 'roundpics', files[0]);
+                const filePath = path.join(__dirname, code, 'roundpics', files[0]);
                 res.setHeader('Content-Type', 'application/zip')
                 res.sendFile(filePath);
             } else {
@@ -180,33 +143,33 @@ app.get('/get_round_pictures', (req,res) => {
 })
 
 app.get("/clips", (req, res) => {
-
-    //console.log(processObject.locallyStoredBuzzerClips)
-
+  const {code} = req.query
+  const quiz = quizzes.get(code)
       res.setHeader("Content-Type", "application/json");
-      res.json(processObject.locallyStoredBuzzerClips);
-
+      res.json(quiz.processObject.locallyStoredBuzzerClips);
 });
 
 app.get("/clips_used", (req, res) => {
 
+  const {unid, code} = req.query
+
     res.setHeader('Content-Type', 'application/json')
-	if(req.query?.unid){
-	    const unid = req.query.unid
+	if(unid && code){
+    const quiz = quizzes.get(code)
 	    var used = []
 	    var selected = -1
 
 	//discover if device connecting has already selected a sound
 
-	if (processObject.allocatedClipsArray.length > 0) {
+	if (quiz.processObject.allocatedClipsArray.length > 0) {
 		var item;
-		item = processObject.allocatedClipsArray.find(function (clip) {
+		item = quiz.processObject.allocatedClipsArray.find(function (clip) {
 			return unid === clip.usedby
 		});
 
 		if (item !== undefined) selected = item.index;
 
-		used = processObject.allocatedClipsArray
+		used = quiz.processObject.allocatedClipsArray
 			.filter(function (clip) {
 				return clip.index !== selected
 			})
@@ -229,10 +192,11 @@ app.get("/clips_used", (req, res) => {
 
 app.get('/advert-*', (req,res) => {
     //ADVERTS
+    const {code} = req.query
     
     const filename = req.url.slice(1)
 
-    const filePath = path.join(__dirname, 'adverts', filename);
+    const filePath = path.join(__dirname, code, 'adverts', filename);
 
   if (fs.existsSync(filePath)) {
     res.sendFile(filePath);
@@ -246,11 +210,12 @@ app.get('/advert-*', (req,res) => {
 app.get('/get_scoreboard', (req,res) => {
 
 	res.setHeader('Content-Type', 'application/json')
+  const {unid, code} = req.query
 	//to be removed when 5.5.6 is minimum for host V5
 	let isV5 = req.query?.v5 ?? false
-	if(req.query?.unid){
-		const unid = req.query.unid
-			const scoreboardArrWithHighlight = processObject.scoreboardArr.map(item => {
+	if(unid && code){
+    const quiz = quizzes.get(code)
+			const scoreboardArrWithHighlight = quiz.processObject.scoreboardArr.map(item => {
 			const name = isV5 ? item.name : item.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 			const owned = unid === item.id;
 			  return {
@@ -290,8 +255,9 @@ app.get('/get_scoreboard', (req,res) => {
 // /* PROFILE PICTURES ROUTE */
 
 app.get('/winning_team_pic', (req,res) => {
+  const {code} = req.query
 
-    const pictureToServe = Buffer.from(processObject.winningTeamPic)
+    const pictureToServe = Buffer.from(quizzes.get(code).processObject.winningTeamPic)
 
 	res.setHeader('Content-Type', 'image/jpeg')
     res.end(pictureToServe,"binary")
@@ -317,15 +283,13 @@ app.get('/winning_team_pic', (req,res) => {
 
 app.get('/get_bingo_card', (req,res) => {
 
+  const {unid, code} = req.query
+
     res.setHeader('Content-Type', 'application/json')
-	if(req.query?.unid){
+	if(unid && code){
+  const quiz = quizzes.get(code)
 
-	const unid = req.query.unid
-
-	var used = []
-	var selected = -1
-
-	res.json(processObject.bingoCardsObj[unid])
+	res.json(quiz.processObject.bingoCardsObj[unid])
 
 	}else{
 		res.json({error:'no_params'})
@@ -334,8 +298,10 @@ app.get('/get_bingo_card', (req,res) => {
 
 app.get('/get_wheel_list', (req,res) => {
 
+  const quiz = quizzes.get(req.query.code)
+
 	res.setHeader('Content-Type', 'application/json')
-	res.json(processObject.wheelList)
+	res.json(quiz.processObject.wheelList)
 
 })
 
@@ -400,7 +366,23 @@ udpServer.on("message", (msg, rinfo) => {
       quizCode = generateQuizCode()
     } 
 
-    quizzes.set(quizCode, {host: {ipAddress: rinfo.address, udpPort: rinfo.port}, code: quizCode, clients: []})
+    const processObject = {
+      scoreboardArr : [],
+      appLanguageJson : JSON.stringify({}),
+      bingoCardsObj : {},
+      wheelList : {},
+      locallyStoredBuzzerClips : null,
+      allocatedClipsArray : [],
+      currentPicture : null,
+      winningTeamPic : null,
+    };
+
+    quizzes.set(quizCode, 
+                {host: {ipAddress: rinfo.address, udpPort: rinfo.port}, 
+                code: quizCode, 
+                clients: [], 
+                processObject: processObject
+              })
     
     const response = `{"CODE":"${quizCode}"}`;
     udpServer.send(response, 0, response.length, rinfo.port, rinfo.address, (err) => {
@@ -421,9 +403,7 @@ udpServer.on("message", (msg, rinfo) => {
 
     const unid = splitMsg[2]
 
-    const quiz = quizzes.get(quizCode)
-    quiz.clients.push(unid)
-    quizzes.set(quizCode, {...quiz})
+    quizzes.get(quizCode).clients.push(unid)
 
     const existingClient = clients.get(unid) || {};
     
@@ -509,21 +489,17 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
     //console.log(`TCP Server received: ${data} from ${socket.remoteAddress}:${socket.remotePort}`);
 
     if (data.slice(0,5) == "IHOST") {
-      console.log("🚀 ~ socket.on ~ data:", data.toString())
       const quizCode = data.toString().slice(6)
       console.log("current quizzes",quizzes, quizCode)
       if(!quizzes.get(quizCode)){
         console.log("quiz code not found, something went wrong. need to send back message to start again")
         return
       }
-      const quiz = quizzes.get(quizCode);
-      quiz.host.tcpPort = socket.remotePort
-      quiz.host.socket = socket
-
-      quizzes.set(quizCode, { ...quiz });
-
+      
       socket.host = true
       socket.quizCode = quizCode
+
+      quizzes.get(quizCode).host.socket = socket
 
       console.log("TCP HOST", quizzes.get(quizCode).host);
       return;
@@ -545,19 +521,17 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
     if (socket.host) {
       console.log("HOST DISCONNECTED, CLEARING");
       //clear quiz and clients
-      //kickAndClearQuiz();
+      kickAndClearQuiz();
       return
     } 
-
-    writeToHost(socket, 'END')
-
+    
     const unid = socket?.unid
-
-    console.log("🚀 ~ socket.on ~ unid:", unid)
     if (unid) {
       clients.delete(unid);
       console.table(clients);
-    }
+    } 
+
+    writeToHost(socket, 'END')
   });
   serverCallback(socket);
 });
@@ -602,8 +576,6 @@ function writeToHost(socket, msg){
     console.log("HOST DEAD, CLEARING", e);
     kickAndClearQuiz();
   }
-  const unid = socket.unid
-  const quizCode = socket.quizCode
 
 }
 
@@ -690,62 +662,33 @@ function forwardTcpToHost(buffer, socket) {
 function kickAndClearQuiz(quizCode) {
   console.log("HOST DISCONNECTED, CLEARING");
 
-  const quiz = 
-  clients.forEach((client) => {
-    if(client.quizCode === quizCode){
-
-    }
-    console.log(client)
+  const quiz = quizzes.get(quizCode)
+  quiz.clients.forEach(unid => {
+    const client = clients.get(unid)
+    client?.socket?.end();
     client?.socket?.destroy();
-  });
-  clients.clear();
-  HOST_ADDR = null;
-  HOST_TCP_PORT = null;
-  HOST_UDP_PORT = null;
-  HOST_TCP_SOCKET = null;
-
-  deleteStorage();
+    clients.delete(unid);
+  })
+  deleteStorage(quizCode);
 }
 
-const deleteStorage = () => {
-    const files = fs.readdirSync(__dirname)
-
-    files.filter(file => file === 'adverts' || file === 'roundpics').forEach((file) => {
-        console.log("Deleting:", file)
-            const filePath = path.join(__dirname, file)
-            fs.rmSync(filePath, { recursive: true, force: true });
-    })
+function deleteStorage(quizCode){
+    fs.rmSync(path.join(__dirname, quizCode), { recursive: true, force: true })
   };
 
-function updateProcessObject(obj) {
-  switch (obj.command) {
-    case "update_bingo":
-        processObject.bingoCardsObj = obj.data;
-      break;
-    case "update_scoreboard":
-        processObject.scoreboardArr = obj.data;
-      break;
-    case "store_selected_clips":
-        processObject.allocatedClipsArray = obj.data;
-      break;
-    case "update_app_language_json":
-        processObject.appLanguageJson = obj.data;
-      break;
-    case "update_wheel_list":
-        processObject.wheelList = obj.data;
-      break;
-    case "update_current_picture_question":
-        processObject.currentPicture = obj.data
-		break
-    case "update_winning_team_pic":
-        processObject.winningTeamPic = obj.data
-        break
-    case "update_round_pictures":
-        processObject.roundPictures = obj.data
-        break
-    default:
-        console.log("UNUSED COMMAND", obj.command, obj.data);
+function updateProcessObject(quizCode, obj){
+
+  const processObjectKey = {
+    update_bingo: 'bingoCardsObj',
+    update_scoreboard: 'scoreboardArr',
+    store_selected_clips: 'allocatedClipsArray',
+    update_app_language_json: 'appLanguageJson',
+    update_wheel_list: 'wheelList',
+    update_current_picture_question: 'currentPicture',
+    update_winning_team_pic: 'winningTeamPic',
   }
+
+  quizzes.get(quizCode).processObject[processObjectKey[obj.command]] = obj.data
 }
 
 // setInterval(()=>{
