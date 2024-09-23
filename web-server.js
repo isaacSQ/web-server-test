@@ -92,7 +92,7 @@ app.post('/process_update', (req, res)=>{
 
 app.post('/advert-*', upload.single('file') , (req, res)=>{
   const {code} = req.query
-    const filename = req.url.slice(1)
+    const filename = req.path.slice(1)
     const filePath = path.join(__dirname, code, 'adverts', filename);
 
     if(fs.existsSync(filePath)){
@@ -193,7 +193,7 @@ app.get('/advert-*', (req,res) => {
     //ADVERTS
     const {code} = req.query
     
-    const filename = req.url.slice(1)
+    const filename = req.path.slice(1)
 
     const filePath = path.join(__dirname, code, 'adverts', filename);
     console.log("🚀 ~ app.get ~ filePath:", filePath)
