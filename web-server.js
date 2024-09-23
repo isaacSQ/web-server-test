@@ -662,7 +662,6 @@ function kickAndClearQuiz(quizCode) {
   console.log("HOST DISCONNECTED, CLEARING");
 
   const quiz = quizzes.get(quizCode)
-  console.log("🚀 ~ kickAndClearQuiz ~ quizzes.get(quizCode):", quizCode, quizzes.get(quizCode), quiz)
   quiz.clients.forEach(unid => {
     const client = clients.get(unid)
     client?.socket?.end();
@@ -675,6 +674,8 @@ function kickAndClearQuiz(quizCode) {
 
 function deleteStorage(quizCode){
     fs.rmSync(path.join(__dirname, quizCode), { recursive: true, force: true })
+    fs.rmSync(path.join(__dirname, adverts), {recursive: true, force: true})
+    fs.rmSync(path.join(__dirname, roundpics), { recursive: true, force: true })
   };
 
 function updateProcessObject(quizCode, obj){
