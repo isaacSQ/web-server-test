@@ -520,7 +520,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
     if (socket.host) {
       console.log("HOST DISCONNECTED, CLEARING");
       //clear quiz and clients
-      kickAndClearQuiz();
+      kickAndClearQuiz(socket.quizCode);
       return
     } 
     
@@ -573,7 +573,7 @@ function writeToHost(socket, msg){
     hostSocket.write(res)
   } catch(e){
     console.log("HOST DEAD, CLEARING", e);
-    kickAndClearQuiz();
+    kickAndClearQuiz(socket.quizCode);
   }
 
 }
@@ -670,6 +670,7 @@ function kickAndClearQuiz(quizCode) {
     clients.delete(unid);
   })
   deleteStorage(quizCode);
+  quizzes.delete(quizCode);
 }
 
 function deleteStorage(quizCode){
