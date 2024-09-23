@@ -402,7 +402,7 @@ udpServer.on("message", (msg, rinfo) => {
 
     quizzes.set(quizCode, {host: {ipAddress: rinfo.address, udpPort: rinfo.port}, code: quizCode, clients: []})
     
-    const response = `CODE:${quizCode}`;
+    const response = `{"CODE":"${quizCode}"}`;
     udpServer.send(response, 0, response.length, rinfo.port, rinfo.address, (err) => {
       if (err) console.error("UDP WEB send error:", err);
     });
