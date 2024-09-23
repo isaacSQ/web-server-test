@@ -12,7 +12,6 @@ const UDP_PORT = 22023;
 const quizzes = new Map();
 
 let HOST_ADDR = null;
-let HOST_UDP_PORT = null;
 let HOST_TCP_PORT = null;
 
 let HOST_TCP_SOCKET;
@@ -377,8 +376,10 @@ udpServer.on("listening", () => {
 udpServer.on("message", (msg, rinfo) => {
   console.log(msg.toString())
     
-  if (msg.slice(0,5) == "IHOST") {
-    const quizCode = msg.toString().slice(6)
+  if (msg == "IHOST") {
+    const quizCode = rinfo.remoteAddress.split(".").join("").slice(-4)
+    console.log("🚀 ~ udpServer.on ~ quizCode:", quizCode)
+    //const quizCode = msg.toString().slice(6)
     console.log("current quizzes",quizzes, quizCode)
 
     if(quizzes.get(quizCode)){
@@ -389,7 +390,7 @@ udpServer.on("message", (msg, rinfo) => {
       });
       return
     } else {
-      quizzes.set(quizCode, {host: {ipAddress: rinfo.address, udpPort: rinfo.port}, code: quizCode})
+      quizzes.set(quizCode, {host: {ipAddress: rinfo.address, udpPort: rinfo.port}, code: quizCode, clients: []})
     }
 
     console.log("HOST RECEIVED", quizzes.get(quizCode));
@@ -406,6 +407,11 @@ udpServer.on("message", (msg, rinfo) => {
     }
 
     const unid = splitMsg[2]
+
+    const quiz = quizzes.get(quizCode)
+    quiz.clients.push(unid)
+    quizzes.set(quizCode, {...quiz})
+
     const existingClient = clients.get(unid) || {};
     
     // Merge the new data (ipAddress and udpPort) with the existing data
@@ -489,23 +495,27 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
   socket.on("data", (data) => {
     //console.log(`TCP Server received: ${data} from ${socket.remoteAddress}:${socket.remotePort}`);
 
-    if (data == "IHOST") {
-      HOST_TCP_PORT = socket.remotePort;
-      HOST_TCP_SOCKET = socket;
-      console.log("TCP HOST", HOST_TCP_PORT, HOST_ADDR);
+    if (data.slice(0,5) == "IHOST") {
+      const quizCode = data.toString().slice(6)
+      console.log("current quizzes",quizzes, quizCode)
+      if(!quizzes.get(quizCode)){
+        console.log("quiz code not found, something went wrong. need to send back message to start again")
+        return
+      }
+      const quiz = quizzes.get(quizCode);
+      quiz.host.tcpPort = socket.remotePort
+      quiz.host.socket = socket
+
+      quizzes.set(quizCode, { ...quiz });
+
+      socket.host = true
+      socket.quizCode = quizCode
+
+      console.log("TCP HOST", quizzes.get(quizCode).host);
       return;
     }
 
-    if (HOST_TCP_SOCKET === null || HOST_ADDR === null) {
-      console.log("NO HOST YET");
-      kickAndClearServers();
-      return;
-    }
-
-    if (
-        socket.remoteAddress === HOST_ADDR &&
-        socket.remotePort === HOST_TCP_PORT
-    ) {
+    if (socket.host) {
         forwardTcpToClient(data);
     } else {
         forwardTcpToHost(data, socket)
@@ -518,26 +528,19 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
 
   socket.on("end", () => {
     console.log("TCP client disconnected");
-    if (
-      socket.remoteAddress === HOST_ADDR &&
-      socket.remotePort === HOST_TCP_PORT
-    ) {
+    if (socket.host) {
       console.log("HOST DISCONNECTED, CLEARING");
-      kickAndClearServers();
-    }
+      //clear quiz and clients
+      //kickAndClearQuiz();
+      return
+    } 
+
+    writeToHost(socket, 'END')
 
     const unid = socket?.unid
 
     console.log("🚀 ~ socket.on ~ unid:", unid)
     if (unid) {
-      const msg = `{"MSG":"END","UNID":"${unid}"}`;
-      try {
-        console.log(`${unid} socket ended`, msg);
-        HOST_TCP_SOCKET.write(msg);
-      } catch (e) {
-        console.log("HOST DEAD, CLEARING", e);
-        kickAndClearServers();
-      }
       clients.delete(unid);
       console.table(clients);
     }
@@ -568,8 +571,29 @@ function serverCallback(socket) {
   }
 }
 
-let dataContent = "";
+function writeToHost(socket, msg){
+  
+  if(socket.unid === undefined || socket.quizCode === undefined){
+    console.log("UNID or QUIZ CODE NOT FOUND, KICKING. Socket: ", socket, clients)
+    socket.end();
+    socket.destroy();
+    return;
+  }
+  
+  const res = `{"MSG":"${msg}","UNID":"${socket.unid}"}`
+  try{
+    const hostSocket = quizzes.get(socket.quizCode).host.socket
+    hostSocket.write(res)
+  } catch(e){
+    console.log("HOST DEAD, CLEARING", e);
+    kickAndClearQuiz();
+  }
+  const unid = socket.unid
+  const quizCode = socket.quizCode
 
+}
+
+let dataContent = "";
 function forwardTcpToClient(buffer) {
   let data = dataContent + buffer;
   if (data.includes("sm.json(")) {
@@ -591,7 +615,7 @@ function forwardTcpToClient(buffer) {
           return;
         }
 
-        //console.log(jsonString.slice(0,100), 'hweo');
+        //need a check here so doesn't error if can't be parsed
         const convertedJson = JSON.parse(jsonString);
 
         if (convertedJson.MSG === "DESTROY") {
@@ -628,45 +652,35 @@ function forwardTcpToHost(buffer, socket) {
             console.log("data:", data.slice(0,20),"...", data.slice(data.length - 100))
            hostDataContent = "" 
         } else{
-            // POTENTIAL FLAW - UDP MESSAGES NOT SENT WHILST SENDING LARGE TCP MESSAGE e.g. PROFILE PICTURE
-            // UNHAPPY WITH THIS SOLUTION
             hostDataContent = data
             return
         }
     }
-
     
     if (data.slice(0, 19) == "qs.connectResponse(") {
-        const resUnid = data.toString().match(/\(([^,]+)/)[1];
+        const connectResponseUnid = data.toString().match(/\(([^,]+)/)[1];
         // Retrieve the existing client data, if any
-        const existingClient = clients.get(resUnid) || {};
-        socket.unid = resUnid
+        const existingClient = clients.get(connectResponseUnid) || {};
+        socket.unid = connectResponseUnid
+        socket.quizCode = existingClient?.quizCode
         // Set the updated client data, merging with existing data
-        clients.set(resUnid, {
+        clients.set(connectResponseUnid, {
             ...existingClient,  // Merge any existing client data
             socket: socket,
         });
     }
 
-    if(socket.unid === undefined){
-        console.log("UNID NOT FOUND, KICKING")
-        socket.end();
-        socket.destroy();
-        return;
-    }
-
-      const res = `{"MSG":"${data}","UNID":"${socket.unid}"}`;
-      try {
-        HOST_TCP_SOCKET.write(res);
-      } catch (e) {
-        console.log("HOST DEAD, CLEARING");
-        kickAndClearServers();
-      }
+    writeToHost(socket, data)
 }
 
-function kickAndClearServers() {
+function kickAndClearQuiz(quizCode) {
   console.log("HOST DISCONNECTED, CLEARING");
+
+  const quiz = 
   clients.forEach((client) => {
+    if(client.quizCode === quizCode){
+
+    }
     console.log(client)
     client?.socket?.destroy();
   });
