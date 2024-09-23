@@ -196,8 +196,10 @@ app.get('/advert-*', (req,res) => {
     const filename = req.url.slice(1)
 
     const filePath = path.join(__dirname, code, 'adverts', filename);
+    console.log("🚀 ~ app.get ~ filePath:", filePath)
 
   if (fs.existsSync(filePath)) {
+    console.log("HERE FILE EXISTS")
     res.sendFile(filePath);
   } else {
     res.status(404).json({ error: 'File not found' });
