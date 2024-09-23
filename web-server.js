@@ -377,8 +377,8 @@ udpServer.on("message", (msg, rinfo) => {
   console.log(msg.toString())
     
   if (msg == "IHOST") {
-    console.log("🚀 ~ udpServer.on ~ rinfo.remoteAddress:", rinfo.remoteAddress)
-    const quizCode = rinfo.remoteAddress.split(".").join("").slice(-4)
+    console.log("🚀 ~ udpServer.on ~ rinfo.address:", rinfo.address)
+    const quizCode = rinfo.address.split(".").join("").slice(-4)
     console.log("🚀 ~ udpServer.on ~ quizCode:", quizCode)
     //const quizCode = msg.toString().slice(6)
     console.log("current quizzes",quizzes, quizCode)
