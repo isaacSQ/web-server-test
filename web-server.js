@@ -509,6 +509,7 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
     //console.log(`TCP Server received: ${data} from ${socket.remoteAddress}:${socket.remotePort}`);
 
     if (data.slice(0,5) == "IHOST") {
+      console.log("🚀 ~ socket.on ~ data:", data.toString())
       const quizCode = data.toString().slice(6)
       console.log("current quizzes",quizzes, quizCode)
       if(!quizzes.get(quizCode)){
