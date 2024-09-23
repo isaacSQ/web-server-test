@@ -51,7 +51,7 @@ const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const uploadPath = path.join(__dirname, req.query.code, 'adverts');
     if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath);
+      fs.mkdirSync(uploadPath, {recursive: true});
     }
     cb(null, uploadPath); // Upload to 'uploads' folder
   },
@@ -66,7 +66,7 @@ const zipStorage = multer.diskStorage({
         if (fs.existsSync(uploadPath)) {
             fs.rmSync(uploadPath, { recursive: true, force: true });
         }
-        fs.mkdirSync(uploadPath);
+        fs.mkdirSync(uploadPath, {recursive: true});
         cb(null, uploadPath);
     }, 
     filename: function(req, file, cb){
