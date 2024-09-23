@@ -512,6 +512,8 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
     
     const unid = socket?.unid
     if (unid) {
+      const quizClientIndex = quizzes.get(socket.quizCode).clients.indexOf(unid)
+      quizzes.get(socket.quizCode).clients.splice(quizClientIndex, 1)
       clients.delete(unid);
       console.table(clients);
     } 
