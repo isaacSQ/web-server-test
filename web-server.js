@@ -661,7 +661,6 @@ function kickAndClearQuiz(quizCode) {
 
 function deleteStorage(quizCode){
     fs.rmSync(path.join(__dirname, quizCode), { recursive: true, force: true })
-    fs.rmSync(path.join(__dirname, '4966'), { recursive: true, force: true })
   };
 
 function updateProcessObject(quizCode, obj){
