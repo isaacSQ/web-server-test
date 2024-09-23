@@ -373,27 +373,39 @@ udpServer.on("listening", () => {
   console.log(`UDP Server listening on ${address.address}:${address.port}`);
 });
 
+const generateQuizCode = (attempts = 0) => {
+  if(attempts > 9999){
+    console.log("Failed to generate a unique quiz code after 10000 attempts.")
+    return null;
+  }
+
+  const quizCode = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+  if(quizzes.get(quizCode)){
+    console.log("quiz code already exists. Generate random quiz code")
+    return generateQuizCode(attempts + 1)
+  }
+  return quizCode
+}
+
 udpServer.on("message", (msg, rinfo) => {
   console.log(msg.toString())
     
   if (msg == "IHOST") {
     console.log("🚀 ~ udpServer.on ~ rinfo.address:", rinfo.address)
-    const quizCode = rinfo.address.split(".").join("").slice(-4)
-    console.log("🚀 ~ udpServer.on ~ quizCode:", quizCode)
-    //const quizCode = msg.toString().slice(6)
-    console.log("current quizzes",quizzes, quizCode)
+    let quizCode = rinfo.address.split(".").join("").slice(-4)
+    console.log("quiz code and current quizzes:", quizCode, quizzes)
 
     if(quizzes.get(quizCode)){
-      console.log("quiz code already exists")
-      const response = `CODE USED`;
-      udpServer.send(response, 0, response.length, rinfo.port, rinfo.address, (err) => {
-        if (err) console.error("UDP WEB send error:", err);
-      });
-      return
-    } else {
-      quizzes.set(quizCode, {host: {ipAddress: rinfo.address, udpPort: rinfo.port}, code: quizCode, clients: []})
-    }
+      console.log("quiz code already exists. Generate random quiz code")
+      quizCode = generateQuizCode()
+    } 
 
+    quizzes.set(quizCode, {host: {ipAddress: rinfo.address, udpPort: rinfo.port}, code: quizCode, clients: []})
+    
+    const response = `CODE:${quizCode}`;
+    udpServer.send(response, 0, response.length, rinfo.port, rinfo.address, (err) => {
+      if (err) console.error("UDP WEB send error:", err);
+    });
     console.log("HOST RECEIVED", quizzes.get(quizCode));
     return
     }
