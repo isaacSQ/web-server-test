@@ -13,8 +13,6 @@ const quizzes = new Map();
 
 const clients = new Map();
 
-//2024 media objects
-
 //UDP SERVER
 
 const app = express();
@@ -96,7 +94,6 @@ app.post('/advert-*', upload.single('file') , (req, res)=>{
     const filePath = path.join(__dirname, code, 'adverts', filename);
 
     if(fs.existsSync(filePath)){
-        //console.log("ADVERT ALREADY EXISTS")
         return res.status(400).json({ error: "File already exists" });
     }
 
@@ -179,8 +176,6 @@ app.get("/clips_used", (req, res) => {
 
 	var resstr = '{"used_clips": "' + used.toString() + '","selected_clip": "' + selected + '"}'
 
-	//console.log("-- SERVED CLIP USED /clips_used ---",resstr)
-
 	res.end(resstr)
 
 	}else{
@@ -196,10 +191,8 @@ app.get('/advert-*', (req,res) => {
     const filename = req.path.slice(1)
 
     const filePath = path.join(__dirname, code, 'adverts', filename);
-    console.log("🚀 ~ app.get ~ filePath:", filePath)
 
   if (fs.existsSync(filePath)) {
-    console.log("HERE FILE EXISTS")
     res.sendFile(filePath);
   } else {
     res.status(404).json({ error: 'File not found' });
@@ -355,12 +348,9 @@ const generateQuizCode = (attempts = 0) => {
 }
 
 udpServer.on("message", (msg, rinfo) => {
-  console.log(msg.toString())
     
   if (msg == "IHOST") {
-    console.log("🚀 ~ udpServer.on ~ rinfo.address:", rinfo.address)
     let quizCode = rinfo.address.split(".").join("").slice(-4)
-    console.log("quiz code and current quizzes:", quizCode, quizzes)
 
     if(quizzes.get(quizCode)){
       console.log("quiz code already exists. Generate random quiz code")
@@ -408,7 +398,6 @@ udpServer.on("message", (msg, rinfo) => {
 
     const existingClient = clients.get(unid) || {};
     
-    // Merge the new data (ipAddress and udpPort) with the existing data
     const updatedClient = {
       ...existingClient,
       ipAddress: rinfo.address,
@@ -416,7 +405,6 @@ udpServer.on("message", (msg, rinfo) => {
       unid: unid,
       quizCode: quizCode,
     };
-    //console.log('updating Client with 28' , unid, updatedClient)
     clients.set(unid, updatedClient);
 
     sendUdpToHost(quizCode, `"FH"`, unid)
@@ -487,7 +475,6 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
   console.log("TCP client connected:", socket.remoteAddress, socket.remotePort);
 
   socket.on("data", (data) => {
-    //console.log(`TCP Server received: ${data} from ${socket.remoteAddress}:${socket.remotePort}`);
 
     if (data.slice(0,5) == "IHOST") {
       const quizCode = data.toString().slice(6)
@@ -520,8 +507,6 @@ const tcpServer = net.createServer({ allowHalfOpen: false }, function (socket) {
   socket.on("end", () => {
     console.log("TCP client disconnected");
     if (socket.host) {
-      console.log("HOST DISCONNECTED, CLEARING");
-      //clear quiz and clients
       kickAndClearQuiz(socket.quizCode);
       return
     } 
@@ -598,12 +583,13 @@ function forwardTcpToClient(buffer) {
       const objects = commands.map((command) => {
         const jsonString = command.slice(0, -1);
 
-        if (jsonString == undefined) {
+        let convertedJson
+        try{
+          convertedJson = JSON.parse(jsonString);
+        }catch(e){
+          console.error("Couldn't parse json", e, jsonString)
           return;
         }
-
-        //need a check here so doesn't error if can't be parsed
-        const convertedJson = JSON.parse(jsonString);
 
         if (convertedJson.MSG === "DESTROY") {
           clients.get(convertedJson.UNID)?.socket.end();
@@ -614,7 +600,7 @@ function forwardTcpToClient(buffer) {
         convertedJson.MSG = Buffer.from(convertedJson.MSG, "base64").toString(
           "utf-8"
         );
-        console.log("🚀 ~ objects ~ convertedJson.MSG:", convertedJson.MSG.slice(0,100), convertedJson.UNID)
+        //console.log("🚀 ~ objects ~ convertedJson.MSG:", convertedJson.MSG.slice(0,100), convertedJson.UNID)
 
         clients.get(convertedJson.UNID)?.socket.write(convertedJson.MSG);
 
@@ -694,7 +680,7 @@ function updateProcessObject(quizCode, obj){
 }
 
 setInterval(()=>{
-    fs.readdir(__dirname + '/5881/adverts', (err, data)=>{
+    fs.readdir(__dirname, (err, data)=>{
         console.log("CURRENT DISK STORAGE", data)
     })
-}, 5000)
+}, 10000)
