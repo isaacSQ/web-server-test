@@ -662,6 +662,7 @@ function kickAndClearQuiz(quizCode) {
   console.log("HOST DISCONNECTED, CLEARING");
 
   const quiz = quizzes.get(quizCode)
+  console.log("🚀 ~ kickAndClearQuiz ~ quizzes.get(quizCode):", quizCode, quizzes.get(quizCode), quiz)
   quiz.clients.forEach(unid => {
     const client = clients.get(unid)
     client?.socket?.end();
