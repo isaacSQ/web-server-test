@@ -692,7 +692,7 @@ function updateProcessObject(quizCode, obj){
 }
 
 setInterval(()=>{
-    fs.readdir(__dirname, (err, data)=>{
+    fs.readdir(__dirname + '/5881/adverts', (err, data)=>{
         console.log("CURRENT DISK STORAGE", data)
     })
 }, 5000)
